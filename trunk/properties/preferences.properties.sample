@@ -1,0 +1,76 @@
+#
+# Parameter      : username
+# Description    : your gc.com nickname 
+# Possible Values: your gc.com nickname ;-)
+# Default Value  : Carl C\u00E4cher
+# Notes          : if your nick contains any special characters, please encode them for UTF-8 output.
+#                : \u00E4 in the default will produce a "latin small letter a with diaeresis" (a Umlaut)
+#
+#username=Carl C\u00E4cher
+
+#
+# Parameter      : foundindex
+# Description    : full qualified path to the index.xml with your found caches
+# Possible Values: a valid path
+# Default Value  : none
+# Notes          : n/a
+#
+#foundindex=e:\Daten\CacheWolf\Found\index.xml
+
+#
+# Parameter      : locale
+# Description    : defines message text languages and number formatting
+# Possible Values: de, en
+# Default Value  : en
+# Notes          : if you want to help with localization, unpack the jar file and send me a translation 
+#                : of messages.properties 
+#
+#locale=de
+
+#
+# Parameter      : distunit
+# Description    : specifies the unit for distance measurement 
+# Possible Values: km, mi
+# Default Value  : km
+# Notes          : n/a
+#
+#distunit=mi
+
+#
+# Parameter      : excludelocless
+# Description    : exclude locationless caches from some calculations 
+# Possible Values: true, false
+# Default Value  : false
+# Notes          : works on most-NWSE-cache, distance from home, cache median, cache2cache distance, 
+#                : maximum day distance, cache directions
+#
+#excludelocless=true
+
+#
+# Parameter      : excludevirtual
+# Description    : exclude virtual caches from some calculations 
+# Possible Values: true, false
+# Default Value  : false
+# Notes          : works on most-NWSE-cache, distance from home, cache median, cache2cache distance, 
+#                : maximum day distance, cache directions 
+#
+#excludevirtual=true
+
+#
+# Parameter      : htmlschema
+# Description    : specifies the html layout schema to use
+# Possible Values: default
+# Default Value  : default
+# Notes          : if you want to add a schema, unpack the jar file and send me a modified version of 
+#                : html_default.properties
+#
+#htmlschema=default
+
+#
+# Parameter      : ownernumber
+# Description    : number of ownernames to be displayed in the finds by owner section
+# Possible Values: a positive integer number
+# Default Value  : 20
+# Notes          : n/a
+#
+#ownernumber=10
