@@ -8,7 +8,17 @@ public class StatWolf {
 	
 	public static void main(String[] args) {
 		
-		PropertyConfigurator.configure("log4j.properties");
+		// is there an other way to get log4j.properties from the jar file?
+		ResourceBundle rb = ResourceBundle.getBundle ("log4j");
+		Properties log4jProps = new Properties();
+		for (Enumeration<String> keys = rb.getKeys (); keys.hasMoreElements ();) {
+			final String key = (String) keys.nextElement ();
+            final String value = rb.getString (key);
+            
+            log4jProps.put (key, value);
+		}
+		PropertyConfigurator.configure(log4jProps);
+
 		Logger logger = Logger.getLogger(StatWolf.class);
 		
 		Properties prefs = new Properties();
@@ -22,7 +32,7 @@ public class StatWolf {
 			prefs.load(new FileInputStream(preffile));
 		} catch (Exception ex) {
 			logger.fatal(ex.getLocalizedMessage());
-			logger.debug(ex.getStackTrace());
+			logger.debug(ex);
 			System.exit(1);
 		}
 

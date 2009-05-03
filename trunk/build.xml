@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="jar" name="Create Runnable Jar for Project Stats2">
 	<target name="jar" depends="checkjar">
+		<javac source="1.5" target="1.5" srcdir="src" classpath="${libdir}/log4j-1.2.14.jar:${libdir}/jdom-1.0.jar:${libdir}/openmap.jar" destdir="bin"/>
 		<jar destfile="release/StatWolf.jar" filesetmanifest="mergewithoutmain">
 			<manifest>
 				<attribute name="Built-By" value="greiol" />
@@ -10,22 +11,31 @@
 			<fileset dir="properties">
 				<include name="html*.properties" />
 				<include name="messages*.properties" />
+				<include name="log4j.properties" />
 			</fileset>
 			<fileset dir="bin" />
 			<zipfileset excludes="META-INF/*.SF" src="${libdir}/log4j-1.2.14.jar" />
 			<zipfileset excludes="META-INF/*.SF" src="${libdir}/jdom-1.0.jar" />
 			<zipfileset excludes="META-INF/*.SF" src="${libdir}/openmap.jar" />
 		</jar>
-		<copy file="properties/preferences.properties.sample" todir="release" />
 	</target>
-	<target name="release" depends="checkrelease,jar">
+	<target name="release" depends="patchversion,jar">
+		<zip destfile="release/StatWolf-${release}.zip">
+			<fileset file="release/StatWolf.jar" />
+			<fileset file="properties/preferences.properties.sample" />
+		</zip>
 	</target>
 	<target name="checkjar">
 		<fail message="please set property libdir" unless="libdir" />
-		<delete dir="release"/>
-		<mkdir dir="release"/>
+		<delete dir="release" />
+		<mkdir dir="release" />
+		<delete dir="bin" />
+		<mkdir dir="bin" />
 	</target>
-	<target name="checkrelease">
+	<target name="checkrelease" depends="checkjar">
 		<fail message="please set property release" unless="release" />
+	</target>
+	<target name="patchversion" depends="checkrelease">
+		<replaceregexp file="src/de/berlios/statwolf/Version.java" match="final static Integer VERSION=(.*);" replace="final static Integer VERSION=${release};" />
 	</target>
 </project>
