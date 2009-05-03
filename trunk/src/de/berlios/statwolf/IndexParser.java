@@ -3,8 +3,10 @@ package de.berlios.statwolf;
 import org.jdom.*;
 import org.jdom.input.*;
 import java.util.*;
+import java.io.*;
 import com.bbn.openmap.*;
 import org.apache.log4j.*;
+import java.net.*;
 
 public class IndexParser {
 
@@ -20,19 +22,38 @@ public class IndexParser {
 		foundCaches = new ArrayList<Cache>();
 		String indexFileName;
 
-		indexFileName = prefs.getProperty("foundindex");
-
-		try {
-			Document document = parser.build(indexFileName);
-			filterCaches(document.getRootElement().getChildren("CACHE"));
-			setHomeCoordinates(document.getRootElement().getChildren("CENTRE"));
-		} catch (Exception ex) {
-			logger.fatal(ex.getLocalizedMessage());
-			logger.debug(ex.getStackTrace());
+		indexFileName = prefs.getProperty("indexfile");
+		if (indexFileName != null) {
+			try {
+				Document document = parser.build(indexFileName);
+				filterCaches(document.getRootElement().getChildren("CACHE"));
+				setHomeCoordinates(document.getRootElement().getChildren("CENTRE"));
+			} catch (FileNotFoundException ex) {
+				logger.fatal("index file not found: ".concat(indexFileName));
+				System.exit(1);
+			} catch (JDOMException ex) {
+				logger.fatal(ex);
+				System.exit(1);
+			} catch (MalformedURLException ex) {
+				logger.fatal("Unable to parse file ".concat(indexFileName));
+				System.exit(1);
+			} catch (IOException ex) {
+				logger.fatal(ex);
+				System.exit(1);
+			}
+		} else {
+			logger.fatal("index file not set. please check preferences.properties");
 			System.exit(1);
 		}
+		
+		if (foundCaches.size() == 0) {
+			logger.error("no found caches in index file");
+			System.exit(0);
+		}
+		
+		
 	}
-	
+		
 	private void filterCaches(List<Element> caches) {
 		Iterator<Element> iter = (Iterator<Element>) caches.iterator();
 		while(iter.hasNext()) {
@@ -76,6 +97,7 @@ public class IndexParser {
 			lon=center.getAttributeValue("lon");
 			homeCoordinates.setLatLon(Float.parseFloat(lat), Float.parseFloat(lon));
 		} catch (Exception ex) {
+			logger.warn("unable to determine home coordinates. using N 0 E 0");
 			homeCoordinates.setLatLon(0, 0);
 		}
 	}

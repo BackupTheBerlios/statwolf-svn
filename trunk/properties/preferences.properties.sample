@@ -15,7 +15,7 @@
 # Default Value  : none
 # Notes          : n/a
 #
-#foundindex=e:\Daten\CacheWolf\Found\index.xml
+#indexfile=e:\\Daten\\CacheWolf\\Found\\index.xml
 
 #
 # Parameter      : locale

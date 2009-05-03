@@ -32,6 +32,7 @@ public class StatisticsData {
 	private Integer findsLast365Days = 0;
 	private HashMap<String,Integer> cachesByDirection;
 	private HashMap<Integer,Integer> findsByMonth;
+	private Integer daysLastYear;
 	
 	private static Logger logger = Logger.getLogger(HTMLOutput.class);
 
@@ -49,7 +50,6 @@ public class StatisticsData {
 
 		initVars();
 		setDataMatrix();
-
 	}
 	
 	/*
@@ -185,7 +185,7 @@ public class StatisticsData {
 		Integer cachingDays = 0;
 		Calendar today = getCleanDate(Calendar.getInstance());
 		Calendar lastYear = (Calendar) today.clone();
-		lastYear.add(Calendar.DAY_OF_MONTH, -365);
+		lastYear.add(Calendar.DAY_OF_MONTH, -daysLastYear);
 		for (Calendar cacheDay: cachesByDate.keySet()) {
 			if (cacheDay.after(lastYear)) {
 				cachingDays++;
@@ -204,6 +204,10 @@ public class StatisticsData {
 	
 	public HashMap<Integer,Integer> getFindsByMonth() {
 		return findsByMonth;
+	}
+	
+	public Integer getDaysLastYear() {
+		return daysLastYear;
 	}
 	
 	/*
@@ -225,7 +229,7 @@ public class StatisticsData {
 		Calendar today = getCleanDate(Calendar.getInstance());
 		Calendar lastYear = (Calendar) today.clone();
 		//TODO: check for leap years
-		lastYear.add(Calendar.DAY_OF_MONTH, -365);
+		lastYear.add(Calendar.DAY_OF_MONTH, -daysLastYear);
 
 		// TODO: put most of this into separate sub routines
 		for (Cache cache: foundCaches ) {
@@ -450,6 +454,8 @@ public class StatisticsData {
 	 */
 
 	private void initVars() {
+		
+		daysLastYear = setDaysLastYear();
 
 		matrixTerrDiff = new HashMap<Float, HashMap<Float, Integer>>();
 		for (Float i : Constants.TERRDIFF) {
@@ -498,5 +504,17 @@ public class StatisticsData {
 		if (cache.type == Constants.VIRTUAL && excludeVirtual) return false;
 		if (cache.type == Constants.LOCATIONLESS && excludeLocless) return false;
 		return ret;
+	}
+	
+	private Integer setDaysLastYear() {
+		Calendar today = Calendar.getInstance();
+		Calendar lastYear = (Calendar) today.clone();
+		lastYear.add(Calendar.YEAR, -1);
+		Integer daysLastYear = 0;
+		while(lastYear.before(today)) {
+			daysLastYear++;
+			lastYear.add(Calendar.DAY_OF_MONTH, 1);
+		}
+		return daysLastYear;
 	}
 }

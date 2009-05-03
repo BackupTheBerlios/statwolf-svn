@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="jar" name="Create Runnable Jar for Project Stats2">
+	<target name="jar" depends="checkjar">
+		<jar destfile="release/StatWolf.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Built-By" value="greiol" />
+				<attribute name="Main-Class" value="de.berlios.statwolf.StatWolf" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<fileset dir="properties">
+				<include name="html*.properties" />
+				<include name="messages*.properties" />
+			</fileset>
+			<fileset dir="bin" />
+			<zipfileset excludes="META-INF/*.SF" src="${libdir}/log4j-1.2.14.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${libdir}/jdom-1.0.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${libdir}/openmap.jar" />
+		</jar>
+		<copy file="properties/preferences.properties.sample" todir="release" />
+	</target>
+	<target name="release" depends="checkrelease,jar">
+	</target>
+	<target name="checkjar">
+		<fail message="please set property libdir" unless="libdir" />
+		<delete dir="release"/>
+		<mkdir dir="release"/>
+	</target>
+	<target name="checkrelease">
+		<fail message="please set property release" unless="release" />
+	</target>
+</project>

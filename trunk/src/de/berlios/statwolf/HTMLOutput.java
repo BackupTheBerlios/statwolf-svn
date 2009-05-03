@@ -3,6 +3,7 @@ package de.berlios.statwolf;
 import java.util.*;
 import org.apache.log4j.*;
 import java.io.*;
+import java.net.URLEncoder;
 import java.text.*;
 
 public class HTMLOutput {
@@ -131,23 +132,23 @@ public class HTMLOutput {
 		ret.append(generateHeading(messages.getString("msg.finally")));
 		temp = String.format(
 					"<p style=\"%s\">%s</p>\n", 
-					html.getString("p.combinations"),
+					html.getString("p.finally"),
 					messages.getString("msg.footer.1")
 				);
-		ret.append(MessageFormat.format(temp, "StatWolf", Version.VERSION));
+		ret.append(MessageFormat.format(temp, "<a href=\"http://statwolf.berlios.de/\">StatWolf</a>", Version.VERSION));
 		temp = String.format(
 				"<p style=\"%s\">%s</p>\n", 
-				html.getString("p.combinations"),
+				html.getString("p.finally"),
 				messages.getString("msg.footer.2")
 			);
 		ret.append(MessageFormat.format(temp, "<a href=\"http://www.cachewolf.de/\">CacheWolf</a>"));
 		temp = String.format(
 				"<p style=\"%s\">%s</p>\n", 
-				html.getString("p.combinations"),
+				html.getString("p.finally"),
 				messages.getString("msg.footer.3")
 			);
 		ret.append(MessageFormat.format(temp, "<a href=\"http://gsak.net/board/index.php?showtopic=4623\">FindStatGen</a>"));
-		ret.append("</div>\n");
+		ret.append("<p/></div>\n");
 		ret.append("</div>\n");
 		ret.append("<!-- *********************************************************************** -->\n");
 		return ret.toString();
@@ -210,7 +211,6 @@ public class HTMLOutput {
 
 	private String matrixMonthDay() {
 		
-		//TODO: turn the matrix
 		HashMap<Integer, HashMap<Integer, Integer>> mmd = new HashMap<Integer, HashMap<Integer, Integer>>();
 		mmd = stats.getMatrixMonthDay();
 
@@ -222,30 +222,31 @@ public class HTMLOutput {
 
 		ret.append("<table style=\"width:98%;table-layout:fixed;\">\n");
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head1")));
-		ret.append(String.format("<tr><td></td><td></td><td colspan='31'>%s</td></tr>\n",messages.getString("msg.day")));
+		ret.append(String.format("<tr><td></td><td></td><td colspan=\"12\">%s</td></tr>",messages.getString("msg.month")));
 		ret.append("</thead>\n");
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head2")));
 		ret.append(String.format("<tr><td style=\"%s\"></td><td></td>",html.getString("matrix.head1")));
-		for (int day = 1; day <= 31; day++) {
-			ret.append(String.format("<td>%s</td>", day));
+		for (int mon = 0 ; mon < 12; mon++) {
+			ret.append(String.format("<td>%s</td>",messages.getString("mon.short."	+ mon)));
 		}
+
 		ret.append("</tr>\n");
 		ret.append("</thead>\n");
 		ret.append(String.format("<tbody style=\"%s\">\n", html.getString("matrix.body")));
-		for (int month = 0; month < 12; month++) {
+		for (int day = 1 ; day <= 31 ; day ++) {
 			ret.append("<tr>");
-			if (month == 0) {
-				ret.append(String.format("<td rowspan=\"12\" style=\"%s\">%s</td>",
+			if (day == 1) {
+				ret.append(String.format("<td rowspan=\"31\" style=\"%s\">%s</td>",
 						html.getString("matrix.head1"),
-						messages.getString("msg.month")
+						messages.getString("msg.day")
 					)
 				);
 			}
 			ret.append(String.format("<td style=\"%s\">%s</td>",
 					html.getString("matrix.head2"),
-					messages.getString("mon.short."	+ month)));
+					day));
 
-			for (int day = 1; day <= 31; day++) {
+			for (int month = 0; month < 12; month++) {
 				ret.append(MessageFormat.format("<td>{0}</td>",
 						mmd.get(month).get(day) == 0 ? "" : mmd.get(month).get(day)
 						)
@@ -688,6 +689,7 @@ public class HTMLOutput {
 		}
 		ret.append("</tbody>\n");
 		ret.append("</table>\n");
+		ret.append(crystalball());
 		ret.append("</div>\n");
 		return ret.toString();
 	}
@@ -738,24 +740,7 @@ public class HTMLOutput {
 		ret.append("<table style=\"table-layout:fixed;width:98%\">\n");
 		ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
 		
-		String[] dirs = { "north", "south", "west", "east"};
-		for (String dir:  dirs) {
-			String outline=String.format(rawline, messages.getString("msg.cache.".concat(dir)),messages.getString("msg.cache.most"));
-			ret.append(MessageFormat.format(outline,
-					(dir == "north" || dir == "south")?formatLatLon(mostXxxxCache.get(dir).lat, "lat"):formatLatLon(mostXxxxCache.get(dir).lon, "lon"),
-					cacheLink(mostXxxxCache.get(dir).id),
-					mostXxxxCache.get(dir).name
-				)
-			);
-		}
-		ret.append(String.format("<tr><td>%s</td><td><a href=\"http://maps.google.de/maps?q=%s,%s\">%s %s</a></td></tr>\n",
-				messages.getString("msg.cachemedian"),
-				stats.getCacheMedian().getLatitude(),
-				stats.getCacheMedian().getLongitude(),
-				formatLatLon(stats.getCacheMedian().getLatitude(), "lat"),
-				formatLatLon(stats.getCacheMedian().getLongitude(), "lon")));
-		
-		strTemp = String.format("<tr><td>%s</td><td>%s</td></tr>\n", 
+		strTemp = String.format("<tr><td style=\"width:40%%\">%s</td><td>%s</td></tr>\n", 
 				messages.getString("msg.total"), 
 				messages.getString("msg.total.data")
 			);
@@ -782,7 +767,7 @@ public class HTMLOutput {
 		ret.append(MessageFormat.format(strTemp,
 				stats.getFindsLast365Days(),
 				stats.getCachingDaysLastYear(),
-				365
+				stats.getDaysLastYear()
 			)
 		);
 		strTemp = String.format("<tr><td>%s</td><td>%s</td></tr>\n", 
@@ -791,16 +776,29 @@ public class HTMLOutput {
 			);
 		ret.append(MessageFormat.format(strTemp,
 				stats.getFindsLast365Days().floatValue() / stats.getCachingDaysLastYear().floatValue(),
-				stats.getFindsLast365Days().floatValue() / 365F,
-				stats.getFindsLast365Days().floatValue() / 365F * 7.0F
+				stats.getFindsLast365Days().floatValue() / stats.getDaysLastYear().floatValue(),
+				stats.getFindsLast365Days().floatValue() / stats.getDaysLastYear().floatValue() * 7.0F
 			)
 		);
-
-
-
 		
-		stats.getFindsLast365Days();
-		
+		String[] dirs = { "north", "south", "west", "east"};
+		for (String dir:  dirs) {
+			String outline=String.format(rawline, messages.getString("msg.cache.".concat(dir)),messages.getString("msg.cache.most"));
+			ret.append(MessageFormat.format(outline,
+					(dir == "north" || dir == "south")?formatLatLon(mostXxxxCache.get(dir).lat, "lat"):formatLatLon(mostXxxxCache.get(dir).lon, "lon"),
+					cacheLink(mostXxxxCache.get(dir).id),
+					mostXxxxCache.get(dir).name
+				)
+			);
+		}
+		ret.append(String.format("<tr><td>%s</td><td><a href=\"http://maps.google.de/maps?q=%s,%s\">%s %s</a></td></tr>\n",
+				messages.getString("msg.cachemedian"),
+				stats.getCacheMedian().getLatitude(),
+				stats.getCacheMedian().getLongitude(),
+				formatLatLon(stats.getCacheMedian().getLatitude(), "lat"),
+				formatLatLon(stats.getCacheMedian().getLongitude(), "lon"))
+			);
+
 		ret.append("</tbody>\n");
 		ret.append("</table>\n");
 		ret.append("</div>\n");
@@ -837,7 +835,7 @@ public class HTMLOutput {
 				cachesByOwnerSorted.remove(owner);
 				ret.append(MessageFormat.format(
 						"<tr><td>{0}</td><td style=\"{3}\">{1,number,#,##0}</td><td style=\"{3}\">{2,number,#0.00}</td></tr>\n",
-						owner.user,
+						ownerLink(owner.user),
 						owner.number,
 						owner.number.floatValue() / stats.getTotalCaches().floatValue()*100.0F,
 						html.getString("cell.number")
@@ -937,6 +935,16 @@ public class HTMLOutput {
 		return MessageFormat.format("<a href=\"http://coord.info/{0}\">{0}</a>", id);
 	}
 	
+	private String ownerLink(String id) {
+		String ret = "";
+		try {
+			ret =String.format("<a href=\"http://www.geocaching.com/profile/?u=%s\">%s</a>", 
+					URLEncoder.encode(id, "UTF-8"),
+					id);
+		} catch (Exception ignore) { }
+		return ret;
+	}
+	
 	private String createHorizontalBar(Integer count, Integer maxCount) {
 		Integer width = (int) Math.floor(count.floatValue() / maxCount.floatValue() * Constants.MAXHORIZONTALBARLENGTH);
 		return MessageFormat.format("<img src=\"{0}\" height=\"15\" width=\"{1}\" alt=\"{2,number,#,##0.0}%\"/>",
@@ -944,5 +952,28 @@ public class HTMLOutput {
 				width.toString(),
 				calcCachePercent(count)
 			);
+	}
+	
+	private String crystalball() {
+		StringBuffer ret = new StringBuffer();
+		Integer currentFinds = stats.getTotalCaches();
+		Integer next00Milestone = (currentFinds + 100) / 100 * 100;
+		Integer next000Milestone= (currentFinds + 1000) / 1000 * 1000;
+		Integer delta00Finds = next00Milestone - currentFinds;
+		Integer delta000Finds = next000Milestone - currentFinds;
+		Float cpd = stats.getFindsLast365Days().floatValue() / stats.getDaysLastYear().floatValue();
+		Integer days00Finds = Math.round(delta00Finds/cpd);
+		Integer days000Finds = Math.round(delta000Finds/cpd);
+		Calendar date00Finds = Calendar.getInstance();
+		Calendar date000Finds = Calendar.getInstance();
+		date00Finds.add(Calendar.DAY_OF_MONTH, days00Finds);
+		date000Finds.add(Calendar.DAY_OF_MONTH, days000Finds);
+		ret.append("<p>");
+		ret.append(MessageFormat.format(messages.getString("msg.crystalball.1"), next00Milestone,date00Finds.getTime()));
+		if ( next00Milestone != next000Milestone) {
+			ret.append(MessageFormat.format(messages.getString("msg.crystalball.2"), next000Milestone,date000Finds.getTime() ));
+		}
+		ret.append("</p>\n");
+		return ret.toString();
 	}
 }
