@@ -2,6 +2,7 @@ package de.berlios.statwolf;
 
 import org.apache.log4j.*;
 import java.util.*;
+
 import com.bbn.openmap.*;
 import com.bbn.openmap.proj.*;
 
@@ -24,7 +25,7 @@ public class StatisticsData {
 	private TreeMap<Integer, Integer> distanceFromHome;
 	private TreeMap<Integer, Cache> milestones = new TreeMap<Integer, Cache>();
 	private LatLonPoint homeCoordinates;
-	private TreeMap <Calendar, ArrayList<Cache>> cachesByDate;
+	private TreeMap <Calendar, ArrayList<Cache>> cachesByDateFound;
 	private Boolean excludeLocless;
 	private Boolean excludeVirtual;
 	private LatLonPoint cacheMedian = new LatLonPoint();
@@ -33,6 +34,8 @@ public class StatisticsData {
 	private HashMap<String,Integer> cachesByDirection;
 	private HashMap<Integer,Integer> findsByMonth;
 	private Integer daysLastYear;
+	private Double cacheToCacheDistance;
+	private Integer daysSinceFirstFind;
 	
 	private static Logger logger = Logger.getLogger(HTMLOutput.class);
 
@@ -139,18 +142,11 @@ public class StatisticsData {
 	}
 	
 	public TreeMap<Calendar, ArrayList<Cache>> getCachesByDate () {
-		return cachesByDate;
+		return cachesByDateFound;
 	}
 
 	public Integer getDaysSinceFirstFind() {
-		Calendar firstday = getCleanDate((Calendar) firstCachingDay.clone());
-		Calendar today = getCleanDate(Calendar.getInstance());
-		Integer diff = 0;
-		while (firstday.before(today)) {
-			diff++;
-			firstday.add(Calendar.DAY_OF_MONTH, 1);
-		}
-		return diff;
+		return daysSinceFirstFind;
 	}
 	
 	public HashMap<String,Integer> getCachesByOwner() {
@@ -186,12 +182,12 @@ public class StatisticsData {
 		Calendar today = getCleanDate(Calendar.getInstance());
 		Calendar lastYear = (Calendar) today.clone();
 		lastYear.add(Calendar.DAY_OF_MONTH, -daysLastYear);
-		for (Calendar cacheDay: cachesByDate.keySet()) {
+		for (Calendar cacheDay: cachesByDateFound.keySet()) {
 			if (cacheDay.after(lastYear)) {
 				cachingDays++;
 			}
 		}
-		return cachingDays;
+		return (cachingDays<daysSinceFirstFind)?cachingDays:daysSinceFirstFind;
 	}
 	
 	public Integer getCachingDays() {
@@ -207,9 +203,12 @@ public class StatisticsData {
 	}
 	
 	public Integer getDaysLastYear() {
-		return daysLastYear;
+		return (daysLastYear<daysSinceFirstFind)?daysLastYear:daysSinceFirstFind;
 	}
-	
+
+	public Double getCacheToCacheDistance() {
+		return cacheToCacheDistance;
+	}
 	/*
 	 * SET methods
 	 */
@@ -219,17 +218,20 @@ public class StatisticsData {
 		matrixYearMonth = new HashMap<Integer, HashMap<Integer, Integer>>();
 
 		totalCaches = foundCaches.size();
-		cachesByContainer = new HashMap<String, Integer>();
 		cachesByType = new HashMap<Integer, Integer>();
 		cachesByType = new HashMap<Integer, Integer>();
 		cachesOnline = new HashMap<Boolean, Integer>();
 		cachesArchived = new HashMap<Boolean, Integer>();
-		cachesByDate = new TreeMap<Calendar, ArrayList<Cache>>(); 
+		cachesByDateFound = new TreeMap<Calendar, ArrayList<Cache>>(); 
 		cachesByOwner = new HashMap<String,Integer>();
 		Calendar today = getCleanDate(Calendar.getInstance());
 		Calendar lastYear = (Calendar) today.clone();
 		//TODO: check for leap years
 		lastYear.add(Calendar.DAY_OF_MONTH, -daysLastYear);
+		Cache lastCacheFound = null;
+		cacheToCacheDistance = 0D;
+		
+		Collections.sort(foundCaches, new CompareCacheByFoundDate());
 
 		// TODO: put most of this into separate sub routines
 		for (Cache cache: foundCaches ) {
@@ -365,23 +367,40 @@ public class StatisticsData {
 				}
 				cachesByDirection.put(dir, cachesByDirection.get(dir)+1);
 			}
+			
+			// cache to cache distance
+			if (includeCache(cache)) {
+				if (lastCacheFound == null) {
+					lastCacheFound = cache;
+				} else {
+					LatLonPoint thisCache = new LatLonPoint(cache.lat,cache.lon);
+					LatLonPoint lastCache = new LatLonPoint(lastCacheFound.lat, lastCacheFound.lon);
+					cacheToCacheDistance = cacheToCacheDistance +
+						(distUnit.equals("mi")
+							?Length.MILE.fromRadians(lastCache.distance(thisCache))
+							:Length.KM.fromRadians(lastCache.distance(thisCache))
+						);
+					lastCacheFound = cache;
+				}
+				
+			}
 
 			// cache by date
 			{
 				Calendar tempdate = getCleanDate((Calendar) cache.found.clone());
 				ArrayList<Cache> tempclist;
-				if (! cachesByDate.containsKey(tempdate)) {
+				if (! cachesByDateFound.containsKey(tempdate)) {
 					tempclist = new ArrayList<Cache>();
 				} else {
-					tempclist = cachesByDate.get(tempdate);
+					tempclist = cachesByDateFound.get(tempdate);
 				}
 				tempclist.add(cache);
-				cachesByDate.put(tempdate, tempclist);
+				cachesByDateFound.put(tempdate, tempclist);
 				if (tempdate.after(lastYear)) {
 					findsLast365Days++;
 				}
 			}
-			cacheingDays = cachesByDate.size();
+			cacheingDays = cachesByDateFound.size();
 			
 			// cache by owner
 			if (! cachesByOwner.containsKey(cache.owner)) {
@@ -441,11 +460,10 @@ public class StatisticsData {
 		firstCachingDay.set(Calendar.HOUR_OF_DAY, 0);
 		firstCachingDay.set(Calendar.MINUTE, 0);
 		firstCachingDay.set(Calendar.SECOND, 0);
-
+		
+		daysSinceFirstFind = daysBetween(getFirstCachingDay(), Calendar.getInstance())+1;
 	}
 
-	// finds by month
-	// finds by bearing
 	// finds by year cache placed
 	// finds to todays date by year
 	
@@ -456,6 +474,11 @@ public class StatisticsData {
 	private void initVars() {
 		
 		daysLastYear = setDaysLastYear();
+		
+		cachesByContainer = new HashMap<String, Integer>();
+		for (String cont : Constants.CONTAINERS) {
+			cachesByContainer.put(cont, 0);
+		}
 
 		matrixTerrDiff = new HashMap<Float, HashMap<Float, Integer>>();
 		for (Float i : Constants.TERRDIFF) {
@@ -517,4 +540,31 @@ public class StatisticsData {
 		}
 		return daysLastYear;
 	}
-}
+
+	Integer daysBetween(Calendar ob1, Calendar ob2) {
+		Integer delta = 0;
+		
+		if ( ob1 == null || ob2 == null) {
+			return null;
+		}
+		
+		ob1 = getCleanDate(ob1);
+		ob2 = getCleanDate(ob2);
+
+		if (ob1.compareTo(ob2) == 0) {
+			return 0;
+		}
+		
+		if (ob1.compareTo(ob2) > 0) {
+			Calendar temp = ob1;
+			ob1 = ob2;
+			ob2 = temp;
+		}
+		
+		while (ob1.compareTo(ob2) < 0) {
+			delta++;
+			ob1.add(Calendar.DAY_OF_MONTH, 1);
+		}
+		
+		return delta;
+	}}

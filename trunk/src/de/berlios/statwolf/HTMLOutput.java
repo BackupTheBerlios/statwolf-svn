@@ -15,6 +15,9 @@ public class HTMLOutput {
 	private ResourceBundle html;
 	private static Logger logger = Logger.getLogger(HTMLOutput.class);
 	private Properties prefs;
+	private Boolean excludeVirtual;
+	private Boolean excludeLocless;
+	private Boolean excludeSomething;
 
 	public HTMLOutput(StatisticsData stats, Properties prefs) {
 		
@@ -25,6 +28,9 @@ public class HTMLOutput {
 		
 		distUnit = prefs.getProperty("distunit", "km");
 		username = prefs.getProperty("username", "UnkownCacher");
+		excludeVirtual = Boolean.parseBoolean(prefs.getProperty("excludevirtual"));
+		excludeLocless = Boolean.parseBoolean(prefs.getProperty("excludelocless"));
+		excludeSomething = excludeVirtual || excludeLocless;
 		locale = prefs.getProperty("locale", "en");
 		htmlSchema = "html_".concat(prefs.getProperty("htmlschema", "default"));
 		
@@ -69,7 +75,6 @@ public class HTMLOutput {
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(findsByDirection());
 		out.append(findsByMonth());
-		// month (50%)
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		// year cache placed (50%)
 		// find till today per year (50%)
@@ -96,7 +101,9 @@ public class HTMLOutput {
 			of.write(out.toString());
 			of.close();
 			return OutFileName;
-		} catch (IOException e) {
+		} catch (IOException ex) {
+			logger.fatal("Error saving HTML output");
+			logger.debug(ex);
 			return null;
 		}
 
@@ -148,7 +155,21 @@ public class HTMLOutput {
 				messages.getString("msg.footer.3")
 			);
 		ret.append(MessageFormat.format(temp, "<a href=\"http://gsak.net/board/index.php?showtopic=4623\">FindStatGen</a>"));
-		ret.append("<p/></div>\n");
+		ret.append("<p/>\n");
+		if (excludeSomething) {
+			StringBuffer buf = new StringBuffer();
+			buf.append("<p style=\"\"><font style=\"size:9px\">*</font> excludes ");
+			if (excludeVirtual && excludeLocless) {
+				buf.append("Locationless and Virtual");
+			} else if (excludeVirtual) {
+				buf.append("Virtual");
+			} else if (excludeLocless) {
+				buf.append("Locationless");
+			}
+			buf.append(" caches</p><p/>");
+			ret.append(buf);
+		}
+		ret.append("</div>\n");
 		ret.append("</div>\n");
 		ret.append("<!-- *********************************************************************** -->\n");
 		return ret.toString();
@@ -678,7 +699,7 @@ public class HTMLOutput {
 	        		"</tr>\n", 
 	        		key,
 	        		value.found.getTime(),
-	        		daysBetween(lastMilestone,value.found),
+	        		stats.daysBetween(lastMilestone,value.found),
 	        		cacheLink(value.id),
 	        		Constants.TYPEIMAGES.get(value.type),
 	        		value.name,
@@ -694,45 +715,10 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
-	private Integer daysBetween(Calendar ob1, Calendar ob2) {
-		Integer delta = 0;
-		
-		if ( ob1 == null || ob2 == null) {
-			return null;
-		}
-		ob1.set(Calendar.HOUR_OF_DAY, 0);
-		ob1.set(Calendar.MINUTE, 0);
-		ob1.set(Calendar.SECOND, 0);
-		ob1.set(Calendar.MILLISECOND, 0);
-		ob2.set(Calendar.HOUR_OF_DAY, 0);
-		ob2.set(Calendar.MINUTE, 0);
-		ob2.set(Calendar.SECOND, 0);
-		ob2.set(Calendar.MILLISECOND, 0);
-		
-		if (ob1.compareTo(ob2) == 0) {
-			return 0;
-		}
-		
-		if (ob1.compareTo(ob2) > 0) {
-			Calendar temp = ob1;
-			ob1 = ob2;
-			ob2 = temp;
-		}
-		
-		while (ob1.compareTo(ob2) < 0) {
-			delta++;
-			ob1.add(Calendar.DAY_OF_MONTH, 1);
-		}
-		
-		return delta;
-	}
-	
 	private String datatomb () {
 		StringBuffer ret = new StringBuffer();
-		Integer totalDays = daysBetween(stats.getFirstCachingDay(), Calendar.getInstance());
+		Integer totalDays = stats.getDaysSinceFirstFind();
 		String strTemp;
-		
-		String rawline = "<tr><td style=\"\">%s</td><td>%s</td></tr>\n";
 		
 		HashMap<String, Cache> mostXxxxCache = stats.getMostXxxCache();
 		ret.append("<div style=\"float:left;width:100%;\">\n");
@@ -783,7 +769,11 @@ public class HTMLOutput {
 		
 		String[] dirs = { "north", "south", "west", "east"};
 		for (String dir:  dirs) {
-			String outline=String.format(rawline, messages.getString("msg.cache.".concat(dir)),messages.getString("msg.cache.most"));
+			String outline=String.format("<tr><td style=\"\">%s%s</td><td>%s</td></tr>\n", 
+					messages.getString("msg.cache.".concat(dir)),
+					excludeSomething?"<font style=\"size:9px\">*</font>":"",
+					messages.getString("msg.cache.most")
+				);
 			ret.append(MessageFormat.format(outline,
 					(dir == "north" || dir == "south")?formatLatLon(mostXxxxCache.get(dir).lat, "lat"):formatLatLon(mostXxxxCache.get(dir).lon, "lon"),
 					cacheLink(mostXxxxCache.get(dir).id),
@@ -791,12 +781,20 @@ public class HTMLOutput {
 				)
 			);
 		}
-		ret.append(String.format("<tr><td>%s</td><td><a href=\"http://maps.google.de/maps?q=%s,%s\">%s %s</a></td></tr>\n",
+		ret.append(String.format("<tr><td>%s%s</td><td><a href=\"http://maps.google.de/maps?q=%s,%s\">%s %s</a></td></tr>\n",
 				messages.getString("msg.cachemedian"),
+				excludeSomething?"<font style=\"size:9px\">*</font>":"",
 				stats.getCacheMedian().getLatitude(),
 				stats.getCacheMedian().getLongitude(),
 				formatLatLon(stats.getCacheMedian().getLatitude(), "lat"),
 				formatLatLon(stats.getCacheMedian().getLongitude(), "lon"))
+			);
+		
+		ret.append(MessageFormat.format("<tr><td>Cache to Cache Distance{2}</td><td>{0,number,#,##0.0} {1}</td></tr>\n",
+				stats.getCacheToCacheDistance(),
+				distUnit,
+				excludeSomething?"<font style=\"size:9px\">*</font>":""
+				)
 			);
 
 		ret.append("</tbody>\n");
@@ -831,16 +829,20 @@ public class HTMLOutput {
 			ret.append("</thead>\n");
 			ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
 			for (int i = 0; i < numberOfOwners; i++) {
-				UserNumber owner = cachesByOwnerSorted.last();
-				cachesByOwnerSorted.remove(owner);
-				ret.append(MessageFormat.format(
-						"<tr><td>{0}</td><td style=\"{3}\">{1,number,#,##0}</td><td style=\"{3}\">{2,number,#0.00}</td></tr>\n",
-						ownerLink(owner.user),
-						owner.number,
-						owner.number.floatValue() / stats.getTotalCaches().floatValue()*100.0F,
-						html.getString("cell.number")
-					)
-				);
+				if (cachesByOwnerSorted.size() > 0) {
+					UserNumber owner = cachesByOwnerSorted.last();
+					cachesByOwnerSorted.remove(owner);
+					ret.append(MessageFormat.format(
+							"<tr><td>{0}</td><td style=\"{3}\">{1,number,#,##0}</td><td style=\"{3}\">{2,number,#0.00}</td></tr>\n",
+							ownerLink(owner.user),
+							owner.number,
+							owner.number.floatValue() / stats.getTotalCaches().floatValue()*100.0F,
+							html.getString("cell.number")
+						)
+					);
+				} else {
+					ret.append("<tr><td>&nbsp;</td><td></td><td></td></tr>\n");
+				}
 			}
 			ret.append("</tbody>");
 			ret.append("</table>\n");
