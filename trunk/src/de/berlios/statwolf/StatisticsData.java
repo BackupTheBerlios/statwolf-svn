@@ -166,11 +166,12 @@ public class StatisticsData {
 	}
 	
 	public Calendar getCleanDate(Calendar cal) {
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		return cal;
+		Calendar tmpcal = (Calendar) cal.clone();
+		tmpcal.set(Calendar.HOUR_OF_DAY, 0);
+		tmpcal.set(Calendar.MINUTE, 0);
+		tmpcal.set(Calendar.SECOND, 0);
+		tmpcal.set(Calendar.MILLISECOND, 0);
+		return tmpcal;
 	}
 	
 	public Integer getFindsLast365Days() {
@@ -209,6 +210,7 @@ public class StatisticsData {
 	public Double getCacheToCacheDistance() {
 		return cacheToCacheDistance;
 	}
+	
 	/*
 	 * SET methods
 	 */
@@ -456,12 +458,9 @@ public class StatisticsData {
 		milestones.put(foundCaches.size(), foundCaches.get(foundCaches.size() - 1));
 
 		// first caching day
-		firstCachingDay = foundCaches.get(0).found;
-		firstCachingDay.set(Calendar.HOUR_OF_DAY, 0);
-		firstCachingDay.set(Calendar.MINUTE, 0);
-		firstCachingDay.set(Calendar.SECOND, 0);
-		
-		daysSinceFirstFind = daysBetween(getFirstCachingDay(), Calendar.getInstance())+1;
+		firstCachingDay = getCleanDate(foundCaches.get(0).found);
+	
+		daysSinceFirstFind = daysBetween(firstCachingDay, Calendar.getInstance())+1;
 	}
 
 	// finds by year cache placed
@@ -543,28 +542,34 @@ public class StatisticsData {
 
 	Integer daysBetween(Calendar ob1, Calendar ob2) {
 		Integer delta = 0;
-		
+
 		if ( ob1 == null || ob2 == null) {
 			return null;
 		}
 		
-		ob1 = getCleanDate(ob1);
-		ob2 = getCleanDate(ob2);
+		Calendar dmy1 = (Calendar) ob1.clone();
+		Calendar dmy2 = (Calendar) ob2.clone();
 
-		if (ob1.compareTo(ob2) == 0) {
+		dmy1 = getCleanDate(dmy1);
+		dmy2 = getCleanDate(dmy2);
+		logger.info(dmy1.getTime());
+		logger.info(dmy2.getTime());
+
+		if (dmy1.compareTo(dmy2) == 0) {
 			return 0;
 		}
-		
-		if (ob1.compareTo(ob2) > 0) {
-			Calendar temp = ob1;
-			ob1 = ob2;
-			ob2 = temp;
+
+		if (dmy1.compareTo(dmy2) > 0) {
+			Calendar temp = dmy1;
+			dmy1 = dmy2;
+			dmy2 = temp;
 		}
-		
-		while (ob1.compareTo(ob2) < 0) {
+
+		while (dmy1.compareTo(dmy2) < 0) {
 			delta++;
-			ob1.add(Calendar.DAY_OF_MONTH, 1);
+			dmy1.add(Calendar.DAY_OF_MONTH, 1);
 		}
-		
+
 		return delta;
-	}}
+	}
+}

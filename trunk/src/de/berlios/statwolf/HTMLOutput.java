@@ -706,7 +706,7 @@ public class HTMLOutput {
 	        		html.getString("cell.number")
 	        	)
 	        );
-	        lastMilestone = value.found;
+	        lastMilestone = (Calendar) value.found.clone();
 		}
 		ret.append("</tbody>\n");
 		ret.append("</table>\n");
