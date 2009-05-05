@@ -1,13 +1,16 @@
 package de.berlios.statwolf;
 
 import org.apache.log4j.*;
+
+import java.text.MessageFormat;
 import java.util.*;
 import java.io.*;
 
 public class StatWolf {
 	
 	public static void main(String[] args) {
-		
+		String indexdir;
+
 		// is there an other way to get log4j.properties from the jar file?
 		ResourceBundle rb = ResourceBundle.getBundle ("log4j");
 		Properties log4jProps = new Properties();
@@ -23,7 +26,7 @@ public class StatWolf {
 		
 		Properties prefs = new Properties();
 		String preffile = System.getProperty("preferences");
-
+		
 		if ( preffile == null ) {
 			preffile = "preferences.properties";
 		}
@@ -31,12 +34,28 @@ public class StatWolf {
 		try {
 			prefs.load(new FileInputStream(preffile));
 		} catch (Exception ex) {
-			logger.fatal(ex.getLocalizedMessage());
+			logger.fatal(ex);
 			logger.debug(ex);
 			System.exit(1);
 		}
+		
+		String locale = prefs.getProperty("locale", "en");
+		Locale.setDefault(new Locale(locale));
+		
+		ResourceBundle messages = ResourceBundle.getBundle("messages");
+		
+		if (args.length > 0) {
+			indexdir = args[0];
+			logger.debug("command line indexdir: ".concat(indexdir));
+		} else {
+			indexdir = prefs.getProperty("indexdir");
+		}
+		
+		if ( !(indexdir.endsWith(System.getProperty("file.separator"))) ) {
+			indexdir = indexdir.concat(System.getProperty("file.separator"));
+		}
 
-		IndexParser indexParser = new IndexParser(prefs);
+		IndexParser indexParser = new IndexParser(indexdir.concat("index.xml"));
 
 		StatisticsData statisticsData = new StatisticsData(indexParser.getFoundCaches(), indexParser.getHomeCoordinates(), prefs);
 
@@ -45,9 +64,9 @@ public class StatWolf {
 		String statfile = htmlOutput.generateHTML();
 
 		if (statfile != null ) {
-			logger.info("Finished. Statistics are in ".concat(statfile));
+			logger.info(MessageFormat.format(messages.getString("log.finished"), statfile));
 		} else {
-			logger.fatal("Sorry, some error occured. Please check the logs!");
+			logger.fatal(messages.getString("log.generalerror"));
 		}
 	}
 }

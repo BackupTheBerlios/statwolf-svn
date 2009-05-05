@@ -12,6 +12,9 @@ public class Constants {
 	
 	public static final Float[] TERRDIFF = { 1.0F, 1.5F, 2.0F, 2.5F, 3.0F, 3.5F, 4.0F, 4.5F, 5.0F };
 	
+	public static final Integer[] ZEROMONTHS = {0,0,0,0,0,0,0,0,0,0,0,0};
+	public static final Integer[] ZERODAYS = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	
 	public static final Integer TRADITIONAL = 2;
 	public static final Integer MULTI = 3;
 	public static final Integer VIRTUAL = 4;

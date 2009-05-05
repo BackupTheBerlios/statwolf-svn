@@ -9,13 +9,13 @@
 #username=Carl C\u00E4cher
 
 #
-# Parameter      : foundindex
+# Parameter      : indexdir
 # Description    : full qualified path to the index.xml with your found caches
 # Possible Values: a valid path
 # Default Value  : none
-# Notes          : n/a
+# Notes          : please use \\ instead of \ on windows systems
 #
-#indexfile=e:\\Daten\\CacheWolf\\Found\\index.xml
+#indexdir=e:\\Daten\\CacheWolf\\Found
 
 #
 # Parameter      : locale

@@ -14,28 +14,28 @@ public class StatisticsData {
 	private HashMap<Boolean, Integer> cachesArchived;
 	private HashMap<Boolean, Integer> cachesOnline;
 	private HashMap<Integer, Integer> cachesByDayOfWeek;
-	private HashMap<Integer, HashMap<Integer, Integer>> matrixMonthDay;
-	private HashMap<Integer, HashMap<Integer, Integer>> matrixYearMonth;
+	private Integer[][] matrixMonthDay;
+	private HashMap<Integer, Integer[]> matrixYearMonthFound;
+	private HashMap<Integer, Integer[]> matrixYearMonthPlaced;
 	private HashMap<Float, HashMap<Float, Integer>> matrixTerrDiff;
 	private HashMap<String,Integer> cachesByOwner;
-	private Integer totalCaches;
 	private HashMap<String, Cache> mostXxxCache = new HashMap<String, Cache>();
+	private HashMap<String,Integer> cachesByDirection;
+	private Integer totalCaches;
+	private Integer cacheingDays;
+	private Integer findsLast365Days = 0;
+	private Integer daysLastYear;
+	private Integer daysSinceFirstFind;
 	private String distUnit;
 	private Calendar firstCachingDay;
 	private TreeMap<Integer, Integer> distanceFromHome;
 	private TreeMap<Integer, Cache> milestones = new TreeMap<Integer, Cache>();
-	private LatLonPoint homeCoordinates;
 	private TreeMap <Calendar, ArrayList<Cache>> cachesByDateFound;
+	private LatLonPoint homeCoordinates;
+	private LatLonPoint cacheMedian = new LatLonPoint();
 	private Boolean excludeLocless;
 	private Boolean excludeVirtual;
-	private LatLonPoint cacheMedian = new LatLonPoint();
-	private Integer cacheingDays;
-	private Integer findsLast365Days = 0;
-	private HashMap<String,Integer> cachesByDirection;
-	private HashMap<Integer,Integer> findsByMonth;
-	private Integer daysLastYear;
 	private Double cacheToCacheDistance;
-	private Integer daysSinceFirstFind;
 	
 	private static Logger logger = Logger.getLogger(HTMLOutput.class);
 
@@ -113,12 +113,16 @@ public class StatisticsData {
 		return cachesByDayOfWeek;
 	}
 
-	public HashMap<Integer, HashMap<Integer, Integer>> getMatrixMonthDay() {
+	public Integer[][] getMatrixMonthDay() {
 		return matrixMonthDay;
 	}
 
-	public HashMap<Integer, HashMap<Integer, Integer>> getMatrixYearMonth() {
-		return matrixYearMonth;
+	public HashMap<Integer, Integer[]> getMatrixYearMonthFound() {
+		return matrixYearMonthFound;
+	}
+
+	public HashMap<Integer, Integer[]> getMatrixYearMonthPlaced() {
+		return matrixYearMonthPlaced;
 	}
 
 	public HashMap<Float, HashMap<Float, Integer>> getMatrixTerrDiff() {
@@ -199,8 +203,14 @@ public class StatisticsData {
 		return cachesByDirection;
 	}
 	
-	public HashMap<Integer,Integer> getFindsByMonth() {
-		return findsByMonth;
+	public Integer[] getFindsByMonthFound() {
+		Integer[] fpmf = Constants.ZEROMONTHS;
+		for (Integer year: matrixYearMonthFound.keySet()) {
+			for (Integer month = 0 ; month < 12 ; month ++) {
+				fpmf[month] = fpmf[month] +  matrixYearMonthPlaced.get(year)[month];
+			}
+		}
+		return fpmf;
 	}
 	
 	public Integer getDaysLastYear() {
@@ -211,13 +221,54 @@ public class StatisticsData {
 		return cacheToCacheDistance;
 	}
 	
+	public Integer[] getFindsByMonthPlaced(){
+		Integer[] fpmp = Constants.ZEROMONTHS;
+		for (Integer year: matrixYearMonthPlaced.keySet()) {
+			for (Integer month = 0 ; month < 12 ; month ++) {
+				fpmp[month] = fpmp[month] +  matrixYearMonthPlaced.get(year)[month];
+			}
+		}
+		return fpmp;
+	}
+	
+	public HashMap<Integer, Integer> getFindsByYearPlaced(){
+		HashMap<Integer, Integer> findsByYearPlaced = new HashMap<Integer, Integer>();
+		for (Integer year: matrixYearMonthPlaced.keySet()) {
+			Integer cpy = 0;
+			for (Integer month = 0 ; month < 12 ; month ++) {
+				cpy = cpy +  matrixYearMonthPlaced.get(year)[month];
+			}
+			findsByYearPlaced.put(year, cpy);
+		}
+		return findsByYearPlaced;
+	}
+	
+	public HashMap<Integer, Integer> getFindsByYearFound(){
+		HashMap<Integer, Integer> findsByYearFound = new HashMap<Integer, Integer>();
+		for (Integer year: matrixYearMonthFound.keySet()) {
+			Integer cpy = 0;
+			for (Integer month = 0 ; month < 12 ; month ++) {
+				cpy = cpy +  matrixYearMonthFound.get(year)[month];
+			}
+			findsByYearFound.put(year, cpy);
+		}
+		return findsByYearFound;
+	}
+
+	public HashMap<Integer,Integer> getCachesByYearToDate() {
+		HashMap<Integer,Integer> cachesByYearToDate = new HashMap<Integer,Integer>();
+		// TODO: hmm
+		return cachesByYearToDate;
+	}
 	/*
 	 * SET methods
 	 */
 
 	private void setDataMatrix() {
 
-		matrixYearMonth = new HashMap<Integer, HashMap<Integer, Integer>>();
+		matrixYearMonthFound = new HashMap<Integer, Integer[]>();
+		matrixYearMonthPlaced = new HashMap<Integer, Integer[]>();
+		Integer[] tempMonths;
 
 		totalCaches = foundCaches.size();
 		cachesByType = new HashMap<Integer, Integer>();
@@ -240,29 +291,28 @@ public class StatisticsData {
 
 			Integer foundDOW = cache.found.get(Calendar.DAY_OF_WEEK);
 
-			// matrix year month
-			if (!matrixYearMonth.containsKey(cache.found.get(Calendar.YEAR))) {
-				HashMap<Integer, Integer> temp = new HashMap<Integer, Integer>();
-				for (int month = 0; month < 12; month++) {
-					temp.put(month, 0);
-				}
-				matrixYearMonth.put(cache.found.get(Calendar.YEAR), temp);
+			// matrix year month found
+			if (!matrixYearMonthFound.containsKey(cache.found.get(Calendar.YEAR))) {
+				matrixYearMonthFound.put(cache.found.get(Calendar.YEAR), Constants.ZEROMONTHS.clone());
 			}
 
-			{
-				HashMap<Integer, Integer> temp = matrixYearMonth.get(cache.found.get(Calendar.YEAR));
-				if (!temp.containsKey(cache.found.get(Calendar.MONTH))) {
-					temp.put(cache.found.get(Calendar.MONTH), 1);
-				} else {
-					temp.put(cache.found.get(Calendar.MONTH), temp.get(cache.found.get(Calendar.MONTH)) + 1);
-				}
-				matrixYearMonth.put(cache.found.get(Calendar.YEAR), temp);
-				temp = null;
+			tempMonths = matrixYearMonthFound.get(cache.found.get(Calendar.YEAR));
+			tempMonths[cache.found.get(Calendar.MONTH)]++;
+			matrixYearMonthFound.put(cache.found.get(Calendar.YEAR), tempMonths);
+			tempMonths = null;
+			
+			// matrix year month placed
+			if (!matrixYearMonthPlaced.containsKey(cache.hidden.get(Calendar.YEAR))) {
+				matrixYearMonthPlaced.put(cache.hidden.get(Calendar.YEAR), Constants.ZEROMONTHS.clone());
 			}
+
+			tempMonths = matrixYearMonthPlaced.get(cache.hidden.get(Calendar.YEAR));
+			tempMonths[cache.hidden.get(Calendar.MONTH)]++;
+			matrixYearMonthPlaced.put(cache.hidden.get(Calendar.YEAR), tempMonths);
+			tempMonths = null;
 
 			// day of week
-			cachesByDayOfWeek
-					.put(foundDOW, cachesByDayOfWeek.get(foundDOW) + 1);
+			cachesByDayOfWeek.put(foundDOW, cachesByDayOfWeek.get(foundDOW) + 1);
 
 			// size
 			if (cachesByContainer.containsKey(cache.size)) {
@@ -293,14 +343,7 @@ public class StatisticsData {
 			}
 
 			// matrixMonthDay
-			{
-				HashMap<Integer, Integer> temp = new HashMap<Integer, Integer>();
-				temp = matrixMonthDay.get(cache.found.get(Calendar.MONTH));
-				temp.put(cache.found.get(Calendar.DAY_OF_MONTH), temp.get(cache.found.get(Calendar.DAY_OF_MONTH)) + 1);
-				matrixMonthDay.put(cache.found.get(Calendar.MONTH), temp);
-			}
-			
-			findsByMonth.put(cache.found.get(Calendar.MONTH), findsByMonth.get(cache.found.get(Calendar.MONTH))+1);
+			matrixMonthDay[cache.found.get(Calendar.MONTH)][cache.found.get(Calendar.DAY_OF_MONTH)]++;
 			
 			// matrixTerrDiff
 			{
@@ -488,14 +531,9 @@ public class StatisticsData {
 			matrixTerrDiff.put(i, temp);
 		}
 
-		matrixMonthDay = new HashMap<Integer, HashMap<Integer, Integer>>();
-		for (int j = 0; j <= 11; j++) {
-			HashMap<Integer, Integer> tmpDays = new HashMap<Integer, Integer>();
-			for (int i = 1; i <= 31; i++) {
-				tmpDays.put(i, 0);
-			}
-
-			matrixMonthDay.put(j, tmpDays);
+		matrixMonthDay = new Integer[12][32];
+		for (int month = 0; month <= 11; month++) {
+			matrixMonthDay[month]=Constants.ZERODAYS.clone();
 		}
 
 		cachesByDayOfWeek = new HashMap<Integer, Integer>();
@@ -515,10 +553,6 @@ public class StatisticsData {
 			cachesByDirection.put(d,0);
 		}
 		
-		findsByMonth = new HashMap<Integer,Integer>();
-		for (int i=0; i<12 ; i++) {
-			findsByMonth.put(i, 0);
-		}
 	}
 	
 	private Boolean includeCache(Cache cache) {
@@ -540,34 +574,32 @@ public class StatisticsData {
 		return daysLastYear;
 	}
 
-	Integer daysBetween(Calendar ob1, Calendar ob2) {
+	Integer daysBetween(Calendar cal1, Calendar cal2) {
 		Integer delta = 0;
 
-		if ( ob1 == null || ob2 == null) {
+		if ( cal1 == null || cal2 == null) {
 			return null;
 		}
 		
-		Calendar dmy1 = (Calendar) ob1.clone();
-		Calendar dmy2 = (Calendar) ob2.clone();
+		Calendar cal1clone = (Calendar) cal1.clone();
+		Calendar cal2clone = (Calendar) cal2.clone();
 
-		dmy1 = getCleanDate(dmy1);
-		dmy2 = getCleanDate(dmy2);
-		logger.info(dmy1.getTime());
-		logger.info(dmy2.getTime());
+		cal1clone = getCleanDate(cal1clone);
+		cal2clone = getCleanDate(cal2clone);
 
-		if (dmy1.compareTo(dmy2) == 0) {
+		if (cal1clone.compareTo(cal2clone) == 0) {
 			return 0;
 		}
 
-		if (dmy1.compareTo(dmy2) > 0) {
-			Calendar temp = dmy1;
-			dmy1 = dmy2;
-			dmy2 = temp;
+		if (cal1clone.compareTo(cal2clone) > 0) {
+			Calendar temp = cal1clone;
+			cal1clone = cal2clone;
+			cal2clone = temp;
 		}
 
-		while (dmy1.compareTo(dmy2) < 0) {
+		while (cal1clone.compareTo(cal2clone) < 0) {
 			delta++;
-			dmy1.add(Calendar.DAY_OF_MONTH, 1);
+			cal1clone.add(Calendar.DAY_OF_MONTH, 1);
 		}
 
 		return delta;

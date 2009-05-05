@@ -1,0 +1,48 @@
+Q and A
+=======
+
+Q: What is this?
+A; It's a tool to generate some statistics about your found geocaches from a CacheWolf profile
+
+Q: Does it support gecocaching.com and opencaching.de Caches?
+A: Right now it only works for caches listed on geocaching.com. However there might be a future 
+   release also support opencaching.
+
+Q: What do I need to run it?
+A: You will need a Java runtime environment 1.5 or better and should have found at least one 
+   geocache recorded in CacheWolf
+
+Q: Is there anything to be configured before running the tool?
+A: In the zip file you downloaded, there is a file called preferences.properties.sample. You can 
+   can change the parameters in it according to your needs and save it as preferences.properties
+ 
+Q: How do i run it?
+A: If preferences.properties and StatWolf.jar are in the current directory, you can run it as
+   java -jar StatWolf.jar
+   If one of these files are not in your current directory here are some examples how to call it
+   Windows: java -Dpreferences=c:\mystuff\preferences.properties -jar c:\Programs\StatWolf\Statwolf.jar
+   Unix: java -Dpreferences=%HOME/preferences.properties -jar /usr/local/lib/Statwolf.jar
+   Adapt paths as needed
+
+Q: The wrong caches are shown as milestones. How can I fix this?
+A: StatWolf uses the status field of CacheWolf to dermine the order you found your caches. 
+   If you have found multiple caches on the same day, make sure there is also time information
+   in this field.
+
+Q: I never found a cache on Jan 1, 1970! What's wrong?
+A: StatWolf uses the status field in the CacheWolf indexfile. If the field does not contain a
+   valid date, Jan 1, 1970 is assumed. Please correct the date you found this cache on.
+
+
+Q: I don't like the colors, how can i change them?
+A: Inside the jar there is a file calles html:default.properties. You can save a local copy of this
+   file as html_schemananme.properties and adjust colors or fonts. For testing your new file must 
+   be in your current working directory. You also have to adjust prefrences.properties to point to
+   you schema. Once you are satisfied, feel free to commit your schema to the community.
+    
+Q: I would like to add support for language xy. How can this be done?
+A: In the jar you can find a file called maeesages.properties. Make a local copy and save it as
+   messages_xy.properties where xy is the two ISO 639:1988 language code. Please refer to 
+   http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt for a complete list. For non ASCII 
+   characters please use UTF-8 encoding. See http://www.utf8-chartable.de/ for further reference.
+  

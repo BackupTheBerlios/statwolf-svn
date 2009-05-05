@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="jar" name="Create Runnable Jar for Project Stats2">
+<project default="jar" name="build standalone jar or release for StatWolf">
 	<target name="jar" depends="checkjar">
 		<javac source="1.5" target="1.5" srcdir="src" classpath="${libdir}/log4j-1.2.14.jar:${libdir}/jdom-1.0.jar:${libdir}/openmap.jar" destdir="bin"/>
 		<jar destfile="release/StatWolf.jar" filesetmanifest="mergewithoutmain">
@@ -23,6 +23,7 @@
 		<zip destfile="release/StatWolf-${release}.zip">
 			<fileset file="release/StatWolf.jar" />
 			<fileset file="properties/preferences.properties.sample" />
+			<fileset dir="doc" />
 		</zip>
 	</target>
 	<target name="checkjar">
@@ -39,3 +40,4 @@
 		<replaceregexp file="src/de/berlios/statwolf/Version.java" match="final static Integer VERSION=(.*);" replace="final static Integer VERSION=${release};" />
 	</target>
 </project>
+

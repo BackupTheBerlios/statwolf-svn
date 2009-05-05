@@ -16,26 +16,24 @@ public class IndexParser {
 
 	// jdom uses old syntax for compatibility
 	@SuppressWarnings("unchecked")
-	public IndexParser(Properties prefs) {
+	public IndexParser(String indexfile) {
 
 		SAXBuilder parser = new SAXBuilder();
 		foundCaches = new ArrayList<Cache>();
-		String indexFileName;
 
-		indexFileName = prefs.getProperty("indexfile");
-		if (indexFileName != null) {
+		if (indexfile != null) {
 			try {
-				Document document = parser.build(indexFileName);
+				Document document = parser.build(indexfile);
 				filterCaches(document.getRootElement().getChildren("CACHE"));
 				setHomeCoordinates(document.getRootElement().getChildren("CENTRE"));
 			} catch (FileNotFoundException ex) {
-				logger.fatal("index file not found: ".concat(indexFileName));
+				logger.fatal("index file not found: ".concat(indexfile));
 				System.exit(1);
 			} catch (JDOMException ex) {
 				logger.fatal(ex);
 				System.exit(1);
 			} catch (MalformedURLException ex) {
-				logger.fatal("Unable to parse file ".concat(indexFileName));
+				logger.fatal("Unable to parse file ".concat(indexfile));
 				System.exit(1);
 			} catch (IOException ex) {
 				logger.fatal(ex);

@@ -37,7 +37,6 @@ public class HTMLOutput {
 		this.stats = stats;
 		html = ResourceBundle.getBundle(htmlSchema);
 		try {
-			//TODO: switch from resource to properties
 			Properties html = new Properties();
 			html.load(this.getClass().getClassLoader().getResourceAsStream(htmlSchema.concat(".properties")));
 		} catch (Exception ex) {
@@ -57,7 +56,7 @@ public class HTMLOutput {
 		out.append(stat_header());
 		out.append(headline());
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(matrixYearMonth());
+		out.append(matrixYearMonth(stats.getMatrixYearMonthFound(),messages.getString("msg.fpm")));
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(milestones());
 		out.append(matrixTerrainDifficulty());
@@ -73,13 +72,13 @@ public class HTMLOutput {
 		out.append(findsByDayOfWeek());
 		out.append(findsByContainer());
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
+		out.append(matrixYearMonth(stats.getMatrixYearMonthPlaced(),messages.getString("msg.fpmplaced")));
+		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(findsByDirection());
 		out.append(findsByMonth());
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		// year cache placed (50%)
 		// find till today per year (50%)
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		// finds placed by month / year
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(datatomb());
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
@@ -92,12 +91,11 @@ public class HTMLOutput {
 		if ( !(tempdir.endsWith("/") || tempdir.endsWith("\\")) ) {
 		   tempdir = tempdir + System.getProperty("file.separator");
 		}
-		
+
 		String OutFileName = tempdir.concat("cw-statistik.html");
 
 		try {
-			BufferedWriter of = new BufferedWriter(new FileWriter(
-					OutFileName));
+			BufferedWriter of = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(OutFileName),"UTF8"));
 			of.write(out.toString());
 			of.close();
 			return OutFileName;
@@ -232,13 +230,12 @@ public class HTMLOutput {
 
 	private String matrixMonthDay() {
 		
-		HashMap<Integer, HashMap<Integer, Integer>> mmd = new HashMap<Integer, HashMap<Integer, Integer>>();
-		mmd = stats.getMatrixMonthDay();
+		Integer[][] mmd = stats.getMatrixMonthDay();
 
 		StringBuffer ret = new StringBuffer();
 		Integer combinations = 0;
 
-		ret.append("<div style=\"float:left;width:100%;\">");
+		ret.append("<div style=\"float:left;width:100%;\">\n");
 		ret.append(generateHeading(messages.getString("msg.fpd")));
 
 		ret.append("<table style=\"width:98%;table-layout:fixed;\">\n");
@@ -269,10 +266,10 @@ public class HTMLOutput {
 
 			for (int month = 0; month < 12; month++) {
 				ret.append(MessageFormat.format("<td>{0}</td>",
-						mmd.get(month).get(day) == 0 ? "" : mmd.get(month).get(day)
+						mmd[month][day] == 0 ? "" : mmd[month][day]
 						)
 					);
-				combinations = combinations	+ (mmd.get(month).get(day) == 0 ? 0 : 1);
+				combinations = combinations	+ (mmd[month][day] == 0 ? 0 : 1);
 			}
 			ret.append("</tr>\n");
 		}
@@ -282,15 +279,13 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 
-	private String matrixYearMonth() {
-		HashMap<Integer, HashMap<Integer, Integer>> mym = new HashMap<Integer, HashMap<Integer, Integer>>();
-		mym = stats.getMatrixYearMonth();
+	private String matrixYearMonth(HashMap<Integer, Integer[]> mym, String headline) {
 		Set<Integer> years = new TreeSet<Integer>(mym.keySet());
 
 		StringBuffer ret = new StringBuffer();
 
-		ret.append("<div id='mym'>");
-		ret.append(generateHeading(messages.getString("msg.fpm")));
+		ret.append("<div style=\"float:left;width:100%;\">\n");
+		ret.append(generateHeading(headline));
 
 		ret.append("<table style=\"width:98%;table-layout:fixed\">\n");
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head1")));
@@ -328,7 +323,7 @@ public class HTMLOutput {
 
 			for (int month = 0; month < 12; month++) {
 				ret.append(MessageFormat.format("<td>{0}</td>",
-						mym.get(year).get(month) == 0 ? "&nbsp;" : mym.get(year).get(month)
+						mym.get(year)[month] == 0 ? "&nbsp;" : mym.get(year)[month]
 						)
 					);
 			}
@@ -897,12 +892,12 @@ public class HTMLOutput {
 	}
 	
 	private String findsByMonth() {
-		HashMap <Integer,Integer> fbm = stats.getFindsByMonth();
+		Integer[] fbm = stats.getFindsByMonthFound();
 		StringBuffer ret = new StringBuffer();
 		Integer maxCount = 0;
-		for (int i = 0; i < 12; i++) {
-			if ( maxCount < fbm.get(i)) {
-				maxCount = fbm.get(i);
+		for (int month = 0; month < 12; month++) {
+			if ( maxCount < fbm[month]) {
+				maxCount = fbm[month];
 			}
 		}
 		ret.append("<div style=\"float:left;width:50%;\">\n");
@@ -917,12 +912,12 @@ public class HTMLOutput {
 				"</tr>\n");
 		ret.append("</thead>\n");
 		ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
-		for (int i = 0; i < 12; i++) {
+		for (int month = 0; month < 12; month++) {
 			ret.append(MessageFormat.format("<tr><td>{0}</td><td style=\"{4}\">{1,number,#,##0}</td><td style=\"{4}\">{2,number,#,##0.0}</td><td>{3}</td></tr>\n",
-					messages.getString("mon.long."+i),
-					fbm.get(i),
-					calcCachePercent(fbm.get(i)),
-					createHorizontalBar(fbm.get(i),maxCount),
+					messages.getString("mon.long."+month),
+					fbm[month],
+					calcCachePercent(fbm[month]),
+					createHorizontalBar(fbm[month],maxCount),
 					html.getString("cell.number")
 				)
 			);
