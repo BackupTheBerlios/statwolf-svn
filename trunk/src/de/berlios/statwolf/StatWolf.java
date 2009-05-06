@@ -35,12 +35,18 @@ public class StatWolf {
 			prefs.load(new FileInputStream(preffile));
 		} catch (Exception ex) {
 			logger.fatal(ex);
-			logger.debug(ex);
 			System.exit(1);
 		}
 		
 		String locale = prefs.getProperty("locale", "en");
 		Locale.setDefault(new Locale(locale));
+		
+		String loglevel=prefs.getProperty("loglevel", "info");
+		if (loglevel.toLowerCase().equals("debug")) {
+			log4jProps.put("log4j.logger.de.berlios.statwolf", "DEBUG");
+			log4jProps.put("log4j.rootLogger", "DEBUG,A2");
+			PropertyConfigurator.configure(log4jProps);
+		}
 		
 		ResourceBundle messages = ResourceBundle.getBundle("messages");
 		
@@ -48,25 +54,30 @@ public class StatWolf {
 			indexdir = args[0];
 			logger.debug("command line indexdir: ".concat(indexdir));
 		} else {
-			indexdir = prefs.getProperty("indexdir");
+			indexdir = prefs.getProperty("indexdir", "");
 		}
 		
 		if ( !(indexdir.endsWith(System.getProperty("file.separator"))) ) {
 			indexdir = indexdir.concat(System.getProperty("file.separator"));
 		}
-
-		IndexParser indexParser = new IndexParser(indexdir.concat("index.xml"));
-
-		StatisticsData statisticsData = new StatisticsData(indexParser.getFoundCaches(), indexParser.getHomeCoordinates(), prefs);
-
-		HTMLOutput htmlOutput = new  HTMLOutput(statisticsData, prefs);
-
-		String statfile = htmlOutput.generateHTML();
-
-		if (statfile != null ) {
-			logger.info(MessageFormat.format(messages.getString("log.finished"), statfile));
-		} else {
-			logger.fatal(messages.getString("log.generalerror"));
+		
+		// catch everything we may have forgotten
+		try {
+			IndexParser indexParser = new IndexParser(indexdir.concat("index.xml"));
+	
+			StatisticsData statisticsData = new StatisticsData(indexParser.getFoundCaches(), indexParser.getHomeCoordinates(), prefs);
+	
+			HTMLOutput htmlOutput = new  HTMLOutput(statisticsData, prefs);
+	
+			String statfile = htmlOutput.generateHTML();
+	
+			if (statfile != null ) {
+				logger.info(MessageFormat.format(messages.getString("log.finished"), statfile));
+			} else {
+				logger.fatal(messages.getString("log.generalerror"));
+			}
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 	}
 }

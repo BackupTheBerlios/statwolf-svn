@@ -207,7 +207,7 @@ public class StatisticsData {
 		Integer[] fpmf = Constants.ZEROMONTHS;
 		for (Integer year: matrixYearMonthFound.keySet()) {
 			for (Integer month = 0 ; month < 12 ; month ++) {
-				fpmf[month] = fpmf[month] +  matrixYearMonthPlaced.get(year)[month];
+				fpmf[month] = fpmf[month] +  matrixYearMonthFound.get(year)[month];
 			}
 		}
 		return fpmf;
@@ -279,7 +279,6 @@ public class StatisticsData {
 		cachesByOwner = new HashMap<String,Integer>();
 		Calendar today = getCleanDate(Calendar.getInstance());
 		Calendar lastYear = (Calendar) today.clone();
-		//TODO: check for leap years
 		lastYear.add(Calendar.DAY_OF_MONTH, -daysLastYear);
 		Cache lastCacheFound = null;
 		cacheToCacheDistance = 0D;
@@ -388,7 +387,6 @@ public class StatisticsData {
 			}
 			
 			// direction
-			
 			if (includeCache(cache) ) {
 				String dir;
 				Float az = homeCoordinates.azimuth(new LatLonPoint(cache.lat, cache.lon));
@@ -427,7 +425,6 @@ public class StatisticsData {
 						);
 					lastCacheFound = cache;
 				}
-				
 			}
 
 			// cache by date

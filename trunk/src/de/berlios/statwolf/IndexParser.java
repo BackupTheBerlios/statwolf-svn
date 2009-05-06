@@ -62,21 +62,24 @@ public class IndexParser {
 			if (cacheId.indexOf("GC") == 0 && cacheFound.equals("true")) {
 				Cache fc = new Cache();
 
-				fc.setArchived(cache.getAttributeValue("archived"));
-				fc.setDifficulty(cache.getAttributeValue("dif"));
-				fc.setFound(cache.getAttributeValue("status"));
-				fc.setHidden(cache.getAttributeValue("hidden"));
-				fc.setId(cache.getAttributeValue("wayp"));
-				fc.setLat(cache.getAttributeValue("lat"));
-				fc.setLon(cache.getAttributeValue("lon"));
-				fc.setName(cache.getAttributeValue("name"));
-				fc.setOnline(cache.getAttributeValue("online"));
-				fc.setOwner(cache.getAttributeValue("owner"));
-				fc.setSize(cache.getAttributeValue("size"));
-				fc.setTerrain(cache.getAttributeValue("terrain"));
-				fc.setType(cache.getAttributeValue("type"));
-				
-				foundCaches.add(fc);
+				try {
+					fc.setArchived(cache.getAttributeValue("archived"));
+					fc.setDifficulty(cache.getAttributeValue("dif").replace(',', '.'));
+					fc.setFound(cache.getAttributeValue("status"));
+					fc.setHidden(cache.getAttributeValue("hidden"));
+					fc.setId(cache.getAttributeValue("wayp"));
+					fc.setLat(cache.getAttributeValue("lat").replace(',', '.'));
+					fc.setLon(cache.getAttributeValue("lon").replace(',', '.'));
+					fc.setName(cache.getAttributeValue("name"));
+					fc.setOnline(cache.getAttributeValue("online"));
+					fc.setOwner(cache.getAttributeValue("owner"));
+					fc.setSize(cache.getAttributeValue("size"));
+					fc.setTerrain(cache.getAttributeValue("terrain").replace(',', '.'));
+					fc.setType(cache.getAttributeValue("type"));
+					foundCaches.add(fc);
+				} catch (Exception ex) {
+					logger.error(cacheId.concat(" sortout. reason: ").concat(ex.toString()));
+				}
 			}
 		}
 	}
@@ -91,11 +94,13 @@ public class IndexParser {
 			Element center = centers.get(0);
 			String lat;
 			String lon;
-			lat=center.getAttributeValue("lat");
-			lon=center.getAttributeValue("lon");
-			homeCoordinates.setLatLon(Float.parseFloat(lat), Float.parseFloat(lon));
+			lat=center.getAttributeValue("lat").replace(',', '.');
+			lon=center.getAttributeValue("lon").replace(',', '.');
+			homeCoordinates.setLatLon(Double.parseDouble(lat), Double.parseDouble(lon));
+			logger.debug(homeCoordinates);
 		} catch (Exception ex) {
-			logger.warn("unable to determine home coordinates. using N 0 E 0");
+			logger.debug(ex);
+			logger.warn("unable to determine home coordinates. Using N 00 00.000 E 00 00.000 . Reason: ".concat(ex.toString()));
 			homeCoordinates.setLatLon(0, 0);
 		}
 	}

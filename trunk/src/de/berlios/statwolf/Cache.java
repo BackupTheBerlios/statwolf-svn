@@ -1,5 +1,6 @@
 package de.berlios.statwolf;
 
+import org.apache.log4j.*;
 import java.util.*;
 import java.text.*;
 
@@ -18,6 +19,8 @@ public class Cache {
 	String size;
 	Boolean online;
 	Boolean archived;
+	
+	private static Logger logger = Logger.getLogger(Cache.class);
 	
 	public static enum Field {
 		NAME, OWNER, LAT, LON, HIDDEN, ID, FOUND, TYPE, TERRAIN, DIFFICULTY, SIZE, ONLINE, ARCHIVED, UNKNOWN;
@@ -69,64 +72,63 @@ public class Cache {
 	public Cache() {
 	}
 
-	void setName (String name) {
+	public void setName (String name) {
 		this.name = new String(name);
 	}
 
-	String getName () {
+	public String getName () {
 		return name;
 	}
 
-	void setOwner (String owner) {
+	public void setOwner (String owner) {
 		this.owner = owner;
 	}
 
-	String getOwner() {
+	public String getOwner() {
 		return owner;
 	}
 
-	void setLat (String lat) {
+	public void setLat (String lat) {
 		this.lat = Float.parseFloat(lat.replace(',', '.'));
 	}
 
-	Float getLat () {
+	public Float getLat () {
 		return lat;
 	}
 
-	void setLon (String lon) {
+	public void setLon (String lon) {
 		this.lon = Float.parseFloat(lon.replace(',', '.'));
 	}
 
-	Float getLon () {
+	public Float getLon () {
 		return lon;
 	}
 
-	void setHidden (String hidden) {
+	public void setHidden (String hidden) {
 		SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd" );
 		this.hidden = new GregorianCalendar();
 		
 		try {
-			this.hidden.setTime(df.parse("1970-01-01 00:00"));
-			this.hidden.setTime(df.parse(hidden.concat(" 00:00")));
+			this.hidden.setTime(df.parse("1970-01-01"));
 			this.hidden.setTime(df.parse(hidden));
 		} catch (ParseException e) {
-			//ignore
+			logger.debug(e);
 		}
 	}
 
-	Calendar getHidden () {
+	public Calendar getHidden () {
 		return hidden;
 	}
 
-	void setId (String id) {
+	public void setId (String id) {
 		this.id = id;
 	}
 
-	String getId () {
+	public String getId () {
 		return id;
 	}
 
-	void setFound (String found) {
+	public void setFound (String found) {
 		SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
 		this.found = new GregorianCalendar();
 				
@@ -135,64 +137,63 @@ public class Cache {
 			this.found.setTime(df.parse(found.concat(" 00:00")));
 			this.found.setTime(df.parse(found));
 		} catch (ParseException e) {
-			// ignore
+			logger.debug(e);
 		}
 	}
 
-	Calendar getFound () {
+	public Calendar getFound () {
 		return found;
 	}
 
-	void setType (String type) {
+	public void setType (String type) {
 		this.type = Integer.parseInt(type);
 	}
 	
-	Integer getType () {
+	public Integer getType () {
 		return type;
 	}
 
-	void setTerrain (String terr) {
+	public void setTerrain (String terr) {
 		this.terrain = Float.parseFloat(terr.replace(',', '.'));
 	}
 
-	Float getTerrain () {
+	public Float getTerrain () {
 		return terrain;
 	}
 
-	void setDifficulty (String diff) {
+	public void setDifficulty (String diff) {
 		this.difficulty = Float.parseFloat(diff.replace(',', '.'));
 	}
 
-	Float getDifficulty () {
+	public Float getDifficulty () {
 		return difficulty;
 	}
 	
-	void setSize (String size) {
+	public void setSize (String size) {
 		this.size = size;
 	}
 	
-	String getSize () {
+	public String getSize () {
 		return size;
 	}
 	
-	void setOnline (String online) {
+	public void setOnline (String online) {
 		this.online = Boolean.parseBoolean(online);
 	}
 	
-	Boolean getOnline () {
+	public Boolean getOnline () {
 		return online;
 	}
 	
-	void setArchived (String archived) {
+	public void setArchived (String archived) {
 		this.archived = Boolean.parseBoolean(archived);		
 	}
 	
-	Boolean getArchived () {
+	public Boolean getArchived () {
 		return archived;
 	}
 	
 	@Override public String toString() {
-		DateFormat df = DateFormat.getDateInstance();
 		return "ID: ".concat(id)
 			.concat(" Name: ").concat(name)
 			.concat(" Owner: ").concat(owner)
@@ -205,8 +206,8 @@ public class Cache {
 			.concat(" Size: ").concat(size)
 			.concat(" Online: ").concat(online.toString())
 			.concat(" Archived: ").concat(archived.toString())
-			.concat(" Hidden: ").concat(df.format(hidden))
-			.concat(" Found: ").concat(df.format(found));
+			.concat(" Hidden: ").concat(hidden.getTime().toString())
+			.concat(" Found: ").concat(hidden.getTime().toString());
 	}
 
 }

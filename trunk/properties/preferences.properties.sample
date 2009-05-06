@@ -18,6 +18,15 @@
 #indexdir=e:\\Daten\\CacheWolf\\Found
 
 #
+# Parameter      : outputdir
+# Description    : HTML output file will be written to this directory
+# Possible Values: valid path
+# Default Value: : your systems directory for temporary files
+# Note           : Windows users, please use \\ as path separator
+#
+#outputdir=c:\\temp
+
+#
 # Parameter      : locale
 # Description    : defines message text languages and number formatting
 # Possible Values: de, en
@@ -74,3 +83,12 @@
 # Notes          : n/a
 #
 #ownernumber=10
+
+#
+# Parameter:     : loglevel
+# Description    : verbosity of log output
+# Possible Values: debug,info
+# Default Value: : info
+# Notes          : n/a
+#
+#loglevel=debug

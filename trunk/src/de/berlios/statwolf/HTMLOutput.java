@@ -15,9 +15,9 @@ public class HTMLOutput {
 	private ResourceBundle html;
 	private static Logger logger = Logger.getLogger(HTMLOutput.class);
 	private Properties prefs;
-	private Boolean excludeVirtual;
-	private Boolean excludeLocless;
-	private Boolean excludeSomething;
+	private Boolean excludeVirtual = false;
+	private Boolean excludeLocless = false;
+	private Boolean excludeSomething = false;
 
 	public HTMLOutput(StatisticsData stats, Properties prefs) {
 		
@@ -27,10 +27,14 @@ public class HTMLOutput {
 		this.prefs = prefs;
 		
 		distUnit = prefs.getProperty("distunit", "km");
-		username = prefs.getProperty("username", "UnkownCacher");
-		excludeVirtual = Boolean.parseBoolean(prefs.getProperty("excludevirtual"));
-		excludeLocless = Boolean.parseBoolean(prefs.getProperty("excludelocless"));
-		excludeSomething = excludeVirtual || excludeLocless;
+		username = prefs.getProperty("username", "Carl C\u00E4cher");
+		try {
+			excludeVirtual = Boolean.parseBoolean(prefs.getProperty("excludevirtual", "false"));
+			excludeLocless = Boolean.parseBoolean(prefs.getProperty("excludelocless", "false"));
+			excludeSomething = excludeVirtual || excludeLocless;
+		} catch (Exception ex) {
+			logger.error(ex);
+		}
 		locale = prefs.getProperty("locale", "en");
 		htmlSchema = "html_".concat(prefs.getProperty("htmlschema", "default"));
 		
@@ -40,8 +44,8 @@ public class HTMLOutput {
 			Properties html = new Properties();
 			html.load(this.getClass().getClassLoader().getResourceAsStream(htmlSchema.concat(".properties")));
 		} catch (Exception ex) {
-			logger.fatal(ex.getLocalizedMessage());
-			logger.debug(ex.getStackTrace());
+			logger.fatal("unable to load html schema");
+			logger.debug(ex);
 			System.exit(1);
 		}
 		
@@ -87,18 +91,19 @@ public class HTMLOutput {
 		out.append(stat_footer());
 		out.append(footer());
 		
-		String tempdir = System.getProperty("java.io.tmpdir");
-		if ( !(tempdir.endsWith("/") || tempdir.endsWith("\\")) ) {
-		   tempdir = tempdir + System.getProperty("file.separator");
+		String outdir = prefs.getProperty("outputdir", System.getProperty("java.io.tmpdir"));
+		
+		if ( !(outdir.endsWith("/") || outdir.endsWith("\\")) ) {
+		   outdir = outdir + System.getProperty("file.separator");
 		}
 
-		String OutFileName = tempdir.concat("cw-statistik.html");
+		String outFileName = outdir.concat("StatWolf.html");
 
 		try {
-			BufferedWriter of = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(OutFileName),"UTF8"));
+			BufferedWriter of = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFileName),"UTF8"));
 			of.write(out.toString());
 			of.close();
-			return OutFileName;
+			return outFileName;
 		} catch (IOException ex) {
 			logger.fatal("Error saving HTML output");
 			logger.debug(ex);
@@ -785,10 +790,13 @@ public class HTMLOutput {
 				formatLatLon(stats.getCacheMedian().getLongitude(), "lon"))
 			);
 		
-		ret.append(MessageFormat.format("<tr><td>Cache to Cache Distance{2}</td><td>{0,number,#,##0.0} {1}</td></tr>\n",
+		strTemp = String.format("<tr><td>%s</td><td>%s</td></tr>\n",
+				messages.getString("msg.cachetocachedistance"),
+				"{1,number,#,##0.0} {2}");
+		ret.append(MessageFormat.format(strTemp,
+				excludeSomething?"<font style=\"size:9px\">*</font>":"",
 				stats.getCacheToCacheDistance(),
-				distUnit,
-				excludeSomething?"<font style=\"size:9px\">*</font>":""
+				distUnit
 				)
 			);
 
@@ -931,7 +939,7 @@ public class HTMLOutput {
 	private String cacheLink(String id) {
 		return MessageFormat.format("<a href=\"http://coord.info/{0}\">{0}</a>", id);
 	}
-	
+
 	private String ownerLink(String id) {
 		String ret = "";
 		try {
@@ -941,7 +949,7 @@ public class HTMLOutput {
 		} catch (Exception ignore) { }
 		return ret;
 	}
-	
+
 	private String createHorizontalBar(Integer count, Integer maxCount) {
 		Integer width = (int) Math.floor(count.floatValue() / maxCount.floatValue() * Constants.MAXHORIZONTALBARLENGTH);
 		return MessageFormat.format("<img src=\"{0}\" height=\"15\" width=\"{1}\" alt=\"{2,number,#,##0.0}%\"/>",
@@ -950,7 +958,7 @@ public class HTMLOutput {
 				calcCachePercent(count)
 			);
 	}
-	
+
 	private String crystalball() {
 		StringBuffer ret = new StringBuffer();
 		Integer currentFinds = stats.getTotalCaches();

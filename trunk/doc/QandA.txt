@@ -33,6 +33,8 @@ Q: I never found a cache on Jan 1, 1970! What's wrong?
 A: StatWolf uses the status field in the CacheWolf indexfile. If the field does not contain a
    valid date, Jan 1, 1970 is assumed. Please correct the date you found this cache on.
 
+Q: How does the software know my home coordinates?
+A: The software assumes that the center of your profile are your home koordinates.
 
 Q: I don't like the colors, how can i change them?
 A: Inside the jar there is a file calles html:default.properties. You can save a local copy of this
