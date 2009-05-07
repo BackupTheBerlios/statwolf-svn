@@ -34,7 +34,7 @@ public class StatWolf {
 		try {
 			prefs.load(new FileInputStream(preffile));
 		} catch (Exception ex) {
-			logger.fatal(ex);
+			logger.fatal("unable to load preferences",ex);
 			System.exit(1);
 		}
 		
@@ -54,7 +54,11 @@ public class StatWolf {
 			indexdir = args[0];
 			logger.debug("command line indexdir: ".concat(indexdir));
 		} else {
-			indexdir = prefs.getProperty("indexdir", "");
+			indexdir = prefs.getProperty("indexdir");
+			if ( indexdir == null) {
+				logger.error("indexdir not set. please check preferences");
+				System.exit(1);
+			}
 		}
 		
 		if ( !(indexdir.endsWith(System.getProperty("file.separator"))) ) {

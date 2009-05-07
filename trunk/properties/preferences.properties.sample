@@ -1,4 +1,10 @@
 #
+# all lines starting with a # are comments and will be ignored by the software
+# if you want to activate a specific option, please remove the # at the beginning
+# of the line
+#
+
+#
 # Parameter      : username
 # Description    : your gc.com nickname 
 # Possible Values: your gc.com nickname ;-)
@@ -6,7 +12,7 @@
 # Notes          : if your nick contains any special characters, please encode them for UTF-8 output.
 #                : \u00E4 in the default will produce a "latin small letter a with diaeresis" (a Umlaut)
 #
-#username=Carl C\u00E4cher
+username=Carl C\u00E4cher
 
 #
 # Parameter      : indexdir
@@ -15,7 +21,7 @@
 # Default Value  : none
 # Notes          : please use \\ instead of \ on windows systems
 #
-#indexdir=e:\\Daten\\CacheWolf\\Found
+indexdir=e:\\Daten\\CacheWolf\\Found
 
 #
 # Parameter      : outputdir
@@ -24,7 +30,7 @@
 # Default Value: : your systems directory for temporary files
 # Note           : Windows users, please use \\ as path separator
 #
-#outputdir=c:\\temp
+outputdir=c:\\temp
 
 #
 # Parameter      : locale

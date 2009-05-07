@@ -27,13 +27,17 @@ public class HTMLOutput {
 		this.prefs = prefs;
 		
 		distUnit = prefs.getProperty("distunit", "km");
-		username = prefs.getProperty("username", "Carl C\u00E4cher");
+		username = prefs.getProperty("username");
+		if (username == null) {
+			logger.error("username not set, please check preferences");
+			System.exit(1);
+		}
 		try {
 			excludeVirtual = Boolean.parseBoolean(prefs.getProperty("excludevirtual", "false"));
 			excludeLocless = Boolean.parseBoolean(prefs.getProperty("excludelocless", "false"));
 			excludeSomething = excludeVirtual || excludeLocless;
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("error when parsing exsclude* properties", ex);
 		}
 		locale = prefs.getProperty("locale", "en");
 		htmlSchema = "html_".concat(prefs.getProperty("htmlschema", "default"));
