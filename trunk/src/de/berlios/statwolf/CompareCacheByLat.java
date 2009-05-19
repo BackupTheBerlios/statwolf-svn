@@ -9,7 +9,7 @@ public class CompareCacheByLat implements Comparator<Cache> {
 	}
 	
 	public int compare(Cache ob1, Cache ob2) {
-		return ob1.lat.compareTo(ob2.lat);
+		return ob1.getLat().compareTo(ob2.getLat());
 	}
 
 }

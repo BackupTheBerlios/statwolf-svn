@@ -2,6 +2,10 @@ package de.berlios.statwolf;
 
 import java.util.*;
 import org.apache.log4j.*;
+
+import de.cachewolf.CacheSize;
+import de.cachewolf.CacheType;
+
 import java.io.*;
 import java.net.URLEncoder;
 import java.text.*;
@@ -200,18 +204,18 @@ public class HTMLOutput {
 		ret.append("</thead>");
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head2")));
 		ret.append(String.format("<tr><td style=\"%s\"></td><td></td>", html.getString("matrix.head1")));
-		for (Float i : Constants.TERRDIFF) {
-			ret.append(MessageFormat.format("<td>{0,number,0.0}</td>", i));
+		for (Integer i : Constants.TERRDIFF) {
+			ret.append(MessageFormat.format("<td>{0,number,0.0}</td>", i/10F));
 		}
 		ret.append("</tr>\n");
 		ret.append("</thead>\n");
 		
-		HashMap<Float, HashMap<Float, Integer>> mtd = new HashMap<Float, HashMap<Float, Integer>>();
+		HashMap<Integer, HashMap<Integer, Integer>> mtd = new HashMap<Integer, HashMap<Integer, Integer>>();
 		mtd = stats.getMatrixTerrDiff();
 		ret.append(String.format("<tbody style=\"%s\">\n", html.getString("matrix.body")));
-		for (Float terr : Constants.TERRDIFF) {
+		for (Integer terr : Constants.TERRDIFF) {
 			ret.append("<tr>");
-			if (terr == 1.0F) {
+			if (terr == 10) {
 				ret.append(String.format("<td rowspan='9' style=\"%s\">%s</td>",
 						html.getString("matrix.head1"),
 						messages.getString("msg.terr"
@@ -222,8 +226,8 @@ public class HTMLOutput {
 			ret.append(MessageFormat.format(
 					"<td style=\"{0}\">{1,number,0.0}</td>", 
 					html.getString("matrix.head2"),
-					terr));
-			for (Float diff : Constants.TERRDIFF) {
+					terr/10F));
+			for (Integer diff : Constants.TERRDIFF) {
 				ret.append(MessageFormat.format("<td>{0}</td>", 
 						mtd.get(terr).get(diff) == 0 ? "&nbsp;" : mtd.get(terr).get(diff)));
 				combinations = combinations + (mtd.get(terr).get(diff) == 0 ? 0 : 1);
@@ -395,7 +399,7 @@ public class HTMLOutput {
 					"<td><img src=\"{4}\" width=\"{5}\" height=\"15\" alt=\"{3,number,#,##0.0}%\"/></td>" +
 					"</tr>\n", 
 					Constants.TYPEIMAGES.get(type),
-					messages.getString("cachetype."+type),
+					CacheType.cw2ExportString(type.byteValue()),
 					fbt.get(type),
 					percent.get(type),
 					html.getString("bar.horizontal"),
@@ -410,9 +414,9 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 
-	private String findsByDT(HashMap<Float,Integer> mftd, String heading) {
+	private String findsByDT(HashMap<Integer,Integer> mftd, String heading) {
 		StringBuffer ret = new StringBuffer();
-		HashMap<Float, Float> percent = new HashMap<Float, Float>();
+		HashMap<Integer, Float> percent = new HashMap<Integer, Float>();
 		Float maxPercent = 0.0F;
 		
 		ret.append("<div style=\"float:left; width:50%;\">\n");
@@ -427,7 +431,7 @@ public class HTMLOutput {
 				"</tr>\n");
 		ret.append("</thead>\n");
 		ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
-		for (Float i : Constants.TERRDIFF) {
+		for (Integer i : Constants.TERRDIFF) {
 			if ( mftd.get(i) != null ) {
 				Float x = calcCachePercent(mftd.get(i));
 				percent.put(i, x);
@@ -438,7 +442,7 @@ public class HTMLOutput {
 				percent.put(i, 0.0F);
 			}
 		}
-		for (Float i : Constants.TERRDIFF) {
+		for (Integer i : Constants.TERRDIFF) {
 			ret.append(MessageFormat.format(
 					"<tr>" +
 					"<td>{0,number,#,##0.0}</td>" +
@@ -446,7 +450,7 @@ public class HTMLOutput {
 					"<td style=\"{5}\">{2,number,#,##0.0}</td>" +
 					"<td><img src=\"{3}\" height=\"15\" width=\"{4}\" alt=\"{2,number,#,##0.0}%\"/></td>" +
 					"</tr>\n",
-					i,
+					i/10F,
 					mftd.get(i),
 					percent.get(i),
 					html.getString("bar.horizontal"),
@@ -468,11 +472,11 @@ public class HTMLOutput {
 	
 	private String findsByContainer() {
 		StringBuffer ret = new StringBuffer();
-		HashMap <String,Integer> fbc = stats.getCachesByContainer();
-		HashMap<String,Float> percent = new HashMap<String,Float>();
+		HashMap <Integer,Integer> fbc = stats.getCachesByContainer();
+		HashMap<Integer,Float> percent = new HashMap<Integer,Float>();
 		Float maxPercent = 0.0F;
 		
-		for (String cont : Constants.CONTAINERS) {
+		for (Integer cont : Constants.CONTAINERS) {
 			if ( fbc.get(cont) != null ) {
 				Float x = calcCachePercent(fbc.get(cont));
 				percent.put(cont, x);
@@ -497,7 +501,7 @@ public class HTMLOutput {
 		ret.append("</thead>\n");
 		ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
 		
-		for (String cont : Constants.CONTAINERS) {
+		for (Integer cont : Constants.CONTAINERS) {
 			ret.append(MessageFormat.format(
 					"<tr>" +
 					"<td><img src=\"{0}\" alt=\"\"/> {1}</td>" +
@@ -506,7 +510,7 @@ public class HTMLOutput {
 					"<td><img src=\"{4}\" height=\"15\" width=\"{5}\" alt=\"{3,number,#,##0.0}%\"/></td>" +
 					"</tr>\n", 
 					Constants.SIZEIMAGES.get(cont), 
-					cont,
+					CacheSize.cw2ExportString(cont.byteValue()),
 					fbc.get(cont) == null?"":fbc.get(cont), 
 					fbc.get(cont) == null?"":percent.get(cont),
 					html.getString("bar.horizontal"),
@@ -702,15 +706,15 @@ public class HTMLOutput {
 	        		"<td><img src=\"{4}\" alt=\"\"/> {5}</td>" +
 	        		"</tr>\n", 
 	        		key,
-	        		value.found.getTime(),
-	        		stats.daysBetween(lastMilestone,value.found),
-	        		cacheLink(value.id),
-	        		Constants.TYPEIMAGES.get(value.type),
-	        		value.name,
+	        		value.getFoundDate().getTime(),
+	        		stats.daysBetween(lastMilestone,value.getFoundDate()),
+	        		cacheLink(value.getId()),
+	        		Constants.TYPEIMAGES.get(value.getType()),
+	        		value.getName(),
 	        		html.getString("cell.number")
 	        	)
 	        );
-	        lastMilestone = (Calendar) value.found.clone();
+	        lastMilestone = (Calendar) value.getFoundDate().clone();
 		}
 		ret.append("</tbody>\n");
 		ret.append("</table>\n");
@@ -779,9 +783,9 @@ public class HTMLOutput {
 					messages.getString("msg.cache.most")
 				);
 			ret.append(MessageFormat.format(outline,
-					(dir == "north" || dir == "south")?formatLatLon(mostXxxxCache.get(dir).lat, "lat"):formatLatLon(mostXxxxCache.get(dir).lon, "lon"),
-					cacheLink(mostXxxxCache.get(dir).id),
-					mostXxxxCache.get(dir).name
+					(dir == "north" || dir == "south")?formatLatLon(mostXxxxCache.get(dir).getLat(), "lat"):formatLatLon(mostXxxxCache.get(dir).getLon(), "lon"),
+					cacheLink(mostXxxxCache.get(dir).getId()),
+					mostXxxxCache.get(dir).getName()
 				)
 			);
 		}

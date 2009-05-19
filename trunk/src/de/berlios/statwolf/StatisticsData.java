@@ -6,18 +6,20 @@ import java.util.*;
 import com.bbn.openmap.*;
 import com.bbn.openmap.proj.*;
 
+import de.cachewolf.CacheType;
+
 public class StatisticsData {
 
 	private List<Cache> foundCaches;
 	private HashMap<Integer, Integer> cachesByType;
-	private HashMap<String, Integer> cachesByContainer;
+	private HashMap<Integer, Integer> cachesByContainer;
 	private HashMap<Boolean, Integer> cachesArchived;
-	private HashMap<Boolean, Integer> cachesOnline;
+//	private HashMap<Boolean, Integer> cachesOnline;
 	private HashMap<Integer, Integer> cachesByDayOfWeek;
 	private Integer[][] matrixMonthDay;
 	private HashMap<Integer, Integer[]> matrixYearMonthFound;
 	private HashMap<Integer, Integer[]> matrixYearMonthPlaced;
-	private HashMap<Float, HashMap<Float, Integer>> matrixTerrDiff;
+	private HashMap<Integer, HashMap<Integer, Integer>> matrixTerrDiff;
 	private HashMap<String,Integer> cachesByOwner;
 	private HashMap<String, Cache> mostXxxCache = new HashMap<String, Cache>();
 	private HashMap<String,Integer> cachesByDirection;
@@ -59,8 +61,8 @@ public class StatisticsData {
 	 * GET methods
 	 */
 
-	public HashMap<Float, Integer> getCachesByTerrain() {
-		HashMap<Float, Integer> cbd = new HashMap<Float, Integer>();
+	public HashMap<Integer, Integer> getCachesByTerrain() {
+		HashMap<Integer, Integer> cbd = new HashMap<Integer, Integer>();
 		Integer counter;
 		Integer temp;
 		for (int terr = 0; terr < Constants.TERRDIFF.length; terr++) {
@@ -74,13 +76,13 @@ public class StatisticsData {
 		return cbd;
 	}
 
-	public HashMap<Float, Integer> getCachesByDifficulty() {
-		HashMap<Float, Integer> cbd = new HashMap<Float, Integer>();
+	public HashMap<Integer, Integer> getCachesByDifficulty() {
+		HashMap<Integer, Integer> cbd = new HashMap<Integer, Integer>();
 		Integer counter;
 		Integer temp;
-		for (Float diff : Constants.TERRDIFF) {
+		for (Integer diff : Constants.TERRDIFF) {
 			counter = 0;
-			for (Float terr : Constants.TERRDIFF) {
+			for (Integer terr : Constants.TERRDIFF) {
 				temp = matrixTerrDiff.get(terr).get(diff);
 				counter = counter + temp;
 			}
@@ -93,7 +95,7 @@ public class StatisticsData {
 		return cachesByType;
 	}
 
-	public HashMap<String, Integer> getCachesByContainer() {
+	public HashMap<Integer, Integer> getCachesByContainer() {
 		return cachesByContainer;
 	}
 
@@ -105,9 +107,9 @@ public class StatisticsData {
 		return milestones;
 	}
 
-	public HashMap<Boolean, Integer> getCachesOnline() {
-		return cachesOnline;
-	}
+//	public HashMap<Boolean, Integer> getCachesOnline() {
+//		return cachesOnline;
+//	}
 
 	public HashMap<Integer, Integer> getCachesByDayOfWeek() {
 		return cachesByDayOfWeek;
@@ -125,7 +127,7 @@ public class StatisticsData {
 		return matrixYearMonthPlaced;
 	}
 
-	public HashMap<Float, HashMap<Float, Integer>> getMatrixTerrDiff() {
+	public HashMap<Integer, HashMap<Integer, Integer>> getMatrixTerrDiff() {
 		return matrixTerrDiff;
 	}
 
@@ -273,7 +275,7 @@ public class StatisticsData {
 		totalCaches = foundCaches.size();
 		cachesByType = new HashMap<Integer, Integer>();
 		cachesByType = new HashMap<Integer, Integer>();
-		cachesOnline = new HashMap<Boolean, Integer>();
+//		cachesOnline = new HashMap<Boolean, Integer>();
 		cachesArchived = new HashMap<Boolean, Integer>();
 		cachesByDateFound = new TreeMap<Calendar, ArrayList<Cache>>(); 
 		cachesByOwner = new HashMap<String,Integer>();
@@ -288,76 +290,76 @@ public class StatisticsData {
 		// TODO: put most of this into separate sub routines
 		for (Cache cache: foundCaches ) {
 
-			Integer foundDOW = cache.found.get(Calendar.DAY_OF_WEEK);
+			Integer foundDOW = cache.getFoundDate().get(Calendar.DAY_OF_WEEK);
 
 			// matrix year month found
-			if (!matrixYearMonthFound.containsKey(cache.found.get(Calendar.YEAR))) {
-				matrixYearMonthFound.put(cache.found.get(Calendar.YEAR), Constants.ZEROMONTHS.clone());
+			if (!matrixYearMonthFound.containsKey(cache.getFoundDate().get(Calendar.YEAR))) {
+				matrixYearMonthFound.put(cache.getFoundDate().get(Calendar.YEAR), Constants.ZEROMONTHS.clone());
 			}
 
-			tempMonths = matrixYearMonthFound.get(cache.found.get(Calendar.YEAR));
-			tempMonths[cache.found.get(Calendar.MONTH)]++;
-			matrixYearMonthFound.put(cache.found.get(Calendar.YEAR), tempMonths);
+			tempMonths = matrixYearMonthFound.get(cache.getFoundDate().get(Calendar.YEAR));
+			tempMonths[cache.getFoundDate().get(Calendar.MONTH)]++;
+			matrixYearMonthFound.put(cache.getFoundDate().get(Calendar.YEAR), tempMonths);
 			tempMonths = null;
 			
 			// matrix year month placed
-			if (!matrixYearMonthPlaced.containsKey(cache.hidden.get(Calendar.YEAR))) {
-				matrixYearMonthPlaced.put(cache.hidden.get(Calendar.YEAR), Constants.ZEROMONTHS.clone());
+			if (!matrixYearMonthPlaced.containsKey(cache.getHidden().get(Calendar.YEAR))) {
+				matrixYearMonthPlaced.put(cache.getHidden().get(Calendar.YEAR), Constants.ZEROMONTHS.clone());
 			}
 
-			tempMonths = matrixYearMonthPlaced.get(cache.hidden.get(Calendar.YEAR));
-			tempMonths[cache.hidden.get(Calendar.MONTH)]++;
-			matrixYearMonthPlaced.put(cache.hidden.get(Calendar.YEAR), tempMonths);
+			tempMonths = matrixYearMonthPlaced.get(cache.getHidden().get(Calendar.YEAR));
+			tempMonths[cache.getHidden().get(Calendar.MONTH)]++;
+			matrixYearMonthPlaced.put(cache.getHidden().get(Calendar.YEAR), tempMonths);
 			tempMonths = null;
 
 			// day of week
 			cachesByDayOfWeek.put(foundDOW, cachesByDayOfWeek.get(foundDOW) + 1);
 
 			// size
-			if (cachesByContainer.containsKey(cache.size)) {
-				cachesByContainer.put(cache.size, cachesByContainer.get(cache.size) + 1);
+			if (cachesByContainer.containsKey(cache.getSize())) {
+				cachesByContainer.put(cache.getSize(), cachesByContainer.get(cache.getSize()) + 1);
 			} else {
-				cachesByContainer.put(cache.size, 1);
+				cachesByContainer.put(cache.getSize(), 1);
 			}
 
 			// type
-			if (cachesByType.containsKey(cache.type)) {
-				cachesByType.put(cache.type, cachesByType.get(cache.type) + 1);
+			if (cachesByType.containsKey(cache.getType())) {
+				cachesByType.put(cache.getType(), cachesByType.get(cache.getType()) + 1);
 			} else {
-				cachesByType.put(cache.type, 1);
+				cachesByType.put(cache.getType(), 1);
 			}
 
-			// online
-			if (cachesOnline.containsKey(cache.online)) {
-				cachesOnline.put(cache.online, cachesOnline.get(cache.online) + 1);
-			} else {
-				cachesOnline.put(cache.online, 1);
-			}
+//			// online
+//			if (cachesOnline.containsKey(cache.online)) {
+//				cachesOnline.put(cache.online, cachesOnline.get(cache.online) + 1);
+//			} else {
+//				cachesOnline.put(cache.online, 1);
+//			}
 
 			// archived
-			if (cachesArchived.containsKey(cache.archived)) {
-				cachesArchived.put(cache.archived, cachesArchived.get(cache.archived) + 1);
+			if (cachesArchived.containsKey(cache.isArchived())) {
+				cachesArchived.put(cache.isArchived(), cachesArchived.get(cache.isArchived()) + 1);
 			} else {
-				cachesArchived.put(cache.archived, 1);
+				cachesArchived.put(cache.isArchived(), 1);
 			}
 
 			// matrixMonthDay
-			matrixMonthDay[cache.found.get(Calendar.MONTH)][cache.found.get(Calendar.DAY_OF_MONTH)]++;
+			matrixMonthDay[cache.getFoundDate().get(Calendar.MONTH)][cache.getFoundDate().get(Calendar.DAY_OF_MONTH)]++;
 			
 			// matrixTerrDiff
 			{
-				HashMap<Float, Integer> temp = matrixTerrDiff.get(cache.terrain);
-				temp.put(cache.difficulty, temp.get(cache.difficulty) + 1);
-				matrixTerrDiff.put(cache.terrain, temp);
+				HashMap<Integer, Integer> temp = matrixTerrDiff.get(cache.getTerrain());
+				temp.put(cache.getDifficulty(), temp.get(cache.getDifficulty()) + 1);
+				matrixTerrDiff.put(cache.getTerrain(), temp);
 			}
 			
 			// distance from home
 			if ( includeCache(cache) ) {
 				Float dist;
 				if (distUnit.equals("mi")) {
-					dist = Length.MILE.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.lat, cache.lon))));
+					dist = Length.MILE.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon()))));
 				} else { 
-					dist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.lat, cache.lon))));
+					dist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon()))));
 				}
 				if (dist <= 10) {
 					distanceFromHome.put(10, distanceFromHome.get(10) + 1);
@@ -389,7 +391,7 @@ public class StatisticsData {
 			// direction
 			if (includeCache(cache) ) {
 				String dir;
-				Float az = homeCoordinates.azimuth(new LatLonPoint(cache.lat, cache.lon));
+				Float az = homeCoordinates.azimuth(new LatLonPoint(cache.getLat(), cache.getLon()));
 				
 				if (az >= -7.0/8.0*Math.PI && az < -5.0/8.0*Math.PI) {
 					dir = "sw";
@@ -416,8 +418,8 @@ public class StatisticsData {
 				if (lastCacheFound == null) {
 					lastCacheFound = cache;
 				} else {
-					LatLonPoint thisCache = new LatLonPoint(cache.lat,cache.lon);
-					LatLonPoint lastCache = new LatLonPoint(lastCacheFound.lat, lastCacheFound.lon);
+					LatLonPoint thisCache = new LatLonPoint(cache.getLat(),cache.getLon());
+					LatLonPoint lastCache = new LatLonPoint(lastCacheFound.getLat(), lastCacheFound.getLon());
 					cacheToCacheDistance = cacheToCacheDistance +
 						(distUnit.equals("mi")
 							?Length.MILE.fromRadians(lastCache.distance(thisCache))
@@ -429,7 +431,7 @@ public class StatisticsData {
 
 			// cache by date
 			{
-				Calendar tempdate = getCleanDate((Calendar) cache.found.clone());
+				Calendar tempdate = getCleanDate((Calendar) cache.getFoundDate().clone());
 				ArrayList<Cache> tempclist;
 				if (! cachesByDateFound.containsKey(tempdate)) {
 					tempclist = new ArrayList<Cache>();
@@ -445,10 +447,10 @@ public class StatisticsData {
 			cacheingDays = cachesByDateFound.size();
 			
 			// cache by owner
-			if (! cachesByOwner.containsKey(cache.owner)) {
-				cachesByOwner.put(cache.owner, 1);
+			if (! cachesByOwner.containsKey(cache.getOwner())) {
+				cachesByOwner.put(cache.getOwner(), 1);
 			} else {
-				cachesByOwner.put(cache.owner, cachesByOwner.get(cache.owner) + 1);
+				cachesByOwner.put(cache.getOwner(), cachesByOwner.get(cache.getOwner()) + 1);
 			}
 		}
 
@@ -466,13 +468,13 @@ public class StatisticsData {
 		mostXxxCache.put("north",excludedCaches.get(excludedCaches.size()-1));
 		if (excludedCaches.size() % 2 == 0) {
 			Integer index=excludedCaches.size()/2;
-			Float lat = excludedCaches.get(index).lat;
+			Float lat = excludedCaches.get(index).getLat();
 			index--;
-			lat = lat + excludedCaches.get(index).lat;
+			lat = lat + excludedCaches.get(index).getLat();
 			cacheMedian.setLatitude(lat / 2.0F);
 		} else {
 			Integer index = (int) Math.floor(excludedCaches.size() / 2.0);
-			cacheMedian.setLatitude(excludedCaches.get(index).lat);
+			cacheMedian.setLatitude(excludedCaches.get(index).getLat());
 		}
 
 		Collections.sort(excludedCaches, new CompareCacheByLon());
@@ -480,13 +482,13 @@ public class StatisticsData {
 		mostXxxCache.put("east",excludedCaches.get(excludedCaches.size()-1));
 		if (excludedCaches.size() % 2 == 0) {
 			Integer index=excludedCaches.size()/2;
-			Float lon = excludedCaches.get(index).lon;
+			Float lon = excludedCaches.get(index).getLon();
 			index--;
-			lon = lon + excludedCaches.get(index).lon;
+			lon = lon + excludedCaches.get(index).getLon();
 			cacheMedian.setLongitude(lon / 2.0F);
 		} else {
 			int index = (int) Math.floor(excludedCaches.size() / 2.0);
-			cacheMedian.setLongitude(excludedCaches.get(index).lon);
+			cacheMedian.setLongitude(excludedCaches.get(index).getLon());
 		}
 
 		// milestones
@@ -498,7 +500,7 @@ public class StatisticsData {
 		milestones.put(foundCaches.size(), foundCaches.get(foundCaches.size() - 1));
 
 		// first caching day
-		firstCachingDay = getCleanDate(foundCaches.get(0).found);
+		firstCachingDay = getCleanDate(foundCaches.get(0).getFoundDate());
 	
 		daysSinceFirstFind = daysBetween(firstCachingDay, Calendar.getInstance())+1;
 	}
@@ -514,15 +516,15 @@ public class StatisticsData {
 		
 		daysLastYear = setDaysLastYear();
 		
-		cachesByContainer = new HashMap<String, Integer>();
-		for (String cont : Constants.CONTAINERS) {
+		cachesByContainer = new HashMap<Integer, Integer>();
+		for (Integer cont : Constants.CONTAINERS) {
 			cachesByContainer.put(cont, 0);
 		}
 
-		matrixTerrDiff = new HashMap<Float, HashMap<Float, Integer>>();
-		for (Float i : Constants.TERRDIFF) {
-			HashMap<Float, Integer> temp = new HashMap<Float, Integer>();
-			for (Float j : Constants.TERRDIFF) {
+		matrixTerrDiff = new HashMap<Integer, HashMap<Integer, Integer>>();
+		for (Integer i : Constants.TERRDIFF) {
+			HashMap<Integer, Integer> temp = new HashMap<Integer, Integer>();
+			for (Integer j : Constants.TERRDIFF) {
 				temp.put(j, 0);
 			}
 			matrixTerrDiff.put(i, temp);
@@ -549,13 +551,12 @@ public class StatisticsData {
 		for (String d: tmp) {
 			cachesByDirection.put(d,0);
 		}
-		
 	}
 	
 	private Boolean includeCache(Cache cache) {
 		Boolean ret = true;
-		if (cache.type == Constants.VIRTUAL && excludeVirtual) return false;
-		if (cache.type == Constants.LOCATIONLESS && excludeLocless) return false;
+		if (cache.getType() == CacheType.CW_TYPE_VIRTUAL && excludeVirtual) return false;
+		if (cache.getType() == CacheType.CW_TYPE_LOCATIONLESS && excludeLocless) return false;
 		return ret;
 	}
 	

@@ -3,211 +3,164 @@ package de.berlios.statwolf;
 import org.apache.log4j.*;
 import java.util.*;
 import java.text.*;
+import org.jdom.*;
 
+import de.cachewolf.CacheSize;
+import de.cachewolf.CacheTerrDiff;
+import de.cachewolf.CacheType;
+
+/**
+ * this class will hold the details of the waypoints found 
+ * @author greis
+ *
+ */
 public class Cache {
 	
-	String name;
-	String owner;
-	Float lat;
-	Float lon;
-	Calendar hidden;
-	String id;
-	Calendar found;
-	Integer type;
-	Float terrain;
-	Float difficulty;
-	String size;
-	Boolean online;
-	Boolean archived;
-	
+	private String name;
+	private String owner;
+	private Float lat;
+	private Float lon;
+	private Calendar hidden;
+	private String id;
+	private Calendar foundDate;
+	private Integer type;
+	private Integer terrain;
+	private Integer difficulty;
+	private Boolean found;
+	private Integer size;
+	private Boolean archived;
+	private CacheDetails details;
+	private Boolean incomplete = false;
 	private static Logger logger = Logger.getLogger(Cache.class);
 	
-	public static enum Field {
-		NAME, OWNER, LAT, LON, HIDDEN, ID, FOUND, TYPE, TERRAIN, DIFFICULTY, SIZE, ONLINE, ARCHIVED, UNKNOWN;
-					
-		public static Field toField (String str) {
-			try {
-				return valueOf(str.toUpperCase());
-			} catch (Exception ex) {
-				return UNKNOWN;
-			}
-		}
-		
+	/**
+	 * 
+	 * @param cacheInfo
+	 * @param version
+	 */
+	public Cache(Element cacheInfo, Byte version) {
+		if (version == 0) readInfo0(cacheInfo);
+		else if (version == 3) readInfo3(cacheInfo);
+		else throw new IllegalArgumentException("unsupported version "+version);
 	}
 	
-	Object getValue(String str) {
+	/**
+	 * 
+	 * @param cacheInfo
+	 */
+	private void readInfo0(Element cacheInfo) {
+		id = cacheInfo.getAttributeValue("wayp");
+		name = cacheInfo.getAttributeValue("name");
+		owner = cacheInfo.getAttributeValue("owner");
 		
-		switch (Field.toField(str)) {
-			case NAME : 
-				return name;
-			case OWNER: 
-				return owner;
-			case LAT:
-				return lat;
-			case LON:
-				return lon;
-			case HIDDEN:
-				return hidden;
-			case ID:
-				return id;
-			case FOUND:
-				return found;
-			case TYPE:
-				return type;
-			case TERRAIN:
-				return terrain;
-			case DIFFICULTY:
-				return difficulty;
-			case SIZE:
-				return size;
-			case ONLINE:
-				return online;
-			case ARCHIVED:
-				return archived;
-			default:
-				return null;
-		}
-	}
-
-	public Cache() {
-	}
-
-	public void setName (String name) {
-		this.name = new String(name);
-	}
-
-	public String getName () {
-		return name;
-	}
-
-	public void setOwner (String owner) {
-		this.owner = owner;
-	}
-
-	public String getOwner() {
-		return owner;
-	}
-
-	public void setLat (String lat) {
-		this.lat = Float.parseFloat(lat.replace(',', '.'));
-	}
-
-	public Float getLat () {
-		return lat;
-	}
-
-	public void setLon (String lon) {
-		this.lon = Float.parseFloat(lon.replace(',', '.'));
-	}
-
-	public Float getLon () {
-		return lon;
-	}
-
-	public void setHidden (String hidden) {
-		SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd" );
-		this.hidden = new GregorianCalendar();
+		lat = Float.parseFloat(cacheInfo.getAttributeValue("lat").replace(',', '.'));
+		lon = Float.parseFloat(cacheInfo.getAttributeValue("lon").replace(',', '.'));
+		
+		hidden = getCalFromString(cacheInfo.getAttributeValue("hidden"));
+		foundDate = getCalFromString(cacheInfo.getAttributeValue("status"));
 		
 		try {
-			this.hidden.setTime(df.parse("1970-01-01"));
-			this.hidden.setTime(df.parse(hidden));
-		} catch (ParseException e) {
-			logger.debug(e);
+			type = (int) CacheType.v1Converter(cacheInfo.getAttributeValue("type"));
+		} catch (IllegalArgumentException ex) {
+			incomplete = true;
 		}
+		
+		try {
+			difficulty = (int) CacheTerrDiff.v1Converter(cacheInfo.getAttributeValue("dif"));
+		} catch (IllegalArgumentException ex) {
+			incomplete = true;
+		}
+		
+		try {
+			terrain = (int) CacheTerrDiff.v1Converter(cacheInfo.getAttributeValue("terrain"));
+		} catch (IllegalArgumentException ex) {
+			incomplete = true;
+		}
+		
+		try {
+			size = (int) CacheSize.v1Converter(cacheInfo.getAttributeValue("size"));
+		} catch (IllegalArgumentException ex) {
+			incomplete = true;
+		}
+		
+		archived = 	cacheInfo.getAttributeValue("size").equals("true");	
+		found = cacheInfo.getAttributeValue("found").equals("true");	
 	}
+	
+	/**
+	 * 
+	 * @param cacheInfo
+	 */
+	private void readInfo3(Element cacheInfo) {
+		id = cacheInfo.getAttributeValue("wayp");
+		name = cacheInfo.getAttributeValue("name");
+		owner = cacheInfo.getAttributeValue("owner");
+		
+		lat = Float.parseFloat(cacheInfo.getAttributeValue("lat").replace(',', '.'));
+		lon = Float.parseFloat(cacheInfo.getAttributeValue("lon").replace(',', '.'));
+		
+		hidden = getCalFromString(cacheInfo.getAttributeValue("hidden"));
+		foundDate = getCalFromString(cacheInfo.getAttributeValue("status"));
+		
+		CwBoolFields boolFields = new CwBoolFields(Long.parseLong(cacheInfo.getAttributeValue("boolFields")));
+		CwByteFields byteFields = new CwByteFields(Long.parseLong(cacheInfo.getAttributeValue("byteFields")));
 
-	public Calendar getHidden () {
-		return hidden;
+		archived = boolFields.isArchived;
+		found = boolFields.isFound;
+		
+		size = byteFields.cacheSize;
+		type = byteFields.cacheType;
+		difficulty = byteFields.difficulty;
+		terrain = byteFields.terrain;
 	}
-
-	public void setId (String id) {
-		this.id = id;
-	}
-
-	public String getId () {
-		return id;
-	}
-
-	public void setFound (String found) {
+	
+	/**
+	 * 
+	 * @param calString
+	 * @return
+	 */
+	Calendar getCalFromString(String calString) {
+		Calendar ret = new GregorianCalendar();
 		SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
-		this.found = new GregorianCalendar();
-				
 		try {
-			this.found.setTime(df.parse("1970-01-01 00:00"));
-			this.found.setTime(df.parse(found.concat(" 00:00")));
-			this.found.setTime(df.parse(found));
+			ret.setTime(df.parse("1970-01-01 00:00"));
+			ret.setTime(df.parse(calString.concat(" 00:00")));
+			ret.setTime(df.parse(calString));
 		} catch (ParseException e) {
 			logger.debug(e);
 		}
+
+		return ret;
 	}
 
-	public Calendar getFound () {
-		return found;
-	}
-
-	public void setType (String type) {
-		this.type = Integer.parseInt(type);
-	}
-	
-	public Integer getType () {
-		return type;
-	}
-
-	public void setTerrain (String terr) {
-		this.terrain = Float.parseFloat(terr.replace(',', '.'));
-	}
-
-	public Float getTerrain () {
-		return terrain;
-	}
-
-	public void setDifficulty (String diff) {
-		this.difficulty = Float.parseFloat(diff.replace(',', '.'));
-	}
-
-	public Float getDifficulty () {
-		return difficulty;
-	}
-	
-	public void setSize (String size) {
-		this.size = size;
-	}
-	
-	public String getSize () {
-		return size;
-	}
-	
-	public void setOnline (String online) {
-		this.online = Boolean.parseBoolean(online);
-	}
-	
-	public Boolean getOnline () {
-		return online;
-	}
-	
-	public void setArchived (String archived) {
-		this.archived = Boolean.parseBoolean(archived);		
-	}
-	
-	public Boolean getArchived () {
-		return archived;
-	}
+	public String getName () { return name; }
+	public String getOwner() { return owner; }
+	public Float getLat () { return lat; }
+	public Float getLon () { return lon; }
+	public Calendar getHidden () { return hidden; }
+	public String getId () { return id; }
+	public Calendar getFoundDate () { return foundDate; }
+	public Boolean isFound() { return found; }
+	public Integer getType () { return type; }
+	public Integer getTerrain () { return terrain; }
+	public Integer getDifficulty () { return difficulty; }
+	public Integer getSize () { return size; }
+	public Boolean isArchived () { return archived; }
+	public Boolean isIncomplete () { return incomplete; }
 	
 	@Override public String toString() {
-		return "ID: ".concat(id)
-			.concat(" Name: ").concat(name)
-			.concat(" Owner: ").concat(owner)
-			.concat(" Lat: ").concat(lat.toString())
-			.concat(" Lon: ").concat(lon.toString())
-			.concat(" Id: ").concat(id)
-			.concat(" Type: ").concat(type.toString())
-			.concat(" Terrain: ").concat(terrain.toString())
-			.concat(" Difficulty: ").concat(difficulty.toString())
-			.concat(" Size: ").concat(size)
-			.concat(" Online: ").concat(online.toString())
-			.concat(" Archived: ").concat(archived.toString())
-			.concat(" Hidden: ").concat(hidden.getTime().toString())
-			.concat(" Found: ").concat(hidden.getTime().toString());
+		// TODO: make this handle null values
+ 		return String.format("ID: %s",id)
+ 			.concat(String.format(" Name: %s",name))
+			.concat(String.format(" Owner: %s",owner))
+			.concat(String.format(" Lat: %s",lat))
+			.concat(String.format(" Lon: %s",lon))
+			.concat(String.format(" Type: %s",type))
+			.concat(String.format(" Terrain: %s",terrain))
+			.concat(String.format(" Difficulty: %s",difficulty))
+			.concat(String.format(" Size: %s",size))
+			.concat(String.format(" Archived: %s",archived))
+			.concat(String.format(" Hidden: %s",hidden.getTime()))
+			.concat(String.format(" Found: %s",foundDate.getTime()));
 	}
-
 }

@@ -66,22 +66,38 @@ public class StatWolf {
 		}
 		
 		// catch everything we may have forgotten
+		IndexParser indexParser = null;
+		StatisticsData statisticsData = null;
+		HTMLOutput htmlOutput = null;
+		String statfile = null;
+		
 		try {
-			IndexParser indexParser = new IndexParser(indexdir.concat("index.xml"));
-	
-			StatisticsData statisticsData = new StatisticsData(indexParser.getFoundCaches(), indexParser.getHomeCoordinates(), prefs);
-	
-			HTMLOutput htmlOutput = new  HTMLOutput(statisticsData, prefs);
-	
-			String statfile = htmlOutput.generateHTML();
-	
-			if (statfile != null ) {
-				logger.info(MessageFormat.format(messages.getString("log.finished"), statfile));
-			} else {
-				logger.fatal(messages.getString("log.generalerror"));
-			}
+			indexParser = new IndexParser(indexdir.concat("index.xml"));
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("unexpected parsing error");
+			logger.debug(ex,ex);
+			System.exit(1);
+		}	
+		try {
+			statisticsData = new StatisticsData(indexParser.getFoundCaches(), indexParser.getHomeCoordinates(), prefs);
+		} catch (Exception ex) {
+			logger.error("unexpected statistics error");
+			logger.debug(ex,ex);
+			System.exit(1);
+		}	
+
+		try {
+			htmlOutput = new  HTMLOutput(statisticsData, prefs);
+			statfile = htmlOutput.generateHTML();
+		} catch (Exception ex) {
+			logger.error("unexpected html generation error");
+			logger.debug(ex,ex);
+			System.exit(1);
+		}	
+		if (statfile != null ) {
+			logger.info(MessageFormat.format(messages.getString("log.finished"), statfile));
+		} else {
+			logger.fatal("unabel to save output");
 		}
 	}
 }

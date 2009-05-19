@@ -9,6 +9,6 @@ public class CompareCacheByFoundDate implements Comparator<Cache> {
 	}
 
 	public int compare(Cache ob1, Cache ob2) {
-		return ob1.found.compareTo(ob2.found);
+		return ob1.getFoundDate().compareTo(ob2.getFoundDate());
 	}
 }
