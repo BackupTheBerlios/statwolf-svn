@@ -15,12 +15,12 @@ public class IndexParser {
 
 	private List<Cache> foundCaches = new ArrayList<Cache>();
 	private LatLonPoint homeCoordinates;
-	private static Logger logger = Logger.getLogger(HTMLOutput.class);
+	private static Logger logger = Logger.getLogger(IndexParser.class);
 
 	// jdom uses old syntax for compatibility
 	@SuppressWarnings("unchecked")
-	public IndexParser(String indexfile) {
-		
+	public IndexParser(String indexdir) {
+		String indexfile = indexdir.concat("index.xml");
 		Byte idxVersion = null;
 
 		SAXBuilder parser = new SAXBuilder();
@@ -38,7 +38,7 @@ public class IndexParser {
 				} else {
 					idxVersion = 0;
 				}
-				filterCaches(document.getRootElement().getChildren("CACHE"), idxVersion);
+				filterCaches(document.getRootElement().getChildren("CACHE"), idxVersion, indexdir);
 				setHomeCoordinates(document.getRootElement().getChildren("CENTRE"));
 			} catch (FileNotFoundException ex) {
 				logger.fatal("index file not found: ".concat(indexfile));
@@ -65,13 +65,13 @@ public class IndexParser {
 		
 	}
 	
-	private void filterCaches(List<Element> caches, Byte version) {
+	private void filterCaches(List<Element> caches, Byte version, String indexdir) {
 		logger.debug("filter caches for version "+version);
 		if (version != 0 && version != 3) {
 			throw new IllegalArgumentException("unsopported file format version "+version);			
 		}
 		for (Element cacheElement: caches) {
-			Cache cache = new Cache(cacheElement, version);
+			Cache cache = new Cache(cacheElement, version, indexdir);
 			if (cache.isIncomplete()) {
 				logger.warn(cache.getId()+" sorted out. Reason: incomplete information");
 			} else if (cache.isFound() && isGcCache(cache)) {
@@ -85,81 +85,6 @@ public class IndexParser {
 	private Boolean isGcCache(Cache cache) {
 		return ! CacheType.isAddiWpt(cache.getType().byteValue()) && cache.getType() != CacheType.CW_TYPE_CUSTOM;
 	}
-	
-//	private void filterCaches0(List<Element> caches) {
-//		for (Element cache: caches) {
-//			String cacheId = cache.getAttributeValue("wayp");
-//			String cacheFound = cache.getAttributeValue("found");
-//			String isincomplete = cache.getAttributeValue("is_INCOMPLETE");
-//			
-//			// TODO: check for valid cache type
-//			if ( (cacheId.indexOf("GC") == 0) && cacheFound.equals("true") && isincomplete.equals("false")) {
-//				logger.debug("includeing ".concat(cacheId));
-//				Cache fc = new Cache(new Element(), 0);
-//
-//				try {
-//					fc.setId(cache.getAttributeValue("wayp"));
-//					fc.setFound(cache.getAttributeValue("status"));
-//					fc.setArchived(cache.getAttributeValue("archived"));
-//					fc.setHidden(cache.getAttributeValue("hidden"));
-//					fc.setName(cache.getAttributeValue("name"));
-//					fc.setOwner(cache.getAttributeValue("owner"));
-//					fc.setLat(cache.getAttributeValue("lat").replace(',', '.'));
-//					fc.setLon(cache.getAttributeValue("lon").replace(',', '.'));
-//					fc.setOnline(cache.getAttributeValue("online"));
-//					
-//					fc.setDifficulty(cache.getAttributeValue("dif").replace(',', '.'));
-//					fc.setTerrain(cache.getAttributeValue("terrain").replace(',', '.'));
-//					fc.setSize(cache.getAttributeValue("size"));
-//					fc.setType(cache.getAttributeValue("type"));
-//					foundCaches.add(fc);
-//				} catch (Exception ex) {
-//					logger.error(cacheId.concat(" sortout. reason: ").concat(ex.toString()));
-//				}
-//			} else {
-//				logger.debug("ecluding ".concat(cacheId));
-//			}
-//		}
-//	}
-	
-//	private void filterCaches3(List<Element> caches) {
-//
-//		for (Element cache: caches) {
-//			String cacheId = cache.getAttributeValue("wayp");
-//			CwBoolFields boolFields = new CwBoolFields(Long.parseLong(cache.getAttributeValue("boolFields")));
-//			
-//			if (cacheId.indexOf("GC") == 0) {
-//				logger.debug("includeing ".concat(cacheId));
-//				try {
-//					if (boolFields.isFound) {
-//						CwByteFields byteFields = new CwByteFields(Long.parseLong(cache.getAttributeValue("byteFields")));
-//						
-//						Cache fc = new Cache();
-//						fc.setId(cache.getAttributeValue("wayp"));
-//						fc.setFound(cache.getAttributeValue("status"));
-//						fc.setHidden(cache.getAttributeValue("hidden"));
-//						fc.setName(cache.getAttributeValue("name"));
-//						fc.setOwner(cache.getAttributeValue("owner"));
-//						fc.setLat(cache.getAttributeValue("lat").replace(',', '.'));
-//						fc.setLon(cache.getAttributeValue("lon").replace(',', '.'));
-//						fc.setOnline(boolFields.isAvailable.toString());
-//						Float diff = byteFields.difficulty/10F;
-//						fc.setDifficulty(diff.toString());
-//						Float terr = byteFields.terrain/10F;
-//						fc.setTerrain(terr.toString());
-//						fc.setType(getVersion2Type(byteFields.cacheType));
-//						logger.info(fc.getId()+" "+fc.getType());
-//						foundCaches.add(fc);
-//					}
-//				} catch (Exception ex) {
-//					logger.error(cacheId.concat(" sortout. reason: ").concat(ex.toString()));
-//				}
-//			} else {
-//				logger.debug("ecluding ".concat(cacheId));
-//			}
-//		}
-//		
-//	}
 	
 	public List<Cache> getFoundCaches () {
 		return foundCaches;
@@ -185,24 +110,4 @@ public class IndexParser {
 	public LatLonPoint getHomeCoordinates() {
 		return homeCoordinates;
 	}
-	
-//	private String getVersion2Type(Integer type) {
-//		if (type > 127 ) { type = type -128;}
-//		switch (type) {
-//			case 100: return Constants.WHEREIGO.toString();
-//			case 101: return Constants.MEGAEVENT.toString();
-//			
-//			default: return type.toString();
-//		}
-//	}
-//	
-//	private String mapVersion2SizeToString(Integer size) {
-//		String ret = "unknown";
-//		switch (size) {
-//			case 1: ; break;
-//			case 2: ; break;
-//		}
-//		return ret;
-//	}
-
 }

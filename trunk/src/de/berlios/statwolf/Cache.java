@@ -38,9 +38,9 @@ public class Cache {
 	 * @param cacheInfo
 	 * @param version
 	 */
-	public Cache(Element cacheInfo, Byte version) {
-		if (version == 0) readInfo0(cacheInfo);
-		else if (version == 3) readInfo3(cacheInfo);
+	public Cache(Element cacheInfo, Byte version, String indexdir) {
+		if (version == 0) readInfo0(cacheInfo,indexdir);
+		else if (version == 3) readInfo3(cacheInfo,indexdir);
 		else throw new IllegalArgumentException("unsupported version "+version);
 	}
 	
@@ -48,7 +48,7 @@ public class Cache {
 	 * 
 	 * @param cacheInfo
 	 */
-	private void readInfo0(Element cacheInfo) {
+	private void readInfo0(Element cacheInfo, String indexdir) {
 		id = cacheInfo.getAttributeValue("wayp");
 		name = cacheInfo.getAttributeValue("name");
 		owner = cacheInfo.getAttributeValue("owner");
@@ -84,14 +84,16 @@ public class Cache {
 		}
 		
 		archived = 	cacheInfo.getAttributeValue("size").equals("true");	
-		found = cacheInfo.getAttributeValue("found").equals("true");	
+		found = cacheInfo.getAttributeValue("found").equals("true");
+		
+		details = new CacheDetails(id, indexdir);
 	}
 	
 	/**
 	 * 
 	 * @param cacheInfo
 	 */
-	private void readInfo3(Element cacheInfo) {
+	private void readInfo3(Element cacheInfo, String indexdir) {
 		id = cacheInfo.getAttributeValue("wayp");
 		name = cacheInfo.getAttributeValue("name");
 		owner = cacheInfo.getAttributeValue("owner");
@@ -112,6 +114,8 @@ public class Cache {
 		type = byteFields.cacheType;
 		difficulty = byteFields.difficulty;
 		terrain = byteFields.terrain;
+		
+		details = new CacheDetails(id, indexdir);
 	}
 	
 	/**
@@ -147,6 +151,7 @@ public class Cache {
 	public Integer getSize () { return size; }
 	public Boolean isArchived () { return archived; }
 	public Boolean isIncomplete () { return incomplete; }
+	public CacheDetails getDetails() { return details; }
 	
 	@Override public String toString() {
 		// TODO: make this handle null values

@@ -72,7 +72,7 @@ public class StatWolf {
 		String statfile = null;
 		
 		try {
-			indexParser = new IndexParser(indexdir.concat("index.xml"));
+			indexParser = new IndexParser(indexdir);
 		} catch (Exception ex) {
 			logger.error("unexpected parsing error");
 			logger.debug(ex,ex);

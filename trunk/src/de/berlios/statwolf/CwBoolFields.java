@@ -1,6 +1,10 @@
 package de.berlios.statwolf;
 
+import org.apache.log4j.*;
+
 public class CwBoolFields {
+	
+	private static Logger logger = Logger.getLogger(CwBoolFields.class);
 	
 	final Long BITMASK_FILTER = 0x1L<<0L;
 	final Long BITMASK_AVAILABLE = 0x1L<<1L;

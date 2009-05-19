@@ -38,8 +38,12 @@ public class StatisticsData {
 	private Boolean excludeLocless;
 	private Boolean excludeVirtual;
 	private Double cacheToCacheDistance;
+	private HashMap<String, Integer> findsByCountry = new HashMap<String, Integer>();
+	private HashMap<String, Integer> findsByState = new HashMap<String, Integer>();
+	private Integer noStateCounter = 0;
+	private Integer noCountryCounter = 0;
 	
-	private static Logger logger = Logger.getLogger(HTMLOutput.class);
+	private static Logger logger = Logger.getLogger(StatisticsData.class);
 
 	public StatisticsData(List<Cache> foundCaches, LatLonPoint homeCoordinates, Properties prefs) {
 		distUnit = prefs.getProperty("distunit", "km");
@@ -452,7 +456,26 @@ public class StatisticsData {
 			} else {
 				cachesByOwner.put(cache.getOwner(), cachesByOwner.get(cache.getOwner()) + 1);
 			}
+			
+			// cache by country
+			if (includeCache(cache) ) {
+				if (cache.getDetails().isValid() && cache.getDetails().getCountry() != "") {
+					if (cache.getDetails().getCountry() == null) {
+						logger.debug("NULL country in "+cache.getId());
+					}
+					if (findsByCountry.containsKey(cache.getDetails().getCountry())) {
+						findsByCountry.put(cache.getDetails().getCountry(), findsByCountry.get(cache.getDetails().getCountry())+1);
+					} else {
+						findsByCountry.put(cache.getDetails().getCountry(),1);
+					}
+				} else {
+					noCountryCounter++;
+				}
+			}
+			// cache by state
 		}
+		
+		logger.debug(findsByCountry);
 
 		List<Cache> excludedCaches = new ArrayList<Cache>(foundCaches);
 		
