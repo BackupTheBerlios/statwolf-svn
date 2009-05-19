@@ -469,13 +469,16 @@ public class StatisticsData {
 						findsByCountry.put(cache.getDetails().getCountry(),1);
 					}
 				} else {
+					logger.debug("missing country information for ".concat(cache.getId()));
 					noCountryCounter++;
 				}
 			}
 			// cache by state
 		}
 		
-		logger.debug(findsByCountry);
+		if ( noCountryCounter > 0) {
+			logger.warn(noCountryCounter.toString().concat(" caches have no country information associated to them"));
+		}
 
 		List<Cache> excludedCaches = new ArrayList<Cache>(foundCaches);
 		

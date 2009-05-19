@@ -23,7 +23,11 @@ public class CacheDetails {
 				Document document = parser.build(wptFile);
 				country = document.getRootElement().getChildText("COUNTRY");
 				state = document.getRootElement().getChildText("STATE");
-				valid = true;
+				if ((country != null) && (state != null)) {
+					valid = true;
+				} else {
+					valid = false;
+				}
 			} catch (Exception ex) {
 				logger.debug("parsing error for details of "+cacheId);
 				return;
