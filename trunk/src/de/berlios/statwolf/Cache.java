@@ -123,11 +123,10 @@ public class Cache {
 	 * @param calString
 	 * @return
 	 */
-	Calendar getCalFromString(String calString) {
-		Calendar ret = new GregorianCalendar();
+	private Calendar getCalFromString(String calString) {
+		Calendar ret = new GregorianCalendar(1970,1,1,0,0,0);
 		SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
 		try {
-			ret.setTime(df.parse("1970-01-01 00:00"));
 			ret.setTime(df.parse(calString.concat(" 00:00")));
 			ret.setTime(df.parse(calString));
 		} catch (ParseException e) {
@@ -137,20 +136,38 @@ public class Cache {
 		return ret;
 	}
 
+	/** get cache name */
 	public String getName () { return name; }
+	/** get cache owner */
 	public String getOwner() { return owner; }
+	/** get cache latitude */
 	public Float getLat () { return lat; }
+	/** get cache longitude */
 	public Float getLon () { return lon; }
+	/** get cache hidden date */
 	public Calendar getHidden () { return hidden; }
+	/** get cache id */
 	public String getId () { return id; }
+	/** get cache id (waypoint) */
 	public Calendar getFoundDate () { return foundDate; }
+	/** get cache found status */
 	public Boolean isFound() { return found; }
+	/** get cache type */
 	public Integer getType () { return type; }
+	/** get terrain rating */
 	public Integer getTerrain () { return terrain; }
+	/** get difficulty rating */
 	public Integer getDifficulty () { return difficulty; }
+	/** get cache size */
 	public Integer getSize () { return size; }
+	/** get cache archived state */
 	public Boolean isArchived () { return archived; }
+	/** is cache information complete */
 	public Boolean isIncomplete () { return incomplete; }
+	/** 
+	 * get cache details
+	 * @see CacheDetails
+	 */
 	public CacheDetails getDetails() { return details; }
 	
 	@Override public String toString() {

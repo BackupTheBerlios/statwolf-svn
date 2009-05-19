@@ -266,6 +266,10 @@ public class StatisticsData {
 		// TODO: hmm
 		return cachesByYearToDate;
 	}
+	
+	public TreeMap<String,Integer> getFindsByCountry() {
+		return new TreeMap<String,Integer>(findsByCountry);
+	}
 	/*
 	 * SET methods
 	 */

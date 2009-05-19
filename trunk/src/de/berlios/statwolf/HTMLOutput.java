@@ -95,7 +95,9 @@ public class HTMLOutput {
 		out.append(datatomb());
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(findsByOwner());
-		
+		out.append("<div style=\"float:left; width:100%;\"></div>\n");
+		out.append(findsByCountry());
+		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(stat_footer());
 		out.append(footer());
 		
@@ -987,6 +989,31 @@ public class HTMLOutput {
 			ret.append(MessageFormat.format(messages.getString("msg.crystalball.2"), next000Milestone,date000Finds.getTime() ));
 		}
 		ret.append("</p>\n");
+		return ret.toString();
+	}
+	
+	private String findsByCountry() {
+		TreeMap<String,Integer> fbc =  stats.getFindsByCountry();
+		StringBuffer ret = new StringBuffer();
+		ret.append("<div style=\"float:left;width:50%;\">\n");
+		ret.append(generateHeading(messages.getString("msg.findspercountry")+(excludeSomething?"<font style=\"size:9px\">*</font>":"")));
+		ret.append("<table width=\"98%\" style=\"table-layout:fixed\">\n");
+		ret.append(String.format("<thead style=\"%s\">\n", html.getString("table.head.default")));
+		ret.append("<tr><td width=\"70%\"></td><td>#</td><td>%</td></tr>\n");
+		ret.append("</thead>\n");
+		ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
+		for (String country: fbc.keySet()) {
+			ret.append(MessageFormat.format("<tr><td>{0}</td><td style=\"{2}\">{1,number}</td><td style=\"{2}\">{3,number,0.0}</td></tr>\n",
+					country,
+					fbc.get(country),
+					html.getString("cell.number"),
+					fbc.get(country).floatValue() / stats.getTotalCaches().floatValue() * 100F
+				)
+			);
+		}
+		ret.append("</tbody>\n");
+		ret.append("</table>\n");
+		ret.append("</div>\n");
 		return ret.toString();
 	}
 }
