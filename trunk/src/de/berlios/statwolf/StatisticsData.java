@@ -42,6 +42,7 @@ public class StatisticsData {
 	private HashMap<String, Integer> findsByState = new HashMap<String, Integer>();
 	private Integer noStateCounter = 0;
 	private Integer noCountryCounter = 0;
+	private HashMap<String, Integer> doublefc = new HashMap<String, Integer>();
 	
 	private static Logger logger = Logger.getLogger(StatisticsData.class);
 
@@ -275,7 +276,7 @@ public class StatisticsData {
 	 */
 
 	private void setDataMatrix() {
-
+		
 		matrixYearMonthFound = new HashMap<Integer, Integer[]>();
 		matrixYearMonthPlaced = new HashMap<Integer, Integer[]>();
 		Integer[] tempMonths;
@@ -297,6 +298,13 @@ public class StatisticsData {
 
 		// TODO: put most of this into separate sub routines
 		for (Cache cache: foundCaches ) {
+			
+			if (doublefc.containsKey(cache.getId())) {
+				logger.warn("duplicate entry for "+cache.getId());
+				break;
+			} else {
+				doublefc.put(cache.getId(), 1);
+			}
 
 			Integer foundDOW = cache.getFoundDate().get(Calendar.DAY_OF_WEEK);
 
@@ -336,13 +344,6 @@ public class StatisticsData {
 			} else {
 				cachesByType.put(cache.getType(), 1);
 			}
-
-//			// online
-//			if (cachesOnline.containsKey(cache.online)) {
-//				cachesOnline.put(cache.online, cachesOnline.get(cache.online) + 1);
-//			} else {
-//				cachesOnline.put(cache.online, 1);
-//			}
 
 			// archived
 			if (cachesArchived.containsKey(cache.isArchived())) {

@@ -96,7 +96,14 @@ public class HTMLOutput {
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(findsByOwner());
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(findsByCountry());
+		out.append(googleMap("world"));
+		out.append(googleMap("europe"));
+		out.append("<div style=\"float:left; width:100%;\"></div>\n");
+		out.append(googleMap("middle_east"));
+		out.append(googleMap("asia"));
+		out.append("<div style=\"float:left; width:100%;\"></div>\n");
+		out.append(googleMap("africa"));
+		out.append(googleMap("south_america"));
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(stat_footer());
 		out.append(footer());
@@ -1013,6 +1020,34 @@ public class HTMLOutput {
 		}
 		ret.append("</tbody>\n");
 		ret.append("</table>\n");
+		ret.append("</div>\n");
+		return ret.toString();
+	}
+	
+
+	// http://chart.apis.google.com/chart?cht=t&chs=440x220&chd=s:_&chtm=world
+	private String googleMap(String area) {
+		StringBuffer ret = new StringBuffer();
+		String headline = messages.getString("msg.areamaps")+messages.getString("area."+area);
+		TreeMap<String,Integer> fbc =  stats.getFindsByCountry();
+		ret.append("<div style=\"float:left;width:50%;\">\n");
+		ret.append(generateHeading(headline+(excludeSomething?"<font style=\"size:9px\">*</font>":"")));
+		String url="http://chart.apis.google.com/chart?cht=t&chs=378x189&chf=bg,s,EAF7FE&chtm=".concat(area);
+		String countryCodes="&chld=";
+		String countryValues="&chd=t:";
+		Integer valueCounter = 0;
+		url = url.concat("&chco=FFFFFF,DEB887,DEB887");
+		for (String country: fbc.keySet()) {
+			countryCodes = countryCodes + Constants.GCCOUNTRY2ISO.get(country);
+			valueCounter++;
+		}
+		for (int i = 0 ; i < valueCounter-1; i++) {
+			countryValues = countryValues.concat("1,");
+		}
+		if (valueCounter > 0) {
+			countryValues = countryValues.concat("1");
+		}
+		ret.append(String.format("<img src=\"%s%s%s\" alt=\"\"/>", url,countryCodes,countryValues));
 		ret.append("</div>\n");
 		return ret.toString();
 	}

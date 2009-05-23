@@ -34,7 +34,8 @@ public class StatWolf {
 		try {
 			prefs.load(new FileInputStream(preffile));
 		} catch (Exception ex) {
-			logger.fatal("unable to load preferences",ex);
+			logger.fatal("unable to load preferences ".concat(ex.getMessage()));
+			logger.debug("reason: ",ex);
 			System.exit(1);
 		}
 		

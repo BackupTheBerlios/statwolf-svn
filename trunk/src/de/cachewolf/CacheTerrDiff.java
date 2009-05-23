@@ -29,15 +29,17 @@ public class CacheTerrDiff {
 	protected static final byte CW_DT_50 = 50;
 	/** wrong terrain or difficulty */
 	protected static final byte CW_DT_ERROR = -1;
+	/** terrain or difficulty for additional waypoints */
+	protected static final byte CW_DT_ADDITIONAL = 0;
 
 	/** constructor dies nothing */
 	public CacheTerrDiff() {
 	}
 	
 	/**
-	 * convert "old style" terran and difficulty information to the new format.
+	 * convert "old style" terrain and difficulty information to the new format.
 	 * 
-	 * since it is also used by the importes it is not flagged as deprecated
+	 * since it is also used by the importers it is not flagged as depreciated
 	 * @param v1TerrDiff a string representation of terrain or difficulty
 	 * @return internal representation of terrain or difficulty
 	 * @throws IllegalArgumentException if <code>v1TerrDiff</code> can not be mapped
@@ -64,7 +66,7 @@ public class CacheTerrDiff {
 	/**
 	 * generate strings of terrain and difficulty for general use
 	 * @param td internal terrain or difficulty value
-	 * @return long version of terrain or difficulty (includeing .0)
+	 * @return long version of terrain or difficulty (including .0)
 	 * @throws IllegalArgumentException
 	 */
 	public static final String longDT(byte td) throws IllegalArgumentException {
@@ -85,7 +87,7 @@ public class CacheTerrDiff {
 	/**
 	 * generate strings of terrain and difficulty information for GC.com-like GPX exports
 	 * @param td internal terrain or difficulty value
-	 * @return short version of terrainor difficulty (omit .0)
+	 * @return short version of terrain or difficulty (omit .0)
 	 * @throws IllegalArgumentException
 	 */
 	public static final String shortDT(byte td) throws IllegalArgumentException {

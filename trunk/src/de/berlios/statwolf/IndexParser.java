@@ -62,7 +62,6 @@ public class IndexParser {
 			logger.error("no found caches in index file");
 			System.exit(0);
 		}
-		
 	}
 	
 	private void filterCaches(List<Element> caches, Byte version, String indexdir) {
@@ -72,18 +71,22 @@ public class IndexParser {
 		}
 		for (Element cacheElement: caches) {
 			Cache cache = new Cache(cacheElement, version, indexdir);
-			if (cache.isIncomplete()) {
+			if (cache.isAdditional()) {
+				logger.debug(cache.getId()+" sorted out. Reason: is additional waypoint");
+			} else if (cache.isIncomplete()) {
 				logger.warn(cache.getId()+" sorted out. Reason: incomplete information");
 			} else if (cache.isFound() && isGcCache(cache)) {
 				foundCaches.add(cache);
 			} else {
-				logger.debug(cache.getId()+" sorted out.");
+				logger.info(cache.getId()+" sorted out.");
 			}
 		}
 	}
 	
 	private Boolean isGcCache(Cache cache) {
-		return ! CacheType.isAddiWpt(cache.getType().byteValue()) && cache.getType() != CacheType.CW_TYPE_CUSTOM;
+		return ! CacheType.isAddiWpt(cache.getType().byteValue()) && 
+			cache.getType() != CacheType.CW_TYPE_CUSTOM &&
+			cache.getId().startsWith("GC");
 	}
 	
 	public List<Cache> getFoundCaches () {

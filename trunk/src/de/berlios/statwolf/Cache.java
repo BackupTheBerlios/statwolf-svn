@@ -32,6 +32,7 @@ public class Cache {
 	private CacheDetails details;
 	private Boolean incomplete = false;
 	private static Logger logger = Logger.getLogger(Cache.class);
+	private Boolean isadditional = false;
 	
 	/**
 	 * 
@@ -65,28 +66,36 @@ public class Cache {
 			incomplete = true;
 		}
 		
-		try {
-			difficulty = (int) CacheTerrDiff.v1Converter(cacheInfo.getAttributeValue("dif"));
-		} catch (IllegalArgumentException ex) {
-			incomplete = true;
-		}
+		isadditional = CacheType.isAddiWpt(type.byteValue());
 		
-		try {
-			terrain = (int) CacheTerrDiff.v1Converter(cacheInfo.getAttributeValue("terrain"));
-		} catch (IllegalArgumentException ex) {
-			incomplete = true;
-		}
-		
-		try {
-			size = (int) CacheSize.v1Converter(cacheInfo.getAttributeValue("size"));
-		} catch (IllegalArgumentException ex) {
-			incomplete = true;
+		if (isadditional) {
+			// skip next block
+		} else {
+	
+			try {
+				difficulty = (int) CacheTerrDiff.v1Converter(cacheInfo.getAttributeValue("dif"));
+			} catch (IllegalArgumentException ex) {
+				incomplete = true;
+			}
+			
+			try {
+				terrain = (int) CacheTerrDiff.v1Converter(cacheInfo.getAttributeValue("terrain"));
+			} catch (IllegalArgumentException ex) {
+				incomplete = true;
+			}
+			
+			try {
+				size = (int) CacheSize.v1Converter(cacheInfo.getAttributeValue("size"));
+			} catch (IllegalArgumentException ex) {
+				incomplete = true;
+			}
+			
+			details = new CacheDetails(id, indexdir);
 		}
 		
 		archived = 	cacheInfo.getAttributeValue("size").equals("true");	
 		found = cacheInfo.getAttributeValue("found").equals("true");
 		
-		details = new CacheDetails(id, indexdir);
 	}
 	
 	/**
@@ -110,12 +119,16 @@ public class Cache {
 		archived = boolFields.isArchived;
 		found = boolFields.isFound;
 		
-		size = byteFields.cacheSize;
 		type = byteFields.cacheType;
-		difficulty = byteFields.difficulty;
-		terrain = byteFields.terrain;
 		
-		details = new CacheDetails(id, indexdir);
+		if (CacheType.isAddiWpt(type.byteValue())) {
+			// skip next block
+		} else {
+			size = byteFields.cacheSize;
+			difficulty = byteFields.difficulty;
+			terrain = byteFields.terrain;
+			details = new CacheDetails(id, indexdir);
+		}
 	}
 	
 	/**
@@ -162,6 +175,8 @@ public class Cache {
 	public Integer getSize () { return size; }
 	/** get cache archived state */
 	public Boolean isArchived () { return archived; }
+	/** "cache" is additional waypoint */
+	public Boolean isAdditional() { return isadditional; }
 	/** is cache information complete */
 	public Boolean isIncomplete () { return incomplete; }
 	/** 
