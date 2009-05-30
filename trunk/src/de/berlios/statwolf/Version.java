@@ -2,6 +2,6 @@ package de.berlios.statwolf;
 
 public class Version {
 	
-	final static Integer VERSION=13;
+	final static Integer VERSION=1;
 
 }

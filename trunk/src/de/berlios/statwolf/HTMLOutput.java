@@ -18,33 +18,30 @@ public class HTMLOutput {
 	private String username;
 	private ResourceBundle html;
 	private static Logger logger = Logger.getLogger(HTMLOutput.class);
-	private Properties prefs;
 	private Boolean excludeVirtual = false;
 	private Boolean excludeLocless = false;
 	private Boolean excludeSomething = false;
 
-	public HTMLOutput(StatisticsData stats, Properties prefs) {
+	public HTMLOutput(StatisticsData stats) {
 		
 		String htmlSchema;
 		String locale;
 		
-		this.prefs = prefs;
-		
-		distUnit = prefs.getProperty("distunit", "km");
-		username = prefs.getProperty("username");
+		distUnit = StatWolf.prefs.getProperty("distunit", "km");
+		username = StatWolf.prefs.getProperty("username");
 		if (username == null) {
 			logger.error("username not set, please check preferences");
 			System.exit(1);
 		}
 		try {
-			excludeVirtual = Boolean.parseBoolean(prefs.getProperty("excludevirtual", "false"));
-			excludeLocless = Boolean.parseBoolean(prefs.getProperty("excludelocless", "false"));
+			excludeVirtual = Boolean.parseBoolean(StatWolf.prefs.getProperty("excludevirtual", "false"));
+			excludeLocless = Boolean.parseBoolean(StatWolf.prefs.getProperty("excludelocless", "false"));
 			excludeSomething = excludeVirtual || excludeLocless;
 		} catch (Exception ex) {
 			logger.error("error when parsing exsclude* properties", ex);
 		}
-		locale = prefs.getProperty("locale", "en");
-		htmlSchema = "html_".concat(prefs.getProperty("htmlschema", "default"));
+		locale = StatWolf.prefs.getProperty("locale", "en");
+		htmlSchema = "html_".concat(StatWolf.prefs.getProperty("htmlschema", "default"));
 		
 		this.stats = stats;
 		html = ResourceBundle.getBundle(htmlSchema);
@@ -67,6 +64,8 @@ public class HTMLOutput {
 		out.append(full_header());
 		out.append(stat_header());
 		out.append(headline());
+		out.append("<div style=\"float:left; width:100%;\"></div>\n");
+		out.append(timeLine());
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
 		out.append(matrixYearMonth(stats.getMatrixYearMonthFound(),messages.getString("msg.fpm")));
 		out.append("<div style=\"float:left; width:100%;\"></div>\n");
@@ -108,7 +107,7 @@ public class HTMLOutput {
 		out.append(stat_footer());
 		out.append(footer());
 		
-		String outdir = prefs.getProperty("outputdir", System.getProperty("java.io.tmpdir"));
+		String outdir = StatWolf.prefs.getProperty("outputdir", System.getProperty("java.io.tmpdir"));
 		
 		if ( !(outdir.endsWith("/") || outdir.endsWith("\\")) ) {
 		   outdir = outdir + System.getProperty("file.separator");
@@ -809,11 +808,12 @@ public class HTMLOutput {
 		
 		strTemp = String.format("<tr><td>%s</td><td>%s</td></tr>\n",
 				messages.getString("msg.cachetocachedistance"),
-				"{1,number,#,##0.0} {2}");
+				"\u2211 {1,number,#,##0.0} {2} \u2205 {3,number,#,##0.0} {2}");
 		ret.append(MessageFormat.format(strTemp,
 				excludeSomething?"<font style=\"size:9px\">*</font>":"",
 				stats.getCacheToCacheDistance(),
-				distUnit
+				distUnit,
+				excludeSomething?(stats.getCacheToCacheDistance()/stats.getCorrectedCacheCount()):(stats.getCacheToCacheDistance()/stats.getTotalCaches())
 				)
 			);
 
@@ -835,7 +835,7 @@ public class HTMLOutput {
 		StringBuffer ret = new StringBuffer();
 		TreeSet<UserNumber> cachesByOwnerSorted = stats.getCachesByOwnerSorted();
 		Integer numberOfOwners = (int) Math.floor(
-				(Double.parseDouble(prefs.getProperty("ownernumber", "20"))+1.0)/2.0
+				(Double.parseDouble(StatWolf.prefs.getProperty("ownernumber", "20"))+1.0)/2.0
 				);
 		
 		ret.append("<div style=\"float:left;width:100%;\">\n");
@@ -875,7 +875,7 @@ public class HTMLOutput {
 			);
 		ret.append(MessageFormat.format(summary, 
 				cachesByOwnerSorted.size(),
-				prefs.getProperty("username")
+				StatWolf.prefs.getProperty("username")
 				)
 			);
 		ret.append("</div>\n");
@@ -1024,31 +1024,114 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
-
-	// http://chart.apis.google.com/chart?cht=t&chs=440x220&chd=s:_&chtm=world
 	private String googleMap(String area) {
 		StringBuffer ret = new StringBuffer();
 		String headline = messages.getString("msg.areamaps")+messages.getString("area."+area);
-		TreeMap<String,Integer> fbc =  stats.getFindsByCountry();
-		ret.append("<div style=\"float:left;width:50%;\">\n");
-		ret.append(generateHeading(headline+(excludeSomething?"<font style=\"size:9px\">*</font>":"")));
 		String url="http://chart.apis.google.com/chart?cht=t&chs=378x189&chf=bg,s,EAF7FE&chtm=".concat(area);
 		String countryCodes="&chld=";
 		String countryValues="&chd=t:";
+		TreeMap<String,Integer> fbc =  stats.getFindsByCountry();
 		Integer valueCounter = 0;
+		
+		ret.append("<div style=\"float:left;width:50%;\">\n");
+		ret.append(generateHeading(headline+(excludeSomething?"<font style=\"size:9px\">*</font>":"")));
+		
 		url = url.concat("&chco=FFFFFF,DEB887,DEB887");
+		
 		for (String country: fbc.keySet()) {
 			countryCodes = countryCodes + Constants.GCCOUNTRY2ISO.get(country);
 			valueCounter++;
 		}
+		
 		for (int i = 0 ; i < valueCounter-1; i++) {
 			countryValues = countryValues.concat("1,");
 		}
+		
 		if (valueCounter > 0) {
 			countryValues = countryValues.concat("1");
 		}
+		
 		ret.append(String.format("<img src=\"%s%s%s\" alt=\"\"/>", url,countryCodes,countryValues));
 		ret.append("</div>\n");
+		
+		return ret.toString();
+	}
+	
+	private String timeLine() {
+		StringBuffer ret = new StringBuffer();
+		HashMap<Integer, Integer[]> mym = stats.getMatrixYearMonthFound();
+		
+//		String url = "http://chart.apis.google.com/chart?cht=lxy&chxt=r,x,y";
+		String url = "http://chart.apis.google.com/chart?cht=lc";
+		Calendar firstCachingDay = stats.getFirstCachingDay();
+		Calendar today = Calendar.getInstance();
+		
+		Integer numberOfValues = 0;
+		Integer totalCaches = 0;
+		Integer bestYear = 0;		
+		Integer monthValues[];
+		Integer totalValues[];
+		StringBuffer xLabel = new StringBuffer();
+		
+		xLabel.append("&chxl=0:|");
+		for (Integer year = firstCachingDay.get(Calendar.YEAR);year <= today.get(Calendar.YEAR); year++) {
+			xLabel.append(year.toString());
+			for (Integer month = 0; month <= 11; month++) {
+				if ((year == firstCachingDay.get(Calendar.YEAR)) && (month < firstCachingDay.get(Calendar.MONTH))) {
+					continue;
+				}
+				if ((year == today.get(Calendar.YEAR)) && (month > today.get(Calendar.MONTH))) {
+					continue;
+				}
+				if (month < 11) {
+					xLabel.append("|");
+				}
+				numberOfValues++;
+			}
+		}
+		
+		logger.info(numberOfValues);
+		
+		monthValues = new Integer[numberOfValues];
+		totalValues = new Integer[numberOfValues];
+		
+		Integer valueCounter = 0;
+		for (Integer year = firstCachingDay.get(Calendar.YEAR);year <= today.get(Calendar.YEAR); year++) {
+			Integer cachesInYear = 0;
+			for (Integer month = 0; month <= 11; month++) {
+				if (year == firstCachingDay.get(Calendar.YEAR) && month < firstCachingDay.get(Calendar.MONTH)) {
+					continue;
+				}
+				if (year == today.get(Calendar.YEAR) && month > today.get(Calendar.MONTH)) {
+					continue;
+				}
+				cachesInYear = cachesInYear + mym.get(year)[month];
+				totalCaches = totalCaches + mym.get(year)[month];
+				logger.info("month "+month+" year "+year+" this year "+cachesInYear+" total "+totalCaches);
+				monthValues[valueCounter] = cachesInYear;
+				totalValues[valueCounter] = totalCaches;
+				valueCounter++;
+			}
+			if (cachesInYear > bestYear) bestYear = cachesInYear;
+		}
+		
+		ret.append("<div style=\"float:left;width:100%;\">\n");
+		ret.append(generateHeading(messages.getString("msg.timeline")));
+		ret.append(String.format("<img src=\"%s\" alt=\"\">", 
+				url
+				.concat("&chs=740x300") // size
+				.concat(String.format("&chxr=1,0,%d", totalCaches)) // max values for y axis 
+				.concat("&chf=bg,s,00000000") // background
+				.concat(xLabel.toString()) // x axis labels
+				.concat("&chd=e:".concat(ChartDataEncoder.scale(totalValues,totalCaches,true)))
+				.concat("&chls=2,1,0") // line styles
+				.concat("&chm=B,DEB88740,0,0,0") // fill area color
+				.concat("&chco=DEB887") // color of main line
+				.concat("&chxt=x,r") // 2 axis
+				.concat("") // 
+			));
+		ret.append("</div>\n");
+		
 		return ret.toString();
 	}
 }

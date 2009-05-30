@@ -8,6 +8,8 @@ import java.io.*;
 
 public class StatWolf {
 	
+	static Properties prefs;
+	
 	public static void main(String[] args) {
 		String indexdir;
 
@@ -24,7 +26,7 @@ public class StatWolf {
 
 		Logger logger = Logger.getLogger(StatWolf.class);
 		
-		Properties prefs = new Properties();
+		prefs = new Properties();
 		String preffile = System.getProperty("preferences");
 		
 		if ( preffile == null ) {
@@ -80,7 +82,7 @@ public class StatWolf {
 			System.exit(1);
 		}	
 		try {
-			statisticsData = new StatisticsData(indexParser.getFoundCaches(), indexParser.getHomeCoordinates(), prefs);
+			statisticsData = new StatisticsData(indexParser.getFoundCaches(), indexParser.getHomeCoordinates());
 		} catch (Exception ex) {
 			logger.error("unexpected statistics error");
 			logger.debug(ex,ex);
@@ -88,7 +90,7 @@ public class StatWolf {
 		}	
 
 		try {
-			htmlOutput = new  HTMLOutput(statisticsData, prefs);
+			htmlOutput = new  HTMLOutput(statisticsData);
 			statfile = htmlOutput.generateHTML();
 		} catch (Exception ex) {
 			logger.error("unexpected html generation error");

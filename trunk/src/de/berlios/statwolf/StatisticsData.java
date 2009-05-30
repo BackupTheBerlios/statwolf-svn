@@ -14,7 +14,6 @@ public class StatisticsData {
 	private HashMap<Integer, Integer> cachesByType;
 	private HashMap<Integer, Integer> cachesByContainer;
 	private HashMap<Boolean, Integer> cachesArchived;
-//	private HashMap<Boolean, Integer> cachesOnline;
 	private HashMap<Integer, Integer> cachesByDayOfWeek;
 	private Integer[][] matrixMonthDay;
 	private HashMap<Integer, Integer[]> matrixYearMonthFound;
@@ -43,13 +42,14 @@ public class StatisticsData {
 	private Integer noStateCounter = 0;
 	private Integer noCountryCounter = 0;
 	private HashMap<String, Integer> doublefc = new HashMap<String, Integer>();
+	private Integer correctedCacheCount;
 	
 	private static Logger logger = Logger.getLogger(StatisticsData.class);
 
-	public StatisticsData(List<Cache> foundCaches, LatLonPoint homeCoordinates, Properties prefs) {
-		distUnit = prefs.getProperty("distunit", "km");
-		excludeLocless = Boolean.parseBoolean(prefs.getProperty("excludelocless", "false"));
-		excludeVirtual = Boolean.parseBoolean(prefs.getProperty("excludevirtual", "false"));
+	public StatisticsData(List<Cache> foundCaches, LatLonPoint homeCoordinates) {
+		distUnit = StatWolf.prefs.getProperty("distunit", "km");
+		excludeLocless = Boolean.parseBoolean(StatWolf.prefs.getProperty("excludelocless", "false"));
+		excludeVirtual = Boolean.parseBoolean(StatWolf.prefs.getProperty("excludevirtual", "false"));
 
 		updateStatistics(foundCaches, homeCoordinates);
 	}
@@ -115,6 +115,10 @@ public class StatisticsData {
 //	public HashMap<Boolean, Integer> getCachesOnline() {
 //		return cachesOnline;
 //	}
+	
+	public Integer getCorrectedCacheCount() {
+		return correctedCacheCount;
+	}
 
 	public HashMap<Integer, Integer> getCachesByDayOfWeek() {
 		return cachesByDayOfWeek;
@@ -521,6 +525,8 @@ public class StatisticsData {
 			int index = (int) Math.floor(excludedCaches.size() / 2.0);
 			cacheMedian.setLongitude(excludedCaches.get(index).getLon());
 		}
+		
+		correctedCacheCount = excludedCaches.size();
 
 		// milestones
 		Collections.sort(foundCaches, new CompareCacheByFoundDate());
