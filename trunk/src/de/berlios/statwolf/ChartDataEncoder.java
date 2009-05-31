@@ -17,7 +17,7 @@ public class ChartDataEncoder {
 	}
 	
 	/**
-	 * scales converts an array of integers to the google chart API special formats
+	 * scales and converts an array of integers to the google chart API special formats
 	 * @param values array of positive integers to scale and convert 
 	 * @param max maximum value the data should be scaled to
 	 * @param extended use extended format if true or simple format if false
@@ -48,9 +48,9 @@ public class ChartDataEncoder {
 	}
 	
 	/**
-	 * 
+	 * converts a value to the google charts api extened format
 	 * @param value value to encode (0 <= value <= <code>MAXEXTENDED</code>)
-	 * @return extended encoding for <code>value</code> or _ if value can not be converted successfully
+	 * @return extended encoding for <code>value</code> or __ if value can not be converted successfully
 	 * @see MAXEXTENDED
 	 */
 	public static final String extended(Integer value) {

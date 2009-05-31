@@ -98,3 +98,33 @@ outputdir=c:\\temp
 # Notes          : n/a
 #
 #loglevel=debug
+
+# Paramerter     : output
+# Description    : determines the layout and selection of information to be shown
+# Possible Value : 100%width
+#                  monthyearfound, milestones, terraindifficulty, daymonthfound,
+#                  monthyearplaced, datatomb, owner, timeline
+#                  50%width
+#                  cachetype, distancefromhome, difficulty, terrain. dayofweek, size,
+#                  compassrose, distance, mapworld, mapeurope, mapmiddleeast, mapasia,
+#                  mapafrica, mapsouthamerica
+# Notes          : numbers behind the dot must be consecutive ascending integers starting with 1
+#                  there can be up to two entries per line. if you specify more than one item
+#                  per line make sue to only use those with 50% width otherwise results my look 
+#                  terrible
+
+output.1=monthyearfound
+output.2=milestones
+output.3=terraindifficulty
+output.4=cachetype,distancefromhome
+output.5=daymonthfound
+output.6=difficulty,terrain
+output.7=dayofweek,size
+output.8=monthyearplaced
+output.9=compassrose,findsbymonthfound
+output.10=datatomb
+output.11=owner
+output.12=mapworld,mapeurope
+#output.13=mapmiddleeast,mapasia
+#output.14=mapafrica,mapsouthamerica
+

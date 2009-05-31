@@ -59,53 +59,11 @@ public class HTMLOutput {
 	}
 
 	public String generateHTML() {
-		
 		StringBuffer out = new StringBuffer();
-		out.append(full_header());
-		out.append(stat_header());
-		out.append(headline());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(timeLine());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(matrixYearMonth(stats.getMatrixYearMonthFound(),messages.getString("msg.fpm")));
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(milestones());
-		out.append(matrixTerrainDifficulty());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(findsByType());
-		out.append(findsByDistanceFromHome());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(matrixMonthDay());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(findsByDT(stats.getCachesByDifficulty(), messages.getString("msg.fbd")));
-		out.append(findsByDT(stats.getCachesByTerrain(), messages.getString("msg.fbt")));
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(findsByDayOfWeek());
-		out.append(findsByContainer());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(matrixYearMonth(stats.getMatrixYearMonthPlaced(),messages.getString("msg.fpmplaced")));
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(findsByDirection());
-		out.append(findsByMonth());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		// year cache placed (50%)
-		// find till today per year (50%)
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(datatomb());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(findsByOwner());
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(googleMap("world"));
-		out.append(googleMap("europe"));
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(googleMap("middle_east"));
-		out.append(googleMap("asia"));
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(googleMap("africa"));
-		out.append(googleMap("south_america"));
-		out.append("<div style=\"float:left; width:100%;\"></div>\n");
-		out.append(stat_footer());
-		out.append(footer());
+		
+		out.append(htmlHeader());
+		out.append(htmlStats());
+		out.append(htmlFooter());
 		
 		String outdir = StatWolf.prefs.getProperty("outputdir", System.getProperty("java.io.tmpdir"));
 		
@@ -126,76 +84,6 @@ public class HTMLOutput {
 			return null;
 		}
 
-	}
-
-	private String stat_header() {
-		StringBuffer ret = new StringBuffer();
-		String temp=String.format("<div align=\"center\" style=\"%s\">\n", html.getString("outerdiv"));
-		ret.append(String.format(temp, html.getString("totalwidth")));
-		return ret.toString();
-	}
-
-	private String full_header() {
-		StringBuffer ret = new StringBuffer();
-		ret.append("<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>\n");
-		ret.append("<html xmlns='http://www.w3.org/1999/xhtml'>\n");
-		ret.append("<head>\n");
-		ret.append("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />\n");
-		ret.append("<base href=\"http://www.geocaching.com/\" />\n");
-		ret.append("<title>");
-		ret.append(MessageFormat.format(messages.getString("page.title"), username));
-		ret.append("</title>");
-		ret.append("</head>\n");
-		ret.append("<body>\n");
-		ret.append("<!-- *********************************************************************** -->\n");
-		return ret.toString();
-	}
-
-	private String stat_footer() {
-		String temp;
-		StringBuffer ret = new StringBuffer();
-		ret.append("<div style=\"float:left; width:100%;\">\n");
-		ret.append(generateHeading(messages.getString("msg.finally")));
-		temp = String.format(
-					"<p style=\"%s\">%s</p>\n", 
-					html.getString("p.finally"),
-					messages.getString("msg.footer.1")
-				);
-		ret.append(MessageFormat.format(temp, "<a href=\"http://statwolf.berlios.de/\">StatWolf</a>", Version.VERSION));
-		temp = String.format(
-				"<p style=\"%s\">%s</p>\n", 
-				html.getString("p.finally"),
-				messages.getString("msg.footer.2")
-			);
-		ret.append(MessageFormat.format(temp, "<a href=\"http://www.cachewolf.de/\">CacheWolf</a>"));
-		temp = String.format(
-				"<p style=\"%s\">%s</p>\n", 
-				html.getString("p.finally"),
-				messages.getString("msg.footer.3")
-			);
-		ret.append(MessageFormat.format(temp, "<a href=\"http://gsak.net/board/index.php?showtopic=4623\">FindStatGen</a>"));
-		ret.append("<p/>\n");
-		if (excludeSomething) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("<p style=\"\"><font style=\"size:9px\">*</font> excludes ");
-			if (excludeVirtual && excludeLocless) {
-				buf.append("Locationless and Virtual");
-			} else if (excludeVirtual) {
-				buf.append("Virtual");
-			} else if (excludeLocless) {
-				buf.append("Locationless");
-			}
-			buf.append(" caches</p><p/>");
-			ret.append(buf);
-		}
-		ret.append("</div>\n");
-		ret.append("</div>\n");
-		ret.append("<!-- *********************************************************************** -->\n");
-		return ret.toString();
-	}
-
-	private String footer() {
-		return "</body>\n</html>\n";
 	}
 
 	private String matrixTerrainDifficulty() {
@@ -243,9 +131,10 @@ public class HTMLOutput {
 			ret.append("</tr>\n");
 		}
 
-		ret.append("</tbody>\n</table>\n</div>\n");
+		ret.append("</tbody>\n</table>\n");
 		ret.append(MessageFormat.format(messages.getString("msg.combination"),
 				combinations, 81));
+		ret.append("</div>\n");
 		return ret.toString();
 	}
 
@@ -294,7 +183,7 @@ public class HTMLOutput {
 			}
 			ret.append("</tr>\n");
 		}
-		ret.append("</body>\n</table>\n");
+		ret.append("</tbody>\n</table>\n");
 		ret.append(MessageFormat.format(messages.getString("msg.combination"), combinations, 366));
 		ret.append("</div>\n");
 		return ret.toString();
@@ -352,19 +241,6 @@ public class HTMLOutput {
 			ret.append("</tr>\n");
 		}
 		ret.append("</tbody>\n</table>\n</div>\n");
-		return ret.toString();
-	}
-
-	private String headline() {
-		StringBuffer ret = new StringBuffer();
-		ret.append("<span style='");
-		ret.append("font-family: Tahoma, Arial, sans-serif; font-size: 16px; font-weight: bold;");
-		ret.append("'>");
-		ret.append(MessageFormat.format(messages.getString("head.summary"),username, stats.getTotalCaches()));
-		ret.append("</span><br />\n");
-		ret.append("<br />");
-		ret.append(MessageFormat.format(messages.getString("head.update"),new Date(System.currentTimeMillis())));
-		ret.append("<br /><br />\n");
 		return ret.toString();
 	}
 
@@ -718,7 +594,7 @@ public class HTMLOutput {
 	        		stats.daysBetween(lastMilestone,value.getFoundDate()),
 	        		cacheLink(value.getId()),
 	        		Constants.TYPEIMAGES.get(value.getType()),
-	        		value.getName(),
+	        		escapeXML(value.getName()),
 	        		html.getString("cell.number")
 	        	)
 	        );
@@ -885,8 +761,8 @@ public class HTMLOutput {
 	private String findsByDirection() {
 		HashMap<String,Integer> cbd = stats.getCachesByDirection();
 		Integer maxCount = 0;
-		StringBuffer chartData = new StringBuffer("&chd=t:");
-		StringBuffer chartHead = new StringBuffer("&chxl=0:");
+		StringBuffer chartData = new StringBuffer("&amp;chd=t:");
+		StringBuffer chartHead = new StringBuffer("&amp;chxl=0:");
 
 		for (String dir: Constants.DIRECTIONS) {
 			if (cbd.get(dir) > maxCount) {
@@ -900,15 +776,15 @@ public class HTMLOutput {
 		StringBuffer ret = new StringBuffer();
 		String charturl= Constants.CHARTBASE
 			.concat("cht=r")
-			.concat("&chs=250x250") // TODO: compute from outer div size
-			.concat("&chco=FF0000") // TODO: get color from profile
-			.concat("&chls=2.0,4.0,0.0")
-			.concat("&chxt=x")
-			.concat("&chf=bg,s,00000000")
-			.concat("&chxr=0,0.0,360.0")
+			.concat("&amp;chs=250x250") // TODO: compute from outer div size
+			.concat("&amp;chco=FF0000") // TODO: get color from profile
+			.concat("&amp;chls=2.0,4.0,0.0")
+			.concat("&amp;chxt=x")
+			.concat("&amp;chf=bg,s,00000000")
+			.concat("&amp;chxr=0,0.0,360.0")
 			.concat(chartHead.toString()) 
 			.concat(chartData.toString())
-			.concat(String.format("&chds=0,%s", maxCount)); 
+			.concat(String.format("&amp;chds=0,%s", maxCount)); 
 		ret.append("<div style=\"float:left;width:50%;\">\n");
 		ret.append(generateHeading(messages.getString("msg.findsbydirection")));
 		ret.append(String.format("<p align=\"center\"><img src=\"%s\" alt=\"\"/></p>", charturl));
@@ -953,20 +829,36 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
+	/**
+	 * generate link to a cache page for milestone statistic
+	 * @param id waypoint
+	 * @return url pointing to waypoint info
+	 */
 	private String cacheLink(String id) {
 		return MessageFormat.format("<a href=\"http://coord.info/{0}\">{0}</a>", id);
 	}
 
+	/**
+	 * generate link to an owner profile for owner statistics
+	 * @param id
+	 * @return
+	 */
 	private String ownerLink(String id) {
 		String ret = "";
 		try {
 			ret =String.format("<a href=\"http://www.geocaching.com/profile/?u=%s\">%s</a>", 
 					URLEncoder.encode(id, "UTF-8"),
-					id);
+					escapeXML(id));
 		} catch (Exception ignore) { }
 		return ret;
 	}
 
+	/**
+	 * generate a horizontal image bar
+	 * @param count
+	 * @param maxCount
+	 * @return
+	 */
 	private String createHorizontalBar(Integer count, Integer maxCount) {
 		Integer width = (int) Math.floor(count.floatValue() / maxCount.floatValue() * Constants.MAXHORIZONTALBARLENGTH);
 		return MessageFormat.format("<img src=\"{0}\" height=\"15\" width=\"{1}\" alt=\"{2,number,#,##0.0}%\"/>",
@@ -976,6 +868,10 @@ public class HTMLOutput {
 			);
 	}
 
+	/**
+	 * generate forecast for next 00 and 000 milestone based on last years caching averages
+	 * @return
+	 */
 	private String crystalball() {
 		StringBuffer ret = new StringBuffer();
 		Integer currentFinds = stats.getTotalCaches();
@@ -999,6 +895,10 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
+	/**
+	 * generate raw numbers of finds by country
+	 * @return
+	 */
 	private String findsByCountry() {
 		TreeMap<String,Integer> fbc =  stats.getFindsByCountry();
 		StringBuffer ret = new StringBuffer();
@@ -1024,19 +924,24 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
+	/**
+	 * generate a map using google chart api
+	 * @param area valid parameters are world, europe, middle_east, asia, africa, south_america
+	 * @return
+	 */
 	private String googleMap(String area) {
 		StringBuffer ret = new StringBuffer();
 		String headline = messages.getString("msg.areamaps")+messages.getString("area."+area);
-		String url="http://chart.apis.google.com/chart?cht=t&chs=378x189&chf=bg,s,EAF7FE&chtm=".concat(area);
-		String countryCodes="&chld=";
-		String countryValues="&chd=t:";
+		String url="http://chart.apis.google.com/chart?cht=t&amp;chs=378x189&amp;chf=bg,s,EAF7FE&amp;chtm=".concat(area);
+		String countryCodes="&amp;chld=";
+		String countryValues="&amp;chd=t:";
 		TreeMap<String,Integer> fbc =  stats.getFindsByCountry();
 		Integer valueCounter = 0;
 		
 		ret.append("<div style=\"float:left;width:50%;\">\n");
 		ret.append(generateHeading(headline+(excludeSomething?"<font style=\"size:9px\">*</font>":"")));
 		
-		url = url.concat("&chco=FFFFFF,DEB887,DEB887");
+		url = url.concat("&amp;chco=FFFFFF,DEB887,DEB887");
 		
 		for (String country: fbc.keySet()) {
 			countryCodes = countryCodes + Constants.GCCOUNTRY2ISO.get(country);
@@ -1051,12 +956,16 @@ public class HTMLOutput {
 			countryValues = countryValues.concat("1");
 		}
 		
-		ret.append(String.format("<img src=\"%s%s%s\" alt=\"\"/>", url,countryCodes,countryValues));
+		ret.append(String.format("<img src=\"%s%s%s\" alt=\"\"/>\n", url,countryCodes,countryValues));
 		ret.append("</div>\n");
 		
 		return ret.toString();
 	}
 	
+	/**
+	 * generate time line graph showing total progress and annual caching activities 
+	 * @return
+	 */
 	private String timeLine() {
 		StringBuffer ret = new StringBuffer();
 		HashMap<Integer, Integer[]> mym = stats.getMatrixYearMonthFound();
@@ -1077,15 +986,11 @@ public class HTMLOutput {
 		for (Integer year = firstCachingDay.get(Calendar.YEAR);year <= today.get(Calendar.YEAR); year++) {
 			xLabel.append(year.toString());
 			for (Integer month = 0; month <= 11; month++) {
-				if ((year == firstCachingDay.get(Calendar.YEAR)) && (month < firstCachingDay.get(Calendar.MONTH))) {
+				if ((year == firstCachingDay.get(Calendar.YEAR)) && (month < firstCachingDay.get(Calendar.MONTH))) 
 					continue;
-				}
-				if ((year == today.get(Calendar.YEAR)) && (month > today.get(Calendar.MONTH))) {
+				if ((year == today.get(Calendar.YEAR)) && (month > today.get(Calendar.MONTH)))
 					continue;
-				}
-				if (month < 11) {
-					xLabel.append("|");
-				}
+				if (month < 11) xLabel.append("|");
 				numberOfValues++;
 			}
 		}
@@ -1127,11 +1032,186 @@ public class HTMLOutput {
 				.concat("&chls=2,1,0") // line styles
 				.concat("&chm=B,DEB88740,0,0,0") // fill area color
 				.concat("&chco=DEB887") // color of main line
-				.concat("&chxt=x,r") // 2 axis
+				.concat("&chxt=x,r") // 3 axis
 				.concat("") // 
 			));
 		ret.append("</div>\n");
 		
 		return ret.toString();
+	}
+	
+	/**
+	 * generate HTML version of statistics
+	 * @return
+	 */
+	public String htmlStats() {
+		StringBuffer ret = new StringBuffer();
+		Integer outlineCounter = 1;
+		
+		ret.append(statsHeader());
+		
+		while (null != StatWolf.prefs.getProperty("output.".concat(outlineCounter.toString()))) {
+			String[] outline = StatWolf.prefs.getProperty("output.".concat(outlineCounter.toString())).split(",");
+			for (String outtype: outline) {
+				if (outtype.equals("monthyearfound")) {
+					ret.append(matrixYearMonth(stats.getMatrixYearMonthFound(),messages.getString("msg.fpm")));
+				} else if (outtype.equals("milestones")) {
+					ret.append(milestones());
+				} else if (outtype.equals("terraindifficulty")) {
+					ret.append(matrixTerrainDifficulty());
+				} else if (outtype.equals("cachetype")) {
+					ret.append(findsByType());
+				} else if (outtype.equals("distancefromhome")) {
+					ret.append(findsByDistanceFromHome());
+				} else if (outtype.equals("daymonthfound")) {
+					ret.append(matrixMonthDay());
+				} else if (outtype.equals("difficulty")) {
+					ret.append(findsByDT(stats.getCachesByDifficulty(), messages.getString("msg.fbd")));
+				} else if (outtype.equals("terrain")) {
+					ret.append(findsByDT(stats.getCachesByTerrain(), messages.getString("msg.fbt")));
+				} else if (outtype.equals("dayofweek")) {
+					ret.append(findsByDayOfWeek());
+				} else if (outtype.equals("size")) {
+					ret.append(findsByContainer());
+				} else if (outtype.equals("monthyearplaced")) {
+					ret.append(matrixYearMonth(stats.getMatrixYearMonthPlaced(),messages.getString("msg.fpmplaced")));
+				} else if (outtype.equals("compassrose")) {
+					ret.append(findsByDirection());
+				} else if (outtype.equals("findsbymonthfound")) {
+					ret.append(findsByMonth());
+				} else if (outtype.equals("datatomb")) {
+					ret.append(datatomb());
+				} else if (outtype.equals("owner")) {
+					ret.append(findsByOwner());
+				} else if (outtype.equals("mapworld")) {
+					ret.append(googleMap("world"));
+				} else if (outtype.equals("mapeurope")) {
+					ret.append(googleMap("europe"));
+				} else if (outtype.equals("mapmiddleeast")) {
+					ret.append(googleMap("middle_east"));
+				} else if (outtype.equals("mapasia")) {
+					ret.append(googleMap("asia"));
+				} else if (outtype.equals("mapafrica")) {
+					ret.append(googleMap("africa"));
+				} else if (outtype.equals("mapsouthamerica")) {
+					ret.append(googleMap("south_america"));
+				} else {
+					logger.warn("unknown output directive "+outtype+". check preferences.properties");
+				}
+			}
+			ret.append("<div style=\"float:left; width:100%;\"></div>\n");
+			outlineCounter++;
+		}
+		
+		ret.append(statsFooter());
+		
+		return ret.toString();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private String statsHeader() {
+		StringBuffer ret = new StringBuffer();
+		String temp=String.format("<div align=\"center\" style=\"%s\">\n", html.getString("outerdiv"));
+		ret.append(String.format(temp, html.getString("totalwidth")));
+		ret.append("<span style='");
+		ret.append("font-family: Tahoma, Arial, sans-serif; font-size: 16px; font-weight: bold;");
+		ret.append("'>");
+		ret.append(MessageFormat.format(messages.getString("head.summary"),username, stats.getTotalCaches()));
+		ret.append("</span><br />\n");
+		ret.append("<br />");
+		ret.append(MessageFormat.format(messages.getString("head.update"),new Date(System.currentTimeMillis())));
+		ret.append("<br /><br />\n");
+		return ret.toString();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private String statsFooter() {
+		StringBuffer ret = new StringBuffer();
+		String temp;
+		ret.append("<div style=\"float:left;width:100%;\">\n");
+		ret.append(generateHeading(messages.getString("msg.finally")));
+		temp = String.format(
+					"<p style=\"%s\">%s</p>\n", 
+					html.getString("p.finally"),
+					messages.getString("msg.footer.1")
+				);
+		ret.append(MessageFormat.format(temp, "<a href=\"http://statwolf.berlios.de/\">StatWolf</a>", Version.VERSION));
+		temp = String.format(
+				"<p style=\"%s\">%s</p>\n", 
+				html.getString("p.finally"),
+				messages.getString("msg.footer.2")
+			);
+		ret.append(MessageFormat.format(temp, "<a href=\"http://www.cachewolf.de/\">CacheWolf</a>"));
+		temp = String.format(
+				"<p style=\"%s\">%s</p>\n", 
+				html.getString("p.finally"),
+				messages.getString("msg.footer.3")
+			);
+		ret.append(MessageFormat.format(temp, "<a href=\"http://gsak.net/board/index.php?showtopic=4623\">FindStatGen</a>"));
+		ret.append("<p/>\n");
+		if (excludeSomething) {
+			StringBuffer buf = new StringBuffer();
+			buf.append("<p style=\"\"><font style=\"size:9px\">*</font> excludes ");
+			if (excludeVirtual && excludeLocless) {
+				buf.append("Locationless and Virtual");
+			} else if (excludeVirtual) {
+				buf.append("Virtual");
+			} else if (excludeLocless) {
+				buf.append("Locationless");
+			}
+			buf.append(" caches</p><p/>\n");
+			ret.append(buf);
+		}
+		ret.append("</div>\n");
+		ret.append("</div>\n");
+		return ret.toString();
+	}
+	
+	/**
+	 * generate html header for stand alone display and set start marker 
+	 * @return
+	 */
+	private String htmlHeader() {
+		StringBuffer ret = new StringBuffer();
+		ret.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+		ret.append("<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>\n");
+		ret.append("<html xmlns='http://www.w3.org/1999/xhtml'>\n");
+		ret.append("<head>\n");
+		ret.append("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />\n");
+		ret.append("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />");
+		ret.append("<base href=\"http://www.geocaching.com/\" />\n");
+		ret.append("<title>");
+		ret.append(MessageFormat.format(messages.getString("page.title"), username));
+		ret.append("</title>");
+		ret.append("</head>\n");
+		ret.append("<body>\n");
+		ret.append("<!-- ******************** select below to include in gc.com profile ******************** -->\n");
+		return ret.toString();
+	}
+	
+	/**
+	 * set end marker for stats and close html tags
+	 * @return
+	 */
+	private String htmlFooter() {
+		StringBuffer ret = new StringBuffer();
+		ret.append("<!--  ******************** select above to include in gc.com profile ********************  -->\n");
+		ret.append("</body>\n</html>\n");
+		return ret.toString();
+	}
+	
+	/**
+	 * encode enough of the string to make it go through the XML validator
+	 * @param str string to encode
+	 * @return string with &, >, < replaced by their entity encoding
+	 */
+	private String escapeXML(String str) {
+		return str.replace(">", "&gt;").replace("<", "&lt;").replace("&", "&amp;");
 	}
 }
