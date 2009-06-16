@@ -293,6 +293,7 @@ public class Constants {
 		GCCOUNTRY2ISO.put("Ukraine", "UA");
 		GCCOUNTRY2ISO.put("United Arab Emirates", "AE");
 		GCCOUNTRY2ISO.put("United Kingdom", "GB");
+		GCCOUNTRY2ISO.put("United States", "US");
 		GCCOUNTRY2ISO.put("Uruguay", "UY");
 		GCCOUNTRY2ISO.put("US Minor Outlying Islands ", "UM");
 		GCCOUNTRY2ISO.put("US Virgin Islands", "VI");

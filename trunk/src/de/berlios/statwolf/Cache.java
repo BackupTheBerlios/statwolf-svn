@@ -10,7 +10,7 @@ import de.cachewolf.CacheTerrDiff;
 import de.cachewolf.CacheType;
 
 /**
- * this class will hold the details of the waypoints found 
+ * this class will hold the details of the waypoints
  * @author greis
  *
  */
@@ -66,10 +66,8 @@ public class Cache {
 			incomplete = true;
 		}
 		
-		isadditional = CacheType.isAddiWpt(type.byteValue());
-		
-		if (isadditional) {
-			// skip next block
+		if (CacheType.isAddiWpt(type.byteValue())) {
+			isadditional = true;
 		} else {
 	
 			try {
@@ -89,7 +87,7 @@ public class Cache {
 			} catch (IllegalArgumentException ex) {
 				incomplete = true;
 			}
-			
+
 			details = new CacheDetails(id, indexdir);
 		}
 		
@@ -122,13 +120,15 @@ public class Cache {
 		type = byteFields.cacheType;
 		
 		if (CacheType.isAddiWpt(type.byteValue())) {
-			// skip next block
+			isadditional = true;
 		} else {
 			size = byteFields.cacheSize;
 			difficulty = byteFields.difficulty;
 			terrain = byteFields.terrain;
 			details = new CacheDetails(id, indexdir);
 		}
+		
+		details = new CacheDetails(id, indexdir);
 	}
 	
 	/**
@@ -137,7 +137,7 @@ public class Cache {
 	 * @return
 	 */
 	private Calendar getCalFromString(String calString) {
-		Calendar ret = new GregorianCalendar(1970,1,1,0,0,0);
+		Calendar ret = new GregorianCalendar(1970,0,1,0,0,0);
 		SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
 		try {
 			ret.setTime(df.parse(calString.concat(" 00:00")));
@@ -186,7 +186,6 @@ public class Cache {
 	public CacheDetails getDetails() { return details; }
 	
 	@Override public String toString() {
-		// TODO: make this handle null values
  		return String.format("ID: %s",id)
  			.concat(String.format(" Name: %s",name))
 			.concat(String.format(" Owner: %s",owner))

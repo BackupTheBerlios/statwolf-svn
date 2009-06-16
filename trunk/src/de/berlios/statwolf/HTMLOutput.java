@@ -98,6 +98,7 @@ public class HTMLOutput {
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head1")));
 		ret.append(String.format("<tr><td></td><td></td><td colspan='9'>%s</td></tr>\n", messages.getString("msg.diff")));
 		ret.append("</thead>");
+		//FIXME: the second THEAD violates DTD - however most browsers render it correct
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head2")));
 		ret.append(String.format("<tr><td style=\"%s\"></td><td></td>", html.getString("matrix.head1")));
 		for (Integer i : Constants.TERRDIFF) {
@@ -152,6 +153,7 @@ public class HTMLOutput {
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head1")));
 		ret.append(String.format("<tr><td></td><td></td><td colspan=\"12\">%s</td></tr>",messages.getString("msg.month")));
 		ret.append("</thead>\n");
+		//FIXME: the second THEAD violates the DTD - however most browsers render it correct
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head2")));
 		ret.append(String.format("<tr><td style=\"%s\"></td><td></td>",html.getString("matrix.head1")));
 		for (int mon = 0 ; mon < 12; mon++) {
@@ -203,6 +205,7 @@ public class HTMLOutput {
 		ret.append(messages.getString("msg.month"));
 		ret.append("</td></tr>\n");
 		ret.append("</thead>\n");
+		//FIXME: the second THEAD violates the DTD - however most browsers render it correct
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head2")));
 		ret.append(String.format("<tr><td style=\"%s\"></td><td></td>", html.getString("matrix.head1")));
 		for (int month = 0; month < 12; month++) {
@@ -568,6 +571,10 @@ public class HTMLOutput {
 		return Math.round(count.floatValue() / stats.getTotalCaches().floatValue() * 1000.0F) / 10.0F;
 	}
 	
+	/**
+	 * generate list of milestone caches. displays first cahce found and the very % 100 cache
+	 * @return
+	 */
 	private String milestones() {
 		TreeMap<Integer,Cache> milestones = stats.getMilestones();
 		Calendar lastMilestone = null;
@@ -607,6 +614,10 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
+	/**
+	 * calculate numerous values for the datatomb
+	 * @return
+	 */
 	private String datatomb () {
 		StringBuffer ret = new StringBuffer();
 		Integer totalDays = stats.getDaysSinceFirstFind();
@@ -700,6 +711,11 @@ public class HTMLOutput {
 
 	}
 	
+	/**
+	 * generate a section heading
+	 * @param heading
+	 * @return
+	 */
 	private String generateHeading(String heading) {
 		return String.format("<p style=\"%s\">%s</p>\n",
 				html.getString("p.heading"),
@@ -707,6 +723,10 @@ public class HTMLOutput {
 			);
 	}
 	
+	/**
+	 * generate list of "top" owners who placed the found caches. user can change length of list via preferences
+	 * @return
+	 */
 	private String findsByOwner() {
 		StringBuffer ret = new StringBuffer();
 		TreeSet<UserNumber> cachesByOwnerSorted = stats.getCachesByOwnerSorted();
@@ -758,6 +778,10 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
+	/**
+	 * generate a compass rose using google chart API displaying cache numbers by direction relative to home coordinates
+	 * @return
+	 */
 	private String findsByDirection() {
 		HashMap<String,Integer> cbd = stats.getCachesByDirection();
 		Integer maxCount = 0;
@@ -792,6 +816,10 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
+	/**
+	 * generate statistics for months the cache was found in
+	 * @return
+	 */
 	private String findsByMonth() {
 		Integer[] fbm = stats.getFindsByMonthFound();
 		StringBuffer ret = new StringBuffer();
@@ -944,6 +972,10 @@ public class HTMLOutput {
 		url = url.concat("&amp;chco=FFFFFF,DEB887,DEB887");
 		
 		for (String country: fbc.keySet()) {
+			if (Constants.GCCOUNTRY2ISO.get(country) == null) {
+				logger.error("unmapped country "+country);
+				continue;
+			}
 			countryCodes = countryCodes + Constants.GCCOUNTRY2ISO.get(country);
 			valueCounter++;
 		}
@@ -978,7 +1010,6 @@ public class HTMLOutput {
 		Integer numberOfValues = 0;
 		Integer totalCaches = 0;
 		Integer bestYear = 0;		
-		Integer monthValues[];
 		Integer totalValues[];
 		StringBuffer xLabel = new StringBuffer();
 		
@@ -997,9 +1028,8 @@ public class HTMLOutput {
 		
 		logger.info(numberOfValues);
 		
-		monthValues = new Integer[numberOfValues];
 		totalValues = new Integer[numberOfValues];
-		
+				
 		Integer valueCounter = 0;
 		for (Integer year = firstCachingDay.get(Calendar.YEAR);year <= today.get(Calendar.YEAR); year++) {
 			Integer cachesInYear = 0;
@@ -1013,7 +1043,6 @@ public class HTMLOutput {
 				cachesInYear = cachesInYear + mym.get(year)[month];
 				totalCaches = totalCaches + mym.get(year)[month];
 				logger.info("month "+month+" year "+year+" this year "+cachesInYear+" total "+totalCaches);
-				monthValues[valueCounter] = cachesInYear;
 				totalValues[valueCounter] = totalCaches;
 				valueCounter++;
 			}
@@ -1041,7 +1070,7 @@ public class HTMLOutput {
 	}
 	
 	/**
-	 * generate HTML version of statistics
+	 * generate HTML version of statistics according to user preferences
 	 * @return
 	 */
 	public String htmlStats() {
@@ -1109,7 +1138,7 @@ public class HTMLOutput {
 	}
 	
 	/**
-	 * 
+	 * generate header section of statistics and set basic size parameters
 	 * @return
 	 */
 	private String statsHeader() {
@@ -1128,7 +1157,7 @@ public class HTMLOutput {
 	}
 	
 	/**
-	 * 
+	 * generate finally section of statistics and close all open tags
 	 * @return
 	 */
 	private String statsFooter() {
@@ -1196,7 +1225,7 @@ public class HTMLOutput {
 	}
 	
 	/**
-	 * set end marker for stats and close html tags
+	 * set end marker for stats and close HTML tags
 	 * @return
 	 */
 	private String htmlFooter() {

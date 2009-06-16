@@ -275,10 +275,11 @@ public class StatisticsData {
 	public TreeMap<String,Integer> getFindsByCountry() {
 		return new TreeMap<String,Integer>(findsByCountry);
 	}
-	/*
-	 * SET methods
-	 */
 
+	
+	/**
+	 * if someone finds what it does, let me know ;)
+	 */
 	private void setDataMatrix() {
 		
 		matrixYearMonthFound = new HashMap<Integer, Integer[]>();
@@ -471,8 +472,8 @@ public class StatisticsData {
 				if (cache.getDetails().isValid() && cache.getDetails().getCountry() != "") {
 					if (cache.getDetails().getCountry() == null) {
 						logger.debug("NULL country in "+cache.getId());
-					}
-					if (findsByCountry.containsKey(cache.getDetails().getCountry())) {
+						noCountryCounter++;
+					} else if (findsByCountry.containsKey(cache.getDetails().getCountry())) {
 						findsByCountry.put(cache.getDetails().getCountry(), findsByCountry.get(cache.getDetails().getCountry())+1);
 					} else {
 						findsByCountry.put(cache.getDetails().getCountry(),1);
@@ -549,6 +550,9 @@ public class StatisticsData {
 	 * AUXILIARY METHODS
 	 */
 
+	/**
+	 * set various variables to sane defaults 
+	 */
 	private void initVars() {
 		
 		daysLastYear = setDaysLastYear();
@@ -590,13 +594,21 @@ public class StatisticsData {
 		}
 	}
 	
+	/**
+	 * check if cache should be included in calculations
+	 * @param cache
+	 * @return false if caches is virtual or locless and virtual resp. locless caches should be excluded true otherwise
+	 */
 	private Boolean includeCache(Cache cache) {
-		Boolean ret = true;
 		if (cache.getType() == CacheType.CW_TYPE_VIRTUAL && excludeVirtual) return false;
 		if (cache.getType() == CacheType.CW_TYPE_LOCATIONLESS && excludeLocless) return false;
-		return ret;
+		return true;
 	}
 	
+	/**
+	 * number of days in the last 12 months
+	 * @return 365 for "normal" year, 366 if timespan crosses feb 29th in a leap year
+	 */
 	private Integer setDaysLastYear() {
 		Calendar today = Calendar.getInstance();
 		Calendar lastYear = (Calendar) today.clone();
@@ -609,6 +621,12 @@ public class StatisticsData {
 		return daysLastYear;
 	}
 
+	/**
+	 * calculate the absolute number of days between two given calendar objects
+	 * @param cal1
+	 * @param cal2
+	 * @return absolute number of days between <code>cal1</code> and <code>cal2</code>
+	 */
 	Integer daysBetween(Calendar cal1, Calendar cal2) {
 		Integer delta = 0;
 

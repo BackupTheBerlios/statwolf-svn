@@ -78,7 +78,7 @@ public class IndexParser {
 			} else if (cache.isFound() && isGcCache(cache)) {
 				foundCaches.add(cache);
 			} else {
-				logger.info(cache.getId()+" sorted out.");
+				logger.warn(cache.getId()+" sorted out for unknown reason");
 			}
 		}
 	}

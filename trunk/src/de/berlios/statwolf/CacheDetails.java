@@ -9,8 +9,8 @@ public class CacheDetails {
 	
 	/**  */
 	private Boolean valid = false;
-	private String country = "";
-	private String state = "";
+	private String country;
+	private String state;
 	private static Logger logger = Logger.getLogger(CacheDetails.class);
 
 	/** constructor does nothing */
@@ -23,13 +23,12 @@ public class CacheDetails {
 				Document document = parser.build(wptFile);
 				country = document.getRootElement().getChildText("COUNTRY");
 				state = document.getRootElement().getChildText("STATE");
+
 				if ((country != null) && (state != null)) {
 					valid = true;
-				} else {
-					valid = false;
 				}
 			} catch (Exception ex) {
-				logger.debug("parsing error for details of "+cacheId);
+				logger.info("parsing error for details of "+cacheId, ex);
 				return;
 			}
 		} else {
