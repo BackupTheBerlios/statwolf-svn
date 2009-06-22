@@ -286,7 +286,7 @@ public class HTMLOutput {
 					"<td><img src=\"{4}\" width=\"{5}\" height=\"15\" alt=\"{3,number,#,##0.0}%\"/></td>" +
 					"</tr>\n", 
 					Constants.TYPEIMAGES.get(type),
-					CacheType.cw2ExportString(type.byteValue()),
+					messages.getString("cachetype."+type),
 					fbt.get(type),
 					percent.get(type),
 					html.getString("bar.horizontal"),
@@ -703,7 +703,43 @@ public class HTMLOutput {
 				excludeSomething?(stats.getCacheToCacheDistance()/stats.getCorrectedCacheCount()):(stats.getCacheToCacheDistance()/stats.getTotalCaches())
 				)
 			);
+		
+		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"> %s %s</td></tr>\n",
+				messages.getString("msg.oldestcache"),
+				excludeSomething?"*":"",
+				Constants.TYPEIMAGES.get(stats.getOldestCache().getType()),
+				cacheLink(stats.getOldestCache().getId()),
+				escapeXML(stats.getOldestCache().getName())
+				);
+		ret.append(strTemp);
+		
+		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"> %s %s</td></tr>\n",
+				messages.getString("msg.newestcache"),
+				excludeSomething?"*":"",
+				Constants.TYPEIMAGES.get(stats.getNewestCache().getType()),
+				cacheLink(stats.getNewestCache().getId()),
+				escapeXML(stats.getNewestCache().getName())
+				);
+		ret.append(strTemp);		
 
+		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"> %s %s</td></tr>\n",
+				messages.getString("msg.closestcache"),
+				excludeSomething?"*":"",
+				Constants.TYPEIMAGES.get(stats.getClosestCache().getType()),
+				cacheLink(stats.getClosestCache().getId()),
+				escapeXML(stats.getClosestCache().getName())
+				);
+		ret.append(strTemp);
+		
+		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"> %s %s</td></tr>\n",
+				messages.getString("msg.outmostcache"),
+				excludeSomething?"*":"",
+				Constants.TYPEIMAGES.get(stats.getOutmostCache().getType()),
+				cacheLink(stats.getOutmostCache().getId()),
+				escapeXML(stats.getOutmostCache().getName())
+				);
+		ret.append(strTemp);
+		
 		ret.append("</tbody>\n");
 		ret.append("</table>\n");
 		ret.append("</div>\n");

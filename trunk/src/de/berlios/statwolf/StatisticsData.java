@@ -43,6 +43,10 @@ public class StatisticsData {
 	private Integer noCountryCounter = 0;
 	private HashMap<String, Integer> doublefc = new HashMap<String, Integer>();
 	private Integer correctedCacheCount;
+	private Cache oldestCache;
+	private Cache newestCache;
+	private Cache closestCache;
+	private Cache outmostCache;
 	
 	private static Logger logger = Logger.getLogger(StatisticsData.class);
 
@@ -276,7 +280,21 @@ public class StatisticsData {
 		return new TreeMap<String,Integer>(findsByCountry);
 	}
 
+	public Cache getOldestCache() {
+		return oldestCache;
+	}
 	
+	public Cache getNewestCache() {
+		return newestCache;
+	}
+	
+	public Cache getClosestCache() {
+		return closestCache;
+	}
+	
+	public Cache getOutmostCache() {
+		return outmostCache;
+	}
 	/**
 	 * if someone finds what it does, let me know ;)
 	 */
@@ -443,7 +461,7 @@ public class StatisticsData {
 				}
 			}
 
-			// cache by date
+			// cache by date found
 			{
 				Calendar tempdate = getCleanDate((Calendar) cache.getFoundDate().clone());
 				ArrayList<Cache> tempclist;
@@ -484,6 +502,57 @@ public class StatisticsData {
 				}
 			}
 			// cache by state
+			
+			// oldest cache
+			if (includeCache(cache)) {
+				if (null == oldestCache) {
+					oldestCache = cache;
+				} else {
+					if (cache.getHidden().before(oldestCache.getHidden())) {
+						oldestCache = cache;
+					}
+				}
+			}
+			
+			// newest cache
+			if (includeCache(cache)) {
+				if (null == newestCache) {
+					newestCache = cache;
+				} else {
+					if (cache.getHidden().after(newestCache.getHidden())) {
+						newestCache = cache;
+					}
+				}
+				
+			}
+			
+			// closest cache
+			if (includeCache(cache)) {
+				if (null == closestCache) {
+					closestCache = cache;
+				} else {
+					float oldDist, newDist;
+					oldDist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(closestCache.getLat(), closestCache.getLon()))));
+					newDist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon()))));
+					if (newDist < oldDist) {
+						closestCache = cache;
+					}
+				}
+			}
+			
+			// outmost cache
+			if (includeCache(cache)) {
+				if (null == outmostCache) {
+					outmostCache = cache;
+				} else {
+					float oldDist, newDist;
+					oldDist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(outmostCache.getLat(), outmostCache.getLon()))));
+					newDist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon()))));
+					if (newDist > oldDist) {
+						outmostCache = cache;
+					}
+				}
+			}
 		}
 		
 		if ( noCountryCounter > 0) {
