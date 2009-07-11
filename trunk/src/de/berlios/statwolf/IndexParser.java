@@ -16,6 +16,7 @@ public class IndexParser {
 	private List<Cache> foundCaches = new ArrayList<Cache>();
 	private LatLonPoint homeCoordinates;
 	private static Logger logger = Logger.getLogger(IndexParser.class);
+	private Integer readCounter=0;
 
 	// jdom uses old syntax for compatibility
 	@SuppressWarnings("unchecked")
@@ -69,10 +70,15 @@ public class IndexParser {
 		if (version != 0 && version != 3) {
 			throw new IllegalArgumentException("unsopported file format version "+version);			
 		}
+		logger.info("reading cache data");
 		for (Element cacheElement: caches) {
+			readCounter++;
+			if (readCounter % 50 == 0) {
+				System.out.print(".");
+			}
 			Cache cache = new Cache(cacheElement, version, indexdir);
-			if (cache.isAdditional()) {
-				logger.debug(cache.getId()+" sorted out. Reason: is additional waypoint");
+			if (cache.isAdditional() || cache.getType() == CacheType.CW_TYPE_CUSTOM) {
+				logger.debug(cache.getId()+" sorted out. Reason: is additional/custom waypoint");
 			} else if (cache.isIncomplete()) {
 				logger.warn(cache.getId()+" sorted out. Reason: incomplete information");
 			} else if (cache.isFound() && isGcCache(cache)) {
@@ -81,6 +87,7 @@ public class IndexParser {
 				logger.warn(cache.getId()+" sorted out for unknown reason");
 			}
 		}
+		System.out.println();
 	}
 	
 	private Boolean isGcCache(Cache cache) {

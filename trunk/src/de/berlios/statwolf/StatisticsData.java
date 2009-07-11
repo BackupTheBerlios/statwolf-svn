@@ -303,6 +303,7 @@ public class StatisticsData {
 		matrixYearMonthFound = new HashMap<Integer, Integer[]>();
 		matrixYearMonthPlaced = new HashMap<Integer, Integer[]>();
 		Integer[] tempMonths;
+		Integer counter = 0;
 
 		totalCaches = foundCaches.size();
 		cachesByType = new HashMap<Integer, Integer>();
@@ -318,10 +319,14 @@ public class StatisticsData {
 		cacheToCacheDistance = 0D;
 		
 		Collections.sort(foundCaches, new CompareCacheByFoundDate());
+		
+		logger.info("counting");
 
 		// TODO: put most of this into separate sub routines
 		for (Cache cache: foundCaches ) {
-			
+			counter++;
+			if (counter % 50 == 0) System.out.print(".");
+
 			if (doublefc.containsKey(cache.getId())) {
 				logger.warn("duplicate entry for "+cache.getId());
 				break;
@@ -610,6 +615,8 @@ public class StatisticsData {
 		firstCachingDay = getCleanDate(foundCaches.get(0).getFoundDate());
 	
 		daysSinceFirstFind = daysBetween(firstCachingDay, Calendar.getInstance())+1;
+
+		System.out.println();
 	}
 
 	// finds by year cache placed
