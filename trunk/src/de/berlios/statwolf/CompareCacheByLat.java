@@ -2,13 +2,12 @@ package de.berlios.statwolf;
 
 import java.util.Comparator;
 
-public class CompareCacheByLat implements Comparator<Cache> {
+public final class CompareCacheByLat implements Comparator<Cache> {
 
-	public CompareCacheByLat() {
-		// do nothing
-	}
+	/** do nothing. */
+	public CompareCacheByLat() { }
 	
-	public int compare(Cache ob1, Cache ob2) {
+	public int compare(final Cache ob1, final Cache ob2) {
 		return ob1.getLat().compareTo(ob2.getLat());
 	}
 

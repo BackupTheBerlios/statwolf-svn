@@ -1,9 +1,10 @@
 package de.berlios.statwolf;
 
 import java.io.File;
-import org.apache.log4j.*;
-import org.jdom.*;
-import org.jdom.input.*;
+
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.input.SAXBuilder;
 
 public class CacheDetails {
 	
@@ -13,8 +14,7 @@ public class CacheDetails {
 	private String state;
 	private static Logger logger = Logger.getLogger(CacheDetails.class);
 
-	/** constructor does nothing */
-	public CacheDetails(String cacheId, String directory) {
+	public CacheDetails(final String cacheId, final String directory) {
 		String wptFileName = directory.concat(File.separator).concat(cacheId.toLowerCase()).concat(".xml");
 		File wptFile = new File(wptFileName);
 		if (wptFile.canRead()) {
@@ -28,7 +28,7 @@ public class CacheDetails {
 					valid = true;
 				}
 			} catch (Exception ex) {
-				logger.info("parsing error for details of "+cacheId, ex);
+				logger.info("parsing error for details of " + cacheId, ex);
 				return;
 			}
 		} else {
@@ -36,16 +36,9 @@ public class CacheDetails {
 		}
 	}
 	
-	public Boolean isValid() {
-		return valid;
-	}
+	public final Boolean isValid() { return valid; }
 	
-	public String getState() {
-		return state;
-	}
+	public final String getState() { return state; }
 	
-	public String getCountry() {
-		return country;
-	}
-
+	public final String getCountry() { return country; }
 }

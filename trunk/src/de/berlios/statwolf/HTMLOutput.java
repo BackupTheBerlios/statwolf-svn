@@ -1,14 +1,25 @@
 package de.berlios.statwolf;
 
-import java.util.*;
-import org.apache.log4j.*;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URLEncoder;
+import java.text.MessageFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.apache.log4j.Logger;
 
 import de.cachewolf.CacheSize;
-import de.cachewolf.CacheType;
-
-import java.io.*;
-import java.net.URLEncoder;
-import java.text.*;
 
 public class HTMLOutput {
 
@@ -22,7 +33,7 @@ public class HTMLOutput {
 	private Boolean excludeLocless = false;
 	private Boolean excludeSomething = false;
 
-	public HTMLOutput(StatisticsData stats) {
+	public HTMLOutput(final StatisticsData paramStats) {
 		
 		String htmlSchema;
 		String locale;
@@ -43,7 +54,7 @@ public class HTMLOutput {
 		locale = StatWolf.prefs.getProperty("locale", "en");
 		htmlSchema = "html_".concat(StatWolf.prefs.getProperty("htmlschema", "default"));
 		
-		this.stats = stats;
+		stats = paramStats;
 		html = ResourceBundle.getBundle(htmlSchema);
 		try {
 			Properties html = new Properties();
@@ -58,7 +69,7 @@ public class HTMLOutput {
 		messages = ResourceBundle.getBundle("messages");
 	}
 
-	public String generateHTML() {
+	public final String generateHTML() {
 		StringBuffer out = new StringBuffer();
 		
 		out.append(htmlHeader());
@@ -107,7 +118,7 @@ public class HTMLOutput {
 		ret.append("</tr>\n");
 		ret.append("</thead>\n");
 		
-		HashMap<Integer, HashMap<Integer, Integer>> mtd = new HashMap<Integer, HashMap<Integer, Integer>>();
+		HashMap < Integer, HashMap < Integer, Integer >>mtd = new HashMap < Integer, HashMap < Integer, Integer >>();
 		mtd = stats.getMatrixTerrDiff();
 		ret.append(String.format("<tbody style=\"%s\">\n", html.getString("matrix.body")));
 		for (Integer terr : Constants.TERRDIFF) {
@@ -156,14 +167,14 @@ public class HTMLOutput {
 		//FIXME: the second THEAD violates the DTD - however most browsers render it correct
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("matrix.head2")));
 		ret.append(String.format("<tr><td style=\"%s\"></td><td></td>",html.getString("matrix.head1")));
-		for (int mon = 0 ; mon < 12; mon++) {
-			ret.append(String.format("<td>%s</td>",messages.getString("mon.short."	+ mon)));
+		for (int mon = 0; mon < 12; mon++) {
+			ret.append(String.format("<td>%s</td>", messages.getString("mon.short."	+ mon)));
 		}
 
 		ret.append("</tr>\n");
 		ret.append("</thead>\n");
 		ret.append(String.format("<tbody style=\"%s\">\n", html.getString("matrix.body")));
-		for (int day = 1 ; day <= 31 ; day ++) {
+		for (int day = 1; day <= 31; day++) {
 			ret.append("<tr>");
 			if (day == 1) {
 				ret.append(String.format("<td rowspan=\"31\" style=\"%s\">%s</td>",
@@ -191,7 +202,7 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 
-	private String matrixYearMonth(HashMap<Integer, Integer[]> mym, String headline) {
+	private String matrixYearMonth(final HashMap<Integer, Integer[]> mym, final String headline) {
 		Set<Integer> years = new TreeSet<Integer>(mym.keySet());
 
 		StringBuffer ret = new StringBuffer();
@@ -210,7 +221,7 @@ public class HTMLOutput {
 		ret.append(String.format("<tr><td style=\"%s\"></td><td></td>", html.getString("matrix.head1")));
 		for (int month = 0; month < 12; month++) {
 			ret.append(String.format("<td>%s</td>",
-					messages.getString("mon.short."+ month)));
+					messages.getString("mon.short." + month)));
 		}
 		ret.append("</tr>\n");
 		ret.append("</thead>\n");
@@ -248,13 +259,13 @@ public class HTMLOutput {
 	}
 
 	private String findsByType() {
-		HashMap<Integer,Integer> fbt = stats.getCachesByType();
+		HashMap<Integer, Integer> fbt = stats.getCachesByType();
 		TreeSet<Integer> mapKeys = new TreeSet<Integer>(fbt.keySet());
 		HashMap <Integer, Float> percent = new HashMap <Integer, Float>(); 
 		Float maxPercent = 0.0F;
 		
 		for (Integer type : mapKeys) {
-			if ( fbt.get(type) != null ) {
+			if (fbt.get(type) != null) {
 				Float x = calcCachePercent(fbt.get(type));
 				percent.put(type, x);
 				if ( x > maxPercent) {
@@ -270,23 +281,23 @@ public class HTMLOutput {
 		ret.append(generateHeading(messages.getString("msg.fbtype")));
 		ret.append("<table width=\"98%\" style=\"table-layout:fixed\">\n");
 		ret.append(String.format("<thead style=\"%s\">\n", html.getString("table.head.default")));
-		ret.append("<tr>" +
-				"<td style=\"width:35%;\"></td>" +
-				"<td style=\"width:13%;\">#</td>" +
-				"<td style=\"width:9%;\">%</td>" +
-				"<td style=\"\"></td>" +
-				"</tr>\n");
+		ret.append("<tr>"
+				+ "<td style=\"width:35%;\"></td>"
+				+ "<td style=\"width:13%;\">#</td>"
+				+ "<td style=\"width:9%;\">%</td>"
+				+ "<td style=\"\"></td>"
+				+ "</tr>\n");
 		ret.append("</thead>\n");
 		ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
 		for (Integer type : mapKeys) {
 			ret.append(MessageFormat.format(
-					"<tr>" +
-					"<td><img src=\"{0}\" alt=\"\"/> {1}</td><td style=\"{6}\">{2}</td>" +
-					"<td style=\"{6}\">{3,number,#,##0.0}</td>" +
-					"<td><img src=\"{4}\" width=\"{5}\" height=\"15\" alt=\"{3,number,#,##0.0}%\"/></td>" +
-					"</tr>\n", 
+					"<tr>"
+					+ "<td><img src=\"{0}\" alt=\"\"/> {1}</td><td style=\"{6}\">{2}</td>"
+					+ "<td style=\"{6}\">{3,number,#,##0.0}</td>"
+					+ "<td><img src=\"{4}\" width=\"{5}\" height=\"15\" alt=\"{3,number,#,##0.0}%\"/></td>"
+					+ "</tr>\n", 
 					Constants.TYPEIMAGES.get(type),
-					messages.getString("cachetype."+type),
+					messages.getString("cachetype." + type),
 					fbt.get(type),
 					percent.get(type),
 					html.getString("bar.horizontal"),
@@ -301,7 +312,7 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 
-	private String findsByDT(HashMap<Integer,Integer> mftd, String heading) {
+	private String findsByDT(final HashMap<Integer,Integer> mftd, final String heading) {
 		StringBuffer ret = new StringBuffer();
 		HashMap<Integer, Float> percent = new HashMap<Integer, Float>();
 		Float maxPercent = 0.0F;
@@ -786,9 +797,9 @@ public class HTMLOutput {
 					cachesByOwnerSorted.remove(owner);
 					ret.append(MessageFormat.format(
 							"<tr><td>{0}</td><td style=\"{3}\">{1,number,#,##0}</td><td style=\"{3}\">{2,number,#0.00}</td></tr>\n",
-							ownerLink(owner.user),
-							owner.number,
-							owner.number.floatValue() / stats.getTotalCaches().floatValue()*100.0F,
+							ownerLink(owner.getUser()),
+							owner.getNumber(),
+							owner.getNumber().floatValue() / stats.getTotalCaches().floatValue()*100.0F,
 							html.getString("cell.number")
 						)
 					);

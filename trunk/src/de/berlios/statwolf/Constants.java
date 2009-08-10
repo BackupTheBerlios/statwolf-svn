@@ -1,6 +1,6 @@
 package de.berlios.statwolf;
 
-import java.util.*;
+import java.util.HashMap;
 
 import de.cachewolf.CacheSize;
 import de.cachewolf.CacheType;
@@ -20,30 +20,30 @@ public class Constants {
 		(int) CacheSize.CW_SIZE_OTHER, 
 		(int) CacheSize.CW_SIZE_VIRTUAL};
 	
-	public static final Integer[] TERRDIFF = {10,15,20,25,30,35,40,45,50};
+	public static final Integer[] TERRDIFF = {10, 15, 20, 25, 30, 35, 40, 45, 50};
 	
-	public static final Integer[] ZEROMONTHS = {0,0,0,0,0,0,0,0,0,0,0,0};
-	public static final Integer[] ZERODAYS = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	public static final Integer[] ZEROMONTHS = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	public static final Integer[] ZERODAYS = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
 	public static final HashMap<Integer,String> TYPEIMAGES = new  HashMap<Integer,String>();
 	static {
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_TRADITIONAL, "http://tinyurl.com/c5yxbx");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_MULTI, "http://tinyurl.com/cacawh");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_VIRTUAL, "http://tinyurl.com/cfkj2p");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_LETTERBOX, "http://tinyurl.com/df4avk");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_EVENT, "http://tinyurl.com/de2mhp");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_UNKNOWN, "http://tinyurl.com/c535qa");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_WEBCAM, "http://tinyurl.com/cmxedx");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_TRADITIONAL, "http://tinyurl.com/c5yxbx");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_MULTI, "http://tinyurl.com/cacawh");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_VIRTUAL, "http://tinyurl.com/cfkj2p");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_LETTERBOX, "http://tinyurl.com/df4avk");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_EVENT, "http://tinyurl.com/de2mhp");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_UNKNOWN, "http://tinyurl.com/c535qa");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_WEBCAM, "http://tinyurl.com/cmxedx");
 		//TYPEIMAGES.put(LOCATIONLESS, "http://tinyurl.com/dxnjgm");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_LOCATIONLESS, "http://tinyurl.com/cjagc6");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_EARTH, "http://tinyurl.com/d8hkw3");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_MEGA_EVENT, "http://tinyurl.com/c3q3yg");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_WHEREIGO, "http://tinyurl.com/cs9ssk");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_CITO, "http://tinyurl.com/da9hmm");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_APE, "http://tinyurl.com/cwjpne");
-		TYPEIMAGES.put((int)CacheType.CW_TYPE_MAZE, "http://tinyurl.com/cqlobv");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_LOCATIONLESS, "http://tinyurl.com/cjagc6");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_EARTH, "http://tinyurl.com/d8hkw3");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_MEGA_EVENT, "http://tinyurl.com/c3q3yg");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_WHEREIGO, "http://tinyurl.com/cs9ssk");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_CITO, "http://tinyurl.com/da9hmm");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_APE, "http://tinyurl.com/cwjpne");
+		TYPEIMAGES.put((int) CacheType.CW_TYPE_MAZE, "http://tinyurl.com/cqlobv");
 	}
-	public static final HashMap<Integer,String> SIZEIMAGES = new HashMap<Integer,String>();
+	public static final HashMap < Integer, String >SIZEIMAGES = new HashMap < Integer, String >();
 	static {
 		SIZEIMAGES.put((int) CacheSize.CW_SIZE_VIRTUAL, "http://tinyurl.com/dyc87k");
 		SIZEIMAGES.put((int) CacheSize.CW_SIZE_MICRO, "http://tinyurl.com/c4roz8");
@@ -54,13 +54,13 @@ public class Constants {
 		SIZEIMAGES.put((int) CacheSize.CW_SIZE_OTHER, "http://tinyurl.com/d2ocmk");
 	}
 	
-	public static final HashMap<String,String> GCCOUNTRY2ISO = new HashMap<String,String>();
+	public static final HashMap < String, String > GCCOUNTRY2ISO = new HashMap < String, String >();
 	static {
 		GCCOUNTRY2ISO.put("Afghanistan", "AF");                        
 		GCCOUNTRY2ISO.put("Aland Islands", "AX");                             
 		GCCOUNTRY2ISO.put("Albania ", "AL");                                  
 		GCCOUNTRY2ISO.put("Algeria", "DZ");                                   
-		GCCOUNTRY2ISO.put("American Samoa ", "AS");                           
+		GCCOUNTRY2ISO.put("Am erican Samoa ", "AS");                           
 		GCCOUNTRY2ISO.put("Andorra", "AD");                                   
 		GCCOUNTRY2ISO.put("Angola", "AO");                                    
 		GCCOUNTRY2ISO.put("Anguilla ", "AI");                                 
@@ -312,27 +312,23 @@ public class Constants {
 
 	public static final String[] DIRECTIONS = {"n", "ne", "e", "se", "s", "sw", "w", "nw"};
 
-	public static final Long BITEMASK_FILTER = 0x1L<<0;
-	public static final Long BITMASK_AVAILABLE = 0x1L<<1;
-	public static final Long BITMASK_ARCHIVED = 0x1L<<2;
-	public static final Long BITMASK_BUGS = 0x1L<<3;
-	public static final Long BITMASK_BLACK = 0x1L<<4;
-	public static final Long BITMASK_OWNED = 0x1L<<5;
-	public static final Long BITMASK_FOUND = 0x1L<<6;
-	public static final Long BITMASK_NEW = 0x1L<<7;
-	public static final Long BITMASK_LOGUPDATE = 0x1L<<8;
-	public static final Long BITMASK_UPDATE = 0x1L<<9;
-	public static final Long BITMASK_HTML = 0x1L<<10;
-	public static final Long BITMASK_INCOMPLETE = 0x1L<<11;
+	public static final Long BITEMASK_FILTER = 0x1L << 0;
+	public static final Long BITMASK_AVAILABLE = 0x1L << 1;
+	public static final Long BITMASK_ARCHIVED = 0x1L << 2;
+	public static final Long BITMASK_BUGS = 0x1L << 3;
+	public static final Long BITMASK_BLACK = 0x1L << 4;
+	public static final Long BITMASK_OWNED = 0x1L << 5;
+	public static final Long BITMASK_FOUND = 0x1L << 6;
+	public static final Long BITMASK_NEW = 0x1L << 7;
+	public static final Long BITMASK_LOGUPDATE = 0x1L << 8;
+	public static final Long BITMASK_UPDATE = 0x1L << 9;
+	public static final Long BITMASK_HTML = 0x1L << 10;
+	public static final Long BITMASK_INCOMPLETE = 0x1L << 11;
 
 	public static final Integer BYTEOFFSET_DIFF = 0;
 	public static final Integer BYTEOFFSET_TERR = 1;
 	public static final Integer BYTEOFFSET_TYPE = 2;
 	public static final Integer BYTEOFFSET_SIZE = 3;
 	public static final Integer BYTEOFFSET_DNFLOGS = 4;
-	
-	public static final Boolean onGoogleChartEurope(String iso) {
-		if (iso.equals("DE")) return true;
-		return false;
-	}
+
 }

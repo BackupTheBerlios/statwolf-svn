@@ -6,18 +6,18 @@ public class CwBoolFields {
 	
 	private static Logger logger = Logger.getLogger(CwBoolFields.class);
 	
-	final Long BITMASK_FILTER = 0x1L<<0L;
-	final Long BITMASK_AVAILABLE = 0x1L<<1L;
-	final Long BITMASK_ARCHIVED = 0x1L<<2L;
-	final Long BITMASK_BUGS = 0x1L<<3L;
-	final Long BITMASK_BLACK = 0x1L<<4L;
-	final Long BITMASK_OWNED = 0x1L<<5L;
-	final Long BITMASK_FOUND = 0x1L<<6L;
-	final Long BITMASK_NEW = 0x1L<<7L;
-	final Long BITMASK_LOGUPDATE = 0x1L<<8L;
-	final Long BITMASK_UPDATE = 0x1L<<9L;
-	final Long BITMASK_HTML = 0x1L<<10L;
-	final Long BITMASK_INCOMPLETE = 0x1L<<11L;
+	private final Long BITMASK_FILTER = 0x1L<<0L;
+	private final Long BITMASK_AVAILABLE = 0x1L<<1L;
+	private final Long BITMASK_ARCHIVED = 0x1L<<2L;
+	private final Long BITMASK_BUGS = 0x1L<<3L;
+	private final Long BITMASK_BLACK = 0x1L<<4L;
+	private final Long BITMASK_OWNED = 0x1L<<5L;
+	private final Long BITMASK_FOUND = 0x1L<<6L;
+	private final Long BITMASK_NEW = 0x1L<<7L;
+	private final Long BITMASK_LOGUPDATE = 0x1L<<8L;
+	private final Long BITMASK_UPDATE = 0x1L<<9L;
+	private final Long BITMASK_HTML = 0x1L<<10L;
+	private final Long BITMASK_INCOMPLETE = 0x1L<<11L;
 	
 	Boolean isFiltered;
 	Boolean isAvailable;
