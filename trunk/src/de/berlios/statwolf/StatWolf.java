@@ -20,9 +20,9 @@ public class StatWolf {
 		String indexdir;
 
 		// is there an other way to get log4j.properties from the jar file?
-		ResourceBundle rb = ResourceBundle.getBundle("log4j");
-		Properties log4jProps = new Properties();
-		for (Enumeration<String> keys = rb.getKeys(); keys.hasMoreElements();) {
+		final ResourceBundle rb = ResourceBundle.getBundle("log4j");
+		final Properties log4jProps = new Properties();
+		for (final Enumeration<String> keys = rb.getKeys(); keys.hasMoreElements();) {
 			final String key = (String) keys.nextElement();
             final String value = rb.getString(key);
             
@@ -30,7 +30,7 @@ public class StatWolf {
 		}
 		PropertyConfigurator.configure(log4jProps);
 
-		Logger logger = Logger.getLogger(StatWolf.class);
+		final Logger logger = Logger.getLogger(StatWolf.class);
 		
 		prefs = new Properties();
 		String preffile = System.getProperty("preferences");
@@ -47,17 +47,17 @@ public class StatWolf {
 			System.exit(1);
 		}
 		
-		String locale = prefs.getProperty("locale", "en");
+		final String locale = prefs.getProperty("locale", "en");
 		Locale.setDefault(new Locale(locale));
 		
-		String loglevel = prefs.getProperty("loglevel", "info");
+		final String loglevel = prefs.getProperty("loglevel", "info");
 		if (loglevel.toLowerCase().equals("debug")) {
 			log4jProps.put("log4j.logger.de.berlios.statwolf", "DEBUG");
 			log4jProps.put("log4j.rootLogger", "DEBUG,A2");
 			PropertyConfigurator.configure(log4jProps);
 		}
 		
-		ResourceBundle messages = ResourceBundle.getBundle("messages");
+		final ResourceBundle messages = ResourceBundle.getBundle("messages");
 		
 		if (args.length > 0) {
 			indexdir = args[0];
@@ -103,10 +103,10 @@ public class StatWolf {
 			logger.debug(ex, ex);
 			System.exit(1);
 		}	
-		if (statfile != null) {
-			logger.info(MessageFormat.format(messages.getString("log.finished"), statfile));
-		} else {
+		if (statfile == null) {
 			logger.fatal("unabel to save output");
+		} else {
+			logger.info(MessageFormat.format(messages.getString("log.finished"), statfile));			
 		}
 	}
 	

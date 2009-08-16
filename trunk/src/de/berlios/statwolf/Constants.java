@@ -5,7 +5,7 @@ import java.util.HashMap;
 import de.cachewolf.CacheSize;
 import de.cachewolf.CacheType;
 
-public class Constants {
+public final class Constants {
 	
 	public static final String CHARTBASE="http://chart.apis.google.com/chart?";
 	

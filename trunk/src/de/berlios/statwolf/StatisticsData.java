@@ -48,7 +48,7 @@ public class StatisticsData {
 	private Cache closestCache;
 	private Cache outmostCache;
 	
-	private static Logger logger = Logger.getLogger(StatisticsData.class);
+	private static final Logger LOGGER = Logger.getLogger(StatisticsData.class);
 
 	public StatisticsData(final List<Cache> pFoundCaches, final LatLonPoint homeCoordinates) {
 		distUnit = StatWolf.prefs.getProperty("distunit", "km");
@@ -71,7 +71,7 @@ public class StatisticsData {
 	 */
 
 	public final HashMap<Integer, Integer> getCachesByTerrain() {
-		HashMap<Integer, Integer> cbd = new HashMap<Integer, Integer>();
+		final HashMap<Integer, Integer> cbd = new HashMap<Integer, Integer>();
 		Integer counter;
 		Integer temp;
 		for (int terr = 0; terr < Constants.TERRDIFF.length; terr++) {
@@ -86,7 +86,7 @@ public class StatisticsData {
 	}
 
 	public final HashMap<Integer, Integer> getCachesByDifficulty() {
-		HashMap<Integer, Integer> cbd = new HashMap<Integer, Integer>();
+		final HashMap<Integer, Integer> cbd = new HashMap<Integer, Integer>();
 		Integer counter;
 		Integer temp;
 		for (Integer diff : Constants.TERRDIFF) {
@@ -129,7 +129,7 @@ public class StatisticsData {
 	}
 
 	public final Integer[][] getMatrixMonthDay() {
-		return matrixMonthDay;
+		return matrixMonthDay.clone();
 	}
 
 	public final HashMap<Integer, Integer[]> getMatrixYearMonthFound() {
@@ -177,7 +177,7 @@ public class StatisticsData {
 	}
 	
 	public final TreeSet<UserNumber> getCachesByOwnerSorted() {
-		TreeSet<UserNumber> cachesByOwnerSorted = new TreeSet<UserNumber>();
+		final TreeSet<UserNumber> cachesByOwnerSorted = new TreeSet<UserNumber>();
 		for (String key: cachesByOwner.keySet()) {
 			cachesByOwnerSorted.add(new UserNumber(key,cachesByOwner.get(key)));
 		}
@@ -185,7 +185,7 @@ public class StatisticsData {
 	}
 	
 	public final Calendar getCleanDate(final Calendar cal) {
-		Calendar tmpcal = (Calendar) cal.clone();
+		final Calendar tmpcal = (Calendar) cal.clone();
 		tmpcal.set(Calendar.HOUR_OF_DAY, 0);
 		tmpcal.set(Calendar.MINUTE, 0);
 		tmpcal.set(Calendar.SECOND, 0);
@@ -199,8 +199,8 @@ public class StatisticsData {
 	
 	public final Integer getCachingDaysLastYear() {
 		Integer cachingDays = 0;
-		Calendar today = getCleanDate(Calendar.getInstance());
-		Calendar lastYear = (Calendar) today.clone();
+		final Calendar today = getCleanDate(Calendar.getInstance());
+		final Calendar lastYear = (Calendar) today.clone();
 		lastYear.add(Calendar.DAY_OF_MONTH, -daysLastYear);
 		for (Calendar cacheDay: cachesByDateFound.keySet()) {
 			if (cacheDay.after(lastYear)) {
@@ -247,7 +247,7 @@ public class StatisticsData {
 	}
 	
 	public final HashMap<Integer, Integer> getFindsByYearPlaced(){
-		HashMap<Integer, Integer> findsByYearPlaced = new HashMap<Integer, Integer>();
+		final HashMap<Integer, Integer> findsByYearPlaced = new HashMap<Integer, Integer>();
 		for (Integer year: matrixYearMonthPlaced.keySet()) {
 			Integer cpy = 0;
 			for (Integer month = 0 ; month < 12 ; month ++) {
@@ -320,15 +320,15 @@ public class StatisticsData {
 		
 		Collections.sort(foundCaches, new CompareCacheByFoundDate());
 		
-		logger.info("counting");
+		LOGGER.info("counting");
 
 		// TODO: put most of this into separate sub routines
 		for (Cache cache: foundCaches ) {
 			counter++;
-			if (counter % 50 == 0) { System.out.print("."); }
+			if (counter % 50 == 0) { System.out.print("."); } // NOPMD by greis on 16.08.09 23:32
 
 			if (doublefc.containsKey(cache.getId())) {
-				logger.warn("duplicate entry for " + cache.getId());
+				LOGGER.warn("duplicate entry for " + cache.getId());
 				break;
 			} else {
 				doublefc.put(cache.getId(), 1);
@@ -494,7 +494,7 @@ public class StatisticsData {
 			if (includeCache(cache)) {
 				if (cache.getDetails().isValid() && cache.getDetails().getCountry() != "") {
 					if (cache.getDetails().getCountry() == null) {
-						logger.debug("NULL country in "+cache.getId());
+						LOGGER.debug("NULL country in "+cache.getId());
 						noCountryCounter++;
 					} else if (findsByCountry.containsKey(cache.getDetails().getCountry())) {
 						findsByCountry.put(cache.getDetails().getCountry(), findsByCountry.get(cache.getDetails().getCountry())+1);
@@ -502,7 +502,7 @@ public class StatisticsData {
 						findsByCountry.put(cache.getDetails().getCountry(),1);
 					}
 				} else {
-					logger.debug("missing country information for ".concat(cache.getId()));
+					LOGGER.debug("missing country information for ".concat(cache.getId()));
 					noCountryCounter++;
 				}
 			}
@@ -561,7 +561,7 @@ public class StatisticsData {
 		}
 		
 		if ( noCountryCounter > 0) {
-			logger.warn(noCountryCounter.toString().concat(" caches have no country information associated to them"));
+			LOGGER.warn(noCountryCounter.toString().concat(" caches have no country information associated to them"));
 		}
 
 		List<Cache> excludedCaches = new ArrayList<Cache>(foundCaches);
@@ -616,7 +616,7 @@ public class StatisticsData {
 	
 		daysSinceFirstFind = daysBetween(firstCachingDay, Calendar.getInstance())+1;
 
-		System.out.println();
+		System.out.println(); // NOPMD by greis on 16.08.09 23:32
 	}
 
 	// finds by year cache placed
@@ -675,9 +675,9 @@ public class StatisticsData {
 	 * @param cache
 	 * @return false if caches is virtual or locless and virtual resp. locless caches should be excluded true otherwise
 	 */
-	private Boolean includeCache(Cache cache) {
-		if (cache.getType() == CacheType.CW_TYPE_VIRTUAL && excludeVirtual) return false;
-		if (cache.getType() == CacheType.CW_TYPE_LOCATIONLESS && excludeLocless) return false;
+	private Boolean includeCache(final Cache cache) {
+		if (cache.getType() == CacheType.CW_TYPE_VIRTUAL && excludeVirtual) { return false; }
+		if (cache.getType() == CacheType.CW_TYPE_LOCATIONLESS && excludeLocless) { return false; }
 		return true;
 	}
 	
@@ -703,7 +703,7 @@ public class StatisticsData {
 	 * @param cal2
 	 * @return absolute number of days between <code>cal1</code> and <code>cal2</code>
 	 */
-	Integer daysBetween(Calendar cal1, Calendar cal2) {
+	public Integer daysBetween(final Calendar cal1, final Calendar cal2) {
 		Integer delta = 0;
 
 		if ( cal1 == null || cal2 == null) {

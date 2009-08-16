@@ -8,19 +8,18 @@ import org.jdom.input.SAXBuilder;
 
 public class CacheDetails {
 	
-	/**  */
 	private Boolean valid = false;
 	private String country;
 	private String state;
-	private static Logger logger = Logger.getLogger(CacheDetails.class);
+	private static final Logger LOGGER = Logger.getLogger(CacheDetails.class);
 
 	public CacheDetails(final String cacheId, final String directory) {
-		String wptFileName = directory.concat(File.separator).concat(cacheId.toLowerCase()).concat(".xml");
-		File wptFile = new File(wptFileName);
+		final String wptFileName = directory.concat(File.separator).concat(cacheId.toLowerCase()).concat(".xml");
+		final File wptFile = new File(wptFileName);
 		if (wptFile.canRead()) {
-			SAXBuilder parser = new SAXBuilder();
+			final SAXBuilder parser = new SAXBuilder();
 			try {
-				Document document = parser.build(wptFile);
+				final Document document = parser.build(wptFile);
 				country = document.getRootElement().getChildText("COUNTRY");
 				state = document.getRootElement().getChildText("STATE");
 
@@ -28,7 +27,7 @@ public class CacheDetails {
 					valid = true;
 				}
 			} catch (Exception ex) {
-				logger.info("parsing error for details of " + cacheId, ex);
+				LOGGER.info("parsing error for details of " + cacheId, ex);
 				return;
 			}
 		} else {

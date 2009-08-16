@@ -29,7 +29,7 @@ public final class ChartDataEncoder {
 	 * @see 
 	 */
 	public static String scale(final Integer[] values, final Integer max, final Boolean extended) {
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer();
 		for (Integer value : values) {
 			if (extended) {
 				ret.append(extended(value * MAXEXTENDED / max));
@@ -73,10 +73,10 @@ public final class ChartDataEncoder {
 	 * @return comma seprated string of values
 	 */
 	public static String simple(final Integer[] values) {
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer();
 		for (Integer index = 0; index < values.length; index++) {
 			ret.append(values[index]);
-			if (index < values.length - 1) { ret.append(","); }
+			if (index < values.length - 1) { ret.append(','); }
 		}
 		return ret.toString();
 	}

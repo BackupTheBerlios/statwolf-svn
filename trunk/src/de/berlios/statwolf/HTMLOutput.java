@@ -28,7 +28,7 @@ public class HTMLOutput {
 	private String distUnit;
 	private String username;
 	private ResourceBundle html;
-	private static Logger logger = Logger.getLogger(HTMLOutput.class);
+	private static final Logger LOGGER = Logger.getLogger(HTMLOutput.class);
 	private Boolean excludeVirtual = false;
 	private Boolean excludeLocless = false;
 	private Boolean excludeSomething = false;
@@ -41,7 +41,7 @@ public class HTMLOutput {
 		distUnit = StatWolf.prefs.getProperty("distunit", "km");
 		username = StatWolf.prefs.getProperty("username");
 		if (username == null) {
-			logger.error("username not set, please check preferences");
+			LOGGER.error("username not set, please check preferences");
 			System.exit(1);
 		}
 		try {
@@ -49,7 +49,7 @@ public class HTMLOutput {
 			excludeLocless = Boolean.parseBoolean(StatWolf.prefs.getProperty("excludelocless", "false"));
 			excludeSomething = excludeVirtual || excludeLocless;
 		} catch (Exception ex) {
-			logger.error("error when parsing exsclude* properties", ex);
+			LOGGER.error("error when parsing exsclude* properties", ex);
 		}
 		locale = StatWolf.prefs.getProperty("locale", "en");
 		htmlSchema = "html_".concat(StatWolf.prefs.getProperty("htmlschema", "default"));
@@ -57,11 +57,11 @@ public class HTMLOutput {
 		stats = paramStats;
 		html = ResourceBundle.getBundle(htmlSchema);
 		try {
-			Properties html = new Properties();
+			final Properties html = new Properties();
 			html.load(this.getClass().getClassLoader().getResourceAsStream(htmlSchema.concat(".properties")));
 		} catch (Exception ex) {
-			logger.fatal("unable to load html schema");
-			logger.debug(ex);
+			LOGGER.fatal("unable to load html schema");
+			LOGGER.debug(ex);
 			System.exit(1);
 		}
 		
@@ -70,7 +70,7 @@ public class HTMLOutput {
 	}
 
 	public final String generateHTML() {
-		StringBuffer out = new StringBuffer();
+		final StringBuffer out = new StringBuffer();
 		
 		out.append(htmlHeader());
 		out.append(htmlStats());
@@ -79,19 +79,19 @@ public class HTMLOutput {
 		String outdir = StatWolf.prefs.getProperty("outputdir", System.getProperty("java.io.tmpdir"));
 		
 		if ( !(outdir.endsWith("/") || outdir.endsWith("\\")) ) {
-		   outdir = outdir + System.getProperty("file.separator");
+		   outdir = outdir.concat(System.getProperty("file.separator"));
 		}
 
-		String outFileName = outdir.concat("StatWolf.html");
+		final String outFileName = outdir.concat("StatWolf.html");
 
 		try {
-			BufferedWriter of = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFileName),"UTF8"));
+			final BufferedWriter of = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFileName),"UTF8"));
 			of.write(out.toString());
 			of.close();
 			return outFileName;
 		} catch (IOException ex) {
-			logger.fatal("Error saving HTML output");
-			logger.debug(ex);
+			LOGGER.fatal("Error saving HTML output");
+			LOGGER.debug(ex);
 			return null;
 		}
 
@@ -99,7 +99,7 @@ public class HTMLOutput {
 
 	private String matrixTerrainDifficulty() {
 
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(256);
 		Integer combinations = 0;
 
 		ret.append("<div style=\"float:left;width:100%;\">\n");
@@ -152,9 +152,9 @@ public class HTMLOutput {
 
 	private String matrixMonthDay() {
 		
-		Integer[][] mmd = stats.getMatrixMonthDay();
+		final Integer[][] mmd = stats.getMatrixMonthDay();
 
-		StringBuffer ret = new StringBuffer();
+		StringBuffer ret = new StringBuffer(256);
 		Integer combinations = 0;
 
 		ret.append("<div style=\"float:left;width:100%;\">\n");
@@ -203,9 +203,9 @@ public class HTMLOutput {
 	}
 
 	private String matrixYearMonth(final HashMap<Integer, Integer[]> mym, final String headline) {
-		Set<Integer> years = new TreeSet<Integer>(mym.keySet());
+		final Set<Integer> years = new TreeSet<Integer>(mym.keySet());
 
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(256);
 
 		ret.append("<div style=\"float:left;width:100%;\">\n");
 		ret.append(generateHeading(headline));
@@ -259,24 +259,24 @@ public class HTMLOutput {
 	}
 
 	private String findsByType() {
-		HashMap<Integer, Integer> fbt = stats.getCachesByType();
-		TreeSet<Integer> mapKeys = new TreeSet<Integer>(fbt.keySet());
-		HashMap <Integer, Float> percent = new HashMap <Integer, Float>(); 
+		final HashMap<Integer, Integer> fbt = stats.getCachesByType();
+		final TreeSet<Integer> mapKeys = new TreeSet<Integer>(fbt.keySet());
+		final HashMap <Integer, Float> percent = new HashMap <Integer, Float>(); 
 		Float maxPercent = 0.0F;
 		
 		for (Integer type : mapKeys) {
-			if (fbt.get(type) != null) {
-				Float x = calcCachePercent(fbt.get(type));
+			if (fbt.get(type) == null) {
+				percent.put(type, 0.0F);
+			} else {
+				final Float x = calcCachePercent(fbt.get(type));
 				percent.put(type, x);
 				if ( x > maxPercent) {
 					maxPercent = x;
 				}
-			} else {
-				percent.put(type, 0.0F);
 			}
 		}
 		
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(512);
 		ret.append("<div style=\"float:left; width:50%;\">");
 		ret.append(generateHeading(messages.getString("msg.fbtype")));
 		ret.append("<table width=\"98%\" style=\"table-layout:fixed\">\n");
@@ -313,8 +313,8 @@ public class HTMLOutput {
 	}
 
 	private String findsByDT(final HashMap<Integer,Integer> mftd, final String heading) {
-		StringBuffer ret = new StringBuffer();
-		HashMap<Integer, Float> percent = new HashMap<Integer, Float>();
+		final StringBuffer ret = new StringBuffer(512);
+		final HashMap<Integer, Float> percent = new HashMap<Integer, Float>();
 		Float maxPercent = 0.0F;
 		
 		ret.append("<div style=\"float:left; width:50%;\">\n");
@@ -330,14 +330,14 @@ public class HTMLOutput {
 		ret.append("</thead>\n");
 		ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
 		for (Integer i : Constants.TERRDIFF) {
-			if ( mftd.get(i) != null ) {
+			if ( mftd.get(i) == null ) {
+				percent.put(i, 0.0F);
+			} else {
 				Float x = calcCachePercent(mftd.get(i));
 				percent.put(i, x);
 				if ( x > maxPercent) {
 					maxPercent = x;
 				}
-			} else {
-				percent.put(i, 0.0F);
 			}
 		}
 		for (Integer i : Constants.TERRDIFF) {
@@ -364,25 +364,25 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 
-	private Integer calculateBarLength(Float actual, Float max) {
+	private Integer calculateBarLength(final Float actual, final Float max) {
 		return (int) Math.round(actual/max*Constants.MAXHORIZONTALBARLENGTH);
 	}
 	
 	private String findsByContainer() {
-		StringBuffer ret = new StringBuffer();
-		HashMap <Integer,Integer> fbc = stats.getCachesByContainer();
-		HashMap<Integer,Float> percent = new HashMap<Integer,Float>();
+		final StringBuffer ret = new StringBuffer(512);
+		final HashMap <Integer,Integer> fbc = stats.getCachesByContainer();
+		final HashMap<Integer,Float> percent = new HashMap<Integer,Float>();
 		Float maxPercent = 0.0F;
 		
 		for (Integer cont : Constants.CONTAINERS) {
-			if ( fbc.get(cont) != null ) {
+			if ( fbc.get(cont) == null ) {
+				percent.put(cont, 0.0F);
+			} else {
 				Float x = calcCachePercent(fbc.get(cont));
 				percent.put(cont, x);
 				if ( x > maxPercent) {
 					maxPercent = x;
-				}
-			} else {
-				percent.put(cont, 0.0F);
+				}				
 			}
 		}
 		
@@ -424,20 +424,20 @@ public class HTMLOutput {
 	}
 	
 	private String findsByDayOfWeek() {
-		StringBuffer ret = new StringBuffer();
-		HashMap <Integer,Integer> fbc = stats.getCachesByDayOfWeek();
-		HashMap<Integer,Float> percent = new HashMap<Integer,Float>();
+		final StringBuffer ret = new StringBuffer(512);
+		final HashMap <Integer,Integer> fbc = stats.getCachesByDayOfWeek();
+		final HashMap<Integer,Float> percent = new HashMap<Integer,Float>();
 		Float maxPercent = 0.0F;
 		
 		for (int dow=1; dow < 8; dow++) {
-			if ( fbc.get(dow) != null ) {
-				Float x = calcCachePercent(fbc.get(dow));
+			if ( fbc.get(dow) == null ) {
+				percent.put(dow, 0.0F);
+			} else {
+				final Float x = calcCachePercent(fbc.get(dow));
 				percent.put(dow, x);
 				if ( x > maxPercent) {
 					maxPercent = x;
 				}
-			} else {
-				percent.put(dow, 0.0F);
 			}
 		}
 		
@@ -476,8 +476,8 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
-	private String formatLatLon(Float pos, String ll) {
-		StringBuffer ret = new StringBuffer();
+	private String formatLatLon(final Float pos, final String ll) {
+		final StringBuffer ret = new StringBuffer();
 		String direction;
 		Float absPos;
 		Integer degree;
@@ -487,7 +487,7 @@ public class HTMLOutput {
 		degree = absPos.intValue();
 		minutes = (absPos - degree.doubleValue()) * 60.0;
 		
-		if (ll == "lat") { 
+		if (ll.equals("lat")) { 
 			if (pos < 0) { 
 				direction = messages.getString("orientation.s"); 
 			} else { 
@@ -501,7 +501,7 @@ public class HTMLOutput {
 					minutes
 				)
 			);
-		} else if (ll == "lon") { 
+		} else if (ll.equals("lon")) { 
 			if (pos < 0) { 
 				direction = messages.getString("orientation.w"); 
 			} else { 
@@ -520,20 +520,20 @@ public class HTMLOutput {
 	}
 	
 	private String findsByDistanceFromHome() {
-		TreeMap<Integer,Integer> dfh = stats.getDistanceFromHome();
-		StringBuffer ret = new StringBuffer();
-		HashMap<Integer,Float> percent = new HashMap<Integer,Float>();
+		final TreeMap<Integer,Integer> dfh = stats.getDistanceFromHome();
+		final StringBuffer ret = new StringBuffer(256);
+		final HashMap<Integer,Float> percent = new HashMap<Integer,Float>();
 		Float maxPercent = 0.0F;
-		Integer[] dist = {10,20,30,40,50,100,200,300,400,500,1000,9999};
+		final Integer[] dist = {10,20,30,40,50,100,200,300,400,500,1000,9999};
 		for (Integer i: dist) {
-			if ( dfh.get(i) != null ) {
-				Float x = calcCachePercent(dfh.get(i));
+			if ( dfh.get(i) == null ) {
+				percent.put(i, 0.0F);
+			} else {
+				final Float x = calcCachePercent(dfh.get(i));
 				percent.put(i, x);
 				if ( x > maxPercent) {
 					maxPercent = x;
-				}
-			} else {
-				percent.put(i, 0.0F);
+				}				
 			}
 		}
 		ret.append("<div style=\"float:left; width:50%;\">\n");
@@ -566,7 +566,7 @@ public class HTMLOutput {
 		return ret.toString();
 	}
 	
-	private String formatDistanceFromHome(String label, Integer count, Float percent, Float maxPercent) {
+	private String formatDistanceFromHome(final String label, final Integer count, final Float percent, final Float maxPercent) {
 		return MessageFormat.format(
 			"<tr><td style=\"height:21px;\">{0}</td><td style=\"{5}\">{1}</td><td style=\"{5}\">{2,number,#,##0.0}</td><td><img src=\"{3}\" height=\"15\" width=\"{4}\" alt=\"{2,number,#,##0.0}%\"/></td></tr>\n",
 			label,
@@ -578,7 +578,7 @@ public class HTMLOutput {
 		);
 	}
 	
-	private Float calcCachePercent(Integer count) {
+	private Float calcCachePercent(final Integer count) {
 		return Math.round(count.floatValue() / stats.getTotalCaches().floatValue() * 1000.0F) / 10.0F;
 	}
 	
@@ -587,9 +587,9 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String milestones() {
-		TreeMap<Integer,Cache> milestones = stats.getMilestones();
+		final TreeMap<Integer,Cache> milestones = stats.getMilestones();
 		Calendar lastMilestone = null;
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(512);
 		ret.append("<div style=\"float:left; width:100%;\">\n");
 		ret.append(generateHeading(messages.getString("msg.milestones")));
 		ret.append("<table style=\"width:98%;\">\n");
@@ -630,8 +630,8 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String datatomb () {
-		StringBuffer ret = new StringBuffer();
-		Integer totalDays = stats.getDaysSinceFirstFind();
+		final StringBuffer ret = new StringBuffer(256);
+		final Integer totalDays = stats.getDaysSinceFirstFind();
 		String strTemp;
 		
 		HashMap<String, Cache> mostXxxxCache = stats.getMostXxxCache();
@@ -689,7 +689,7 @@ public class HTMLOutput {
 					messages.getString("msg.cache.most")
 				);
 			ret.append(MessageFormat.format(outline,
-					(dir == "north" || dir == "south")?formatLatLon(mostXxxxCache.get(dir).getLat(), "lat"):formatLatLon(mostXxxxCache.get(dir).getLon(), "lon"),
+					(dir.equals("north") || dir.equals("south"))?formatLatLon(mostXxxxCache.get(dir).getLat(), "lat"):formatLatLon(mostXxxxCache.get(dir).getLon(), "lon"),
 					cacheLink(mostXxxxCache.get(dir).getId()),
 					mostXxxxCache.get(dir).getName()
 				)
@@ -763,7 +763,7 @@ public class HTMLOutput {
 	 * @param heading
 	 * @return
 	 */
-	private String generateHeading(String heading) {
+	private String generateHeading(final String heading) {
 		return String.format("<p style=\"%s\">%s</p>\n",
 				html.getString("p.heading"),
 				heading
@@ -775,8 +775,8 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String findsByOwner() {
-		StringBuffer ret = new StringBuffer();
-		TreeSet<UserNumber> cachesByOwnerSorted = stats.getCachesByOwnerSorted();
+		final StringBuffer ret = new StringBuffer(512);
+		final TreeSet<UserNumber> cachesByOwnerSorted = stats.getCachesByOwnerSorted();
 		Integer numberOfOwners = (int) Math.floor(
 				(Double.parseDouble(StatWolf.prefs.getProperty("ownernumber", "20"))+1.0)/2.0
 				);
@@ -792,7 +792,9 @@ public class HTMLOutput {
 			ret.append("</thead>\n");
 			ret.append(String.format("<tbody style=\"%s\">\n",html.getString("table.body.default")));
 			for (int i = 0; i < numberOfOwners; i++) {
-				if (cachesByOwnerSorted.size() > 0) {
+				if (cachesByOwnerSorted.isEmpty()) {
+					ret.append("<tr><td>&nbsp;</td><td></td><td></td></tr>\n");
+				} else {
 					UserNumber owner = cachesByOwnerSorted.last();
 					cachesByOwnerSorted.remove(owner);
 					ret.append(MessageFormat.format(
@@ -803,8 +805,6 @@ public class HTMLOutput {
 							html.getString("cell.number")
 						)
 					);
-				} else {
-					ret.append("<tr><td>&nbsp;</td><td></td><td></td></tr>\n");
 				}
 			}
 			ret.append("</tbody>");
@@ -844,7 +844,7 @@ public class HTMLOutput {
 		}
 		chartData.append(cbd.get("n"));
 		
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(64);
 		String charturl= Constants.CHARTBASE
 			.concat("cht=r")
 			.concat("&amp;chs=250x250") // TODO: compute from outer div size
@@ -869,7 +869,7 @@ public class HTMLOutput {
 	 */
 	private String findsByMonth() {
 		Integer[] fbm = stats.getFindsByMonthFound();
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(256);
 		Integer maxCount = 0;
 		for (int month = 0; month < 12; month++) {
 			if ( maxCount < fbm[month]) {
@@ -909,7 +909,7 @@ public class HTMLOutput {
 	 * @param id waypoint
 	 * @return url pointing to waypoint info
 	 */
-	private String cacheLink(String id) {
+	private String cacheLink(final String id) {
 		return MessageFormat.format("<a href=\"http://coord.info/{0}\">{0}</a>", id);
 	}
 
@@ -918,7 +918,7 @@ public class HTMLOutput {
 	 * @param id
 	 * @return
 	 */
-	private String ownerLink(String id) {
+	private String ownerLink(final String id) {
 		String ret = "";
 		try {
 			ret =String.format("<a href=\"http://www.geocaching.com/profile/?u=%s\">%s</a>", 
@@ -934,7 +934,7 @@ public class HTMLOutput {
 	 * @param maxCount
 	 * @return
 	 */
-	private String createHorizontalBar(Integer count, Integer maxCount) {
+	private String createHorizontalBar(final Integer count, final Integer maxCount) {
 		Integer width = (int) Math.floor(count.floatValue() / maxCount.floatValue() * Constants.MAXHORIZONTALBARLENGTH);
 		return MessageFormat.format("<img src=\"{0}\" height=\"15\" width=\"{1}\" alt=\"{2,number,#,##0.0}%\"/>",
 				html.getString("bar.horizontal"),
@@ -963,7 +963,7 @@ public class HTMLOutput {
 		date000Finds.add(Calendar.DAY_OF_MONTH, days000Finds);
 		ret.append("<p>");
 		ret.append(MessageFormat.format(messages.getString("msg.crystalball.1"), next00Milestone,date00Finds.getTime()));
-		if ( next00Milestone != next000Milestone) {
+		if ( !next00Milestone.equals(next000Milestone)) {
 			ret.append(MessageFormat.format(messages.getString("msg.crystalball.2"), next000Milestone,date000Finds.getTime() ));
 		}
 		ret.append("</p>\n");
@@ -975,8 +975,8 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String findsByCountry() {
-		TreeMap<String,Integer> fbc =  stats.getFindsByCountry();
-		StringBuffer ret = new StringBuffer();
+		final TreeMap<String,Integer> fbc =  stats.getFindsByCountry();
+		final StringBuffer ret = new StringBuffer(256);
 		ret.append("<div style=\"float:left;width:50%;\">\n");
 		ret.append(generateHeading(messages.getString("msg.findspercountry")+(excludeSomething?"<font style=\"size:9px\">*</font>":"")));
 		ret.append("<table width=\"98%\" style=\"table-layout:fixed\">\n");
@@ -1004,9 +1004,9 @@ public class HTMLOutput {
 	 * @param area valid parameters are world, europe, middle_east, asia, africa, south_america
 	 * @return
 	 */
-	private String googleMap(String area) {
-		StringBuffer ret = new StringBuffer();
-		String headline = messages.getString("msg.areamaps")+messages.getString("area."+area);
+	private String googleMap(final String area) {
+		final StringBuffer ret = new StringBuffer(128);
+		final String headline = messages.getString("msg.areamaps")+messages.getString("area."+area);
 		String url="http://chart.apis.google.com/chart?cht=t&amp;chs=378x189&amp;chf=bg,s,EAF7FE&amp;chtm=".concat(area);
 		String countryCodes="&amp;chld=";
 		String countryValues="&amp;chd=t:";
@@ -1020,10 +1020,10 @@ public class HTMLOutput {
 		
 		for (String country: fbc.keySet()) {
 			if (Constants.GCCOUNTRY2ISO.get(country) == null) {
-				logger.error("unmapped country "+country);
+				LOGGER.error("unmapped country "+country);
 				continue;
 			}
-			countryCodes = countryCodes + Constants.GCCOUNTRY2ISO.get(country);
+			countryCodes = countryCodes.concat(Constants.GCCOUNTRY2ISO.get(country));
 			valueCounter++;
 		}
 		
@@ -1046,7 +1046,7 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String timeLine() {
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(256);
 		HashMap<Integer, Integer[]> mym = stats.getMatrixYearMonthFound();
 		
 //		String url = "http://chart.apis.google.com/chart?cht=lxy&chxt=r,x,y";
@@ -1064,16 +1064,18 @@ public class HTMLOutput {
 		for (Integer year = firstCachingDay.get(Calendar.YEAR);year <= today.get(Calendar.YEAR); year++) {
 			xLabel.append(year.toString());
 			for (Integer month = 0; month <= 11; month++) {
-				if ((year == firstCachingDay.get(Calendar.YEAR)) && (month < firstCachingDay.get(Calendar.MONTH))) 
+				if ((year == firstCachingDay.get(Calendar.YEAR)) && (month < firstCachingDay.get(Calendar.MONTH))) {
 					continue;
-				if ((year == today.get(Calendar.YEAR)) && (month > today.get(Calendar.MONTH)))
+				}
+				if ((year == today.get(Calendar.YEAR)) && (month > today.get(Calendar.MONTH))) {
 					continue;
-				if (month < 11) xLabel.append("|");
+				}
+				if (month < 11) { xLabel.append('|'); }
 				numberOfValues++;
 			}
 		}
 		
-		logger.info(numberOfValues);
+		LOGGER.info(numberOfValues);
 		
 		totalValues = new Integer[numberOfValues];
 				
@@ -1089,11 +1091,11 @@ public class HTMLOutput {
 				}
 				cachesInYear = cachesInYear + mym.get(year)[month];
 				totalCaches = totalCaches + mym.get(year)[month];
-				logger.info("month "+month+" year "+year+" this year "+cachesInYear+" total "+totalCaches);
+				LOGGER.info("month "+month+" year "+year+" this year "+cachesInYear+" total "+totalCaches);
 				totalValues[valueCounter] = totalCaches;
 				valueCounter++;
 			}
-			if (cachesInYear > bestYear) bestYear = cachesInYear;
+			if (cachesInYear > bestYear) { bestYear = cachesInYear; }
 		}
 		
 		ret.append("<div style=\"float:left;width:100%;\">\n");
@@ -1121,7 +1123,7 @@ public class HTMLOutput {
 	 * @return
 	 */
 	public String htmlStats() {
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(1024);
 		Integer outlineCounter = 1;
 		
 		ret.append(statsHeader());
@@ -1172,7 +1174,7 @@ public class HTMLOutput {
 				} else if (outtype.equals("mapsouthamerica")) {
 					ret.append(googleMap("south_america"));
 				} else {
-					logger.warn("unknown output directive "+outtype+". check preferences.properties");
+					LOGGER.warn("unknown output directive "+outtype+". check preferences.properties");
 				}
 			}
 			ret.append("<div style=\"float:left; width:100%;\"></div>\n");
@@ -1189,7 +1191,7 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String statsHeader() {
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(128);
 		String temp=String.format("<div align=\"center\" style=\"%s\">\n", html.getString("outerdiv"));
 		ret.append(String.format(temp, html.getString("totalwidth")));
 		ret.append("<span style='");
@@ -1208,7 +1210,7 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String statsFooter() {
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(128);
 		String temp;
 		ret.append("<div style=\"float:left;width:100%;\">\n");
 		ret.append(generateHeading(messages.getString("msg.finally")));
@@ -1232,7 +1234,7 @@ public class HTMLOutput {
 		ret.append(MessageFormat.format(temp, "<a href=\"http://gsak.net/board/index.php?showtopic=4623\">FindStatGen</a>"));
 		ret.append("<p/>\n");
 		if (excludeSomething) {
-			StringBuffer buf = new StringBuffer();
+			final StringBuffer buf = new StringBuffer(32);
 			buf.append("<p style=\"\"><font style=\"size:9px\">*</font> excludes ");
 			if (excludeVirtual && excludeLocless) {
 				buf.append("Locationless and Virtual");
@@ -1254,7 +1256,7 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String htmlHeader() {
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(768);
 		ret.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 		ret.append("<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>\n");
 		ret.append("<html xmlns='http://www.w3.org/1999/xhtml'>\n");
@@ -1276,7 +1278,7 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String htmlFooter() {
-		StringBuffer ret = new StringBuffer();
+		final StringBuffer ret = new StringBuffer(128);
 		ret.append("<!--  ******************** select above to include in gc.com profile ********************  -->\n");
 		ret.append("</body>\n</html>\n");
 		return ret.toString();
@@ -1287,7 +1289,7 @@ public class HTMLOutput {
 	 * @param str string to encode
 	 * @return string with &, >, < replaced by their entity encoding
 	 */
-	private String escapeXML(String str) {
+	private String escapeXML(final String str) {
 		return str.replace(">", "&gt;").replace("<", "&lt;").replace("&", "&amp;");
 	}
 }

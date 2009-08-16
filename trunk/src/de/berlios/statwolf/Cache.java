@@ -50,7 +50,7 @@ public class Cache {
 	/** waypoint information is incomplete. */
 	private Boolean incomplete = false;
 	/** logger for debug output. */
-	private static Logger logger = Logger.getLogger(Cache.class);
+	private static final Logger LOGGER = Logger.getLogger(Cache.class);
 	/** waypoint is additional waypoint of a main cache. */
 	private Boolean isadditional = false;
 	/** CacheWolf compact storage format. */
@@ -91,9 +91,9 @@ public class Cache {
 	 * @param indexdir
 	 */
 	public Cache(final Element cacheInfo, final Byte version, final String indexdir) {
-		if (version == 0) readInfo0(cacheInfo, indexdir);
-		else if (version == 3) readInfo3(cacheInfo, indexdir);
-		else throw new IllegalArgumentException("unsupported version "+version);
+		if (version == 0) { readInfo0(cacheInfo, indexdir); }
+		else if (version == 3) { readInfo3(cacheInfo, indexdir); }
+		else { throw new IllegalArgumentException("unsupported version "+version); }
 	}
 	
 	/**
@@ -164,7 +164,7 @@ public class Cache {
 		hidden = getCalFromString(cacheInfo.getAttributeValue("hidden"));
 		foundDate = getCalFromString(cacheInfo.getAttributeValue("status"));
 		
-		CwBoolFields boolFields = new CwBoolFields(Long.parseLong(cacheInfo.getAttributeValue("boolFields")));
+		final CwBoolFields boolFields = new CwBoolFields(Long.parseLong(cacheInfo.getAttributeValue("boolFields")));
 		byteFields = Long.parseLong(cacheInfo.getAttributeValue("byteFields"));
 		
 		difficulty = extractByteFromLong(byteFields, BYTEOFFSET_DIFF);
@@ -189,13 +189,13 @@ public class Cache {
 	 * @return
 	 */
 	private Calendar getCalFromString(final String calString) {
-		Calendar ret = new GregorianCalendar(1970, 0, 1, 0, 0, 0);
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		final Calendar ret = new GregorianCalendar(1970, 0, 1, 0, 0, 0);
+		final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		try {
 			ret.setTime(df.parse(calString.concat(" 00:00")));
 			ret.setTime(df.parse(calString));
 		} catch (ParseException e) {
-			logger.debug(e);
+			LOGGER.debug(e);
 		}
 
 		return ret;
@@ -259,9 +259,9 @@ public class Cache {
 	 * @return byte at given offset 
 	 */
 	private Integer extractByteFromLong(final Long longvalue, final Byte offset) {
-		Long mask = 0xFFL << ((long) offset * 0x8L);
-		Long tmpval = longvalue & mask;
-		Long ret = (tmpval >>> ((long) offset * 0x8L));
+		final Long mask = 0xFFL << ((long) offset * 0x8L);
+		final Long tmpval = longvalue & mask;
+		final Long ret = (tmpval >>> ((long) offset * 0x8L));
 		return ret.intValue();
 	}
 	

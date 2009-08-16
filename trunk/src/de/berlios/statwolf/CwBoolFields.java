@@ -4,35 +4,35 @@ import org.apache.log4j.*;
 
 public class CwBoolFields {
 	
-	private static Logger logger = Logger.getLogger(CwBoolFields.class);
+	private static final Logger LOGGER = Logger.getLogger(CwBoolFields.class);
 	
-	private final Long BITMASK_FILTER = 0x1L<<0L;
-	private final Long BITMASK_AVAILABLE = 0x1L<<1L;
-	private final Long BITMASK_ARCHIVED = 0x1L<<2L;
-	private final Long BITMASK_BUGS = 0x1L<<3L;
-	private final Long BITMASK_BLACK = 0x1L<<4L;
-	private final Long BITMASK_OWNED = 0x1L<<5L;
-	private final Long BITMASK_FOUND = 0x1L<<6L;
-	private final Long BITMASK_NEW = 0x1L<<7L;
-	private final Long BITMASK_LOGUPDATE = 0x1L<<8L;
-	private final Long BITMASK_UPDATE = 0x1L<<9L;
-	private final Long BITMASK_HTML = 0x1L<<10L;
-	private final Long BITMASK_INCOMPLETE = 0x1L<<11L;
+	private final static Long BITMASK_FILTER = 0x1L<<0L;
+	private final static Long BITMASK_AVAILABLE = 0x1L<<1L;
+	private final static Long BITMASK_ARCHIVED = 0x1L<<2L;
+	private final static Long BITMASK_BUGS = 0x1L<<3L;
+	private final static Long BITMASK_BLACK = 0x1L<<4L;
+	private final static Long BITMASK_OWNED = 0x1L<<5L;
+	private final static Long BITMASK_FOUND = 0x1L<<6L;
+	private final static Long BITMASK_NEW = 0x1L<<7L;
+	private final static Long BITMASK_LOGUPDATE = 0x1L<<8L;
+	private final static Long BITMASK_UPDATE = 0x1L<<9L;
+	private final static Long BITMASK_HTML = 0x1L<<10L;
+	private final static Long BITMASK_INCOMPLETE = 0x1L<<11L;
 	
-	Boolean isFiltered;
-	Boolean isAvailable;
-	Boolean isArchived;
-	Boolean hasBugs;
-	Boolean isBlack;
-	Boolean isOwned;
-	Boolean isFound;
-	Boolean isNew;
-	Boolean hasLogUpdate;
-	Boolean isUpdated;
-	Boolean isHtml;
-	Boolean isIncomplete;
+	public Boolean isFiltered;
+	public Boolean isAvailable;
+	public Boolean isArchived;
+	public Boolean hasBugs;
+	public Boolean isBlack;
+	public Boolean isOwned;
+	public Boolean isFound;
+	public Boolean isNew;
+	public Boolean hasLogUpdate;
+	public Boolean isUpdated;
+	public Boolean isHtml;
+	public Boolean isIncomplete;
 
-	public CwBoolFields(Long fields) {
+	public CwBoolFields(final Long fields) {
 		isFiltered = ((fields & BITMASK_FILTER) > 0);
 		isAvailable = ((fields & BITMASK_AVAILABLE) > 0);
 		isArchived = ((fields & BITMASK_ARCHIVED) > 0);

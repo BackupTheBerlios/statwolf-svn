@@ -4,9 +4,9 @@ package de.berlios.statwolf;
 public class UserNumber implements Comparable<UserNumber> {
 	
 	/** string identifier for user. */
-	private String user;
+	private final String user;
 	/** integer identifier for user. */
-	private Integer number;
+	private final Integer number;
 	
 	/**
 	 * Create object.
