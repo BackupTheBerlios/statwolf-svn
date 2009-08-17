@@ -1,5 +1,7 @@
 package de.berlios.statwolf;
 
+// OK
+
 import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.util.Enumeration;
@@ -10,30 +12,45 @@ import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-public class StatWolf {
+/** main class for StatWolf. Configuration files will be read and */
+public final class StatWolf {
 	
 	/** user preferences. */
-	public static Properties prefs;
+	private final transient Properties prefs;
+	/** log4j logger. not declared static since this class will create it */
+	private final transient Logger logger; // NOPMD by greis on 17.08.09 21:49
+	/** localized messages. */
+	private final transient ResourceBundle messages;
+	/** directory for index.xml file. */
+	private transient String indexdir;
 	
-	/** main method of StatWolf. */
-	public static void main(final String[] args) {
-		String indexdir;
+	/**
+	 * thou shallst not instantiate this object.
+	 * 
+	 * @param prefProperty
+	 *            filename of preferences if specified on command line. may be
+	 *            null
+	 * @param profiledir
+	 *            directory for CacheWolf profile if specified on command line.
+	 *            may be null
+	 */
+	private StatWolf(final String prefProperty, final String profiledir) {
 
 		// is there an other way to get log4j.properties from the jar file?
-		final ResourceBundle rb = ResourceBundle.getBundle("log4j");
+		final ResourceBundle log4jBundle = ResourceBundle.getBundle("log4j");
 		final Properties log4jProps = new Properties();
-		for (final Enumeration<String> keys = rb.getKeys(); keys.hasMoreElements();) {
+		for (final Enumeration<String> keys = log4jBundle.getKeys(); keys.hasMoreElements();) {
 			final String key = (String) keys.nextElement();
-            final String value = rb.getString(key);
+            final String value = log4jBundle.getString(key);
             
             log4jProps.put(key, value);
 		}
 		PropertyConfigurator.configure(log4jProps);
 
-		final Logger logger = Logger.getLogger(StatWolf.class);
+		logger = Logger.getLogger(StatWolf.class);
 		
 		prefs = new Properties();
-		String preffile = System.getProperty("preferences");
+		String preffile = prefProperty;
 		
 		if (preffile == null) {
 			preffile = "preferences.properties";
@@ -51,30 +68,62 @@ public class StatWolf {
 		Locale.setDefault(new Locale(locale));
 		
 		final String loglevel = prefs.getProperty("loglevel", "info");
-		if (loglevel.toLowerCase().equals("debug")) {
+		if (loglevel.equalsIgnoreCase("debug")) {
 			log4jProps.put("log4j.logger.de.berlios.statwolf", "DEBUG");
 			log4jProps.put("log4j.rootLogger", "DEBUG,A2");
 			PropertyConfigurator.configure(log4jProps);
 		}
 		
-		final ResourceBundle messages = ResourceBundle.getBundle("messages");
+		messages = ResourceBundle.getBundle("messages");
 		
-		if (args.length > 0) {
-			indexdir = args[0];
-			logger.debug("command line indexdir: ".concat(indexdir));
-		} else {
+		if (profiledir == null) {
 			indexdir = prefs.getProperty("indexdir");
 			if (indexdir == null) {
 				logger.error("indexdir not set. please check preferences");
 				System.exit(1);
 			}
+		} else {
+			indexdir = profiledir;
 		}
 		
 		if (!(indexdir.endsWith(System.getProperty("file.separator")))) {
 			indexdir = indexdir.concat(System.getProperty("file.separator"));
 		}
-		
-		// catch everything we may have forgotten
+	}
+	
+	/**
+	 * main method of StatWolf.
+	 * 
+	 * @param args
+	 *            command line arguments
+	 */
+	public static void main(final String[] args) {
+		final String preffile = System.getProperty("preferences");
+		String indexdir = null;
+		if (args.length > 0) {
+			indexdir = args[0];
+		}
+		final StatWolf statwolf = new StatWolf(preffile, indexdir);
+		statwolf.generateStatistics();
+	}
+	
+	/** get preferences object. */
+	public Properties getPrefs() { return prefs; };
+	
+	/** do not allow cloning of this object. 
+	 * @throws CloneNotSupportedException at every call
+	 * @return will not return anything, but throw a 
+	 * <code>CloneNotSupportedException</code> */
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
+	/**
+	 * generate the actual statistics. will be done by parsing the index, 
+	 * calculating statistics data, generating the HTML output and writing 
+	 * it to a file
+	 */
+	private void generateStatistics() {
 		IndexParser indexParser = null;
 		StatisticsData statisticsData = null;
 		HTMLOutput htmlOutput = null;
@@ -86,9 +135,13 @@ public class StatWolf {
 			logger.error("unexpected parsing error");
 			logger.debug(ex, ex);
 			System.exit(1);
-		}	
+		}
+
 		try {
-			statisticsData = new StatisticsData(indexParser.getFoundCaches(), indexParser.getHomeCoordinates());
+			statisticsData = new StatisticsData(
+					indexParser.getFoundCaches(), 
+					indexParser.getHomeCoordinates(), 
+					prefs);
 		} catch (Exception ex) {
 			logger.error("unexpected statistics error");
 			logger.debug(ex, ex);
@@ -96,20 +149,19 @@ public class StatWolf {
 		}	
 
 		try {
-			htmlOutput = new  HTMLOutput(statisticsData);
+			htmlOutput = new  HTMLOutput(statisticsData, prefs);
 			statfile = htmlOutput.generateHTML();
 		} catch (Exception ex) {
 			logger.error("unexpected html generation error");
 			logger.debug(ex, ex);
 			System.exit(1);
-		}	
+		}
+
 		if (statfile == null) {
 			logger.fatal("unabel to save output");
 		} else {
-			logger.info(MessageFormat.format(messages.getString("log.finished"), statfile));			
+			logger.info(MessageFormat.format(
+					messages.getString("log.finished"), statfile));			
 		}
 	}
-	
-	/** get preferences object. */
-	public final Properties getPrefs() { return prefs; };
 }
