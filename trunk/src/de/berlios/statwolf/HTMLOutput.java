@@ -385,7 +385,7 @@ public class HTMLOutput {
 	}
 
 	private Integer calculateBarLength(final Float actual, final Float max) {
-		return (int) Math.round(actual / max * Constants.MAXHORIZONTALBARLENGTH);
+		return (int) Math.round(actual / max * Constants.MAXHORBARLENGTH);
 	}
 	
 	private String findsByContainer() {
@@ -957,7 +957,7 @@ public class HTMLOutput {
 	 * @return
 	 */
 	private String createHorizontalBar(final Integer count, final Integer maxCount) {
-		final Integer width = (int) Math.floor(count.floatValue() / maxCount.floatValue() * Constants.MAXHORIZONTALBARLENGTH);
+		final Integer width = (int) Math.floor(count.floatValue() / maxCount.floatValue() * Constants.MAXHORBARLENGTH);
 		return MessageFormat.format("<img src=\"{0}\" height=\"15\" width=\"{1}\" alt=\"{2,number,#,##0.0}%\"/>",
 				html.getString("bar.horizontal"),
 				width.toString(),

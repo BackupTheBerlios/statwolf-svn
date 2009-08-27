@@ -60,16 +60,7 @@ public class Cache {
 	/** number of recent DNF logs. */
 	private Integer dnfLogs;
 	
-	/** byte offset for difficulty. */
-	private static final Byte BYTEOFFSET_DIFF = 0;
-	/** byte offset for terrain. */
-	private static final Byte BYTEOFFSET_TERR = 1;
-	/** byte offset for waypoint type. */
-	private static final Byte BYTEOFFSET_TYPE = 2;
-	/** byte offset for container size. */
-	private static final Byte BYTEOFFSET_SIZE = 3;
-	/** byte offset for number of DNF logs. */
-	private static final Byte BYTEOFFSET_DNFLOGS = 4;
+
 	
 	private static final Long BITMASK_FILTER = 0x1L << 0L;
 	private static final Long BITMASK_AVAILABLE = 0x1L << 1L;
@@ -91,9 +82,13 @@ public class Cache {
 	 * @param indexdir
 	 */
 	public Cache(final Element cacheInfo, final Byte version, final String indexdir) {
-		if (version == 0) { readInfo0(cacheInfo, indexdir); }
-		else if (version == 3) { readInfo3(cacheInfo, indexdir); }
-		else { throw new IllegalArgumentException("unsupported version "+version); }
+		if (version == 0) { 
+			readInfo0(cacheInfo, indexdir); 
+		} else if (version == 3) { 
+			readInfo3(cacheInfo, indexdir); 
+		} else { 
+			throw new IllegalArgumentException("unsupported version " + version); 
+		}
 	}
 	
 	/**
@@ -167,11 +162,11 @@ public class Cache {
 		final CwBoolFields boolFields = new CwBoolFields(Long.parseLong(cacheInfo.getAttributeValue("boolFields")));
 		byteFields = Long.parseLong(cacheInfo.getAttributeValue("byteFields"));
 		
-		difficulty = extractByteFromLong(byteFields, BYTEOFFSET_DIFF);
-		terrain = extractByteFromLong(byteFields, BYTEOFFSET_TERR);
-		type = extractByteFromLong(byteFields, BYTEOFFSET_TYPE);
-		size = extractByteFromLong(byteFields, BYTEOFFSET_SIZE);
-		dnfLogs = extractByteFromLong(byteFields, BYTEOFFSET_DNFLOGS);
+		difficulty = extractByteFromLong(byteFields, Constants.BYTEOFFSET_DIFF);
+		terrain = extractByteFromLong(byteFields, Constants.BYTEOFFSET_TERR);
+		type = extractByteFromLong(byteFields, Constants.BYTEOFFSET_TYPE);
+		size = extractByteFromLong(byteFields, Constants.BYTEOFFSET_SIZE);
+		dnfLogs = extractByteFromLong(byteFields, Constants.BYTEOFFSET_DNFLOGS);
 
 		archived = boolFields.isArchived;
 		found = boolFields.isFound;
@@ -215,22 +210,23 @@ public class Cache {
 	public final String getId() { return id; }
 	/** get date cache was found on. */
 	public final Calendar getFoundDate() { return foundDate; }
-	/** get cache found status */
+	/** get cache found status. */
 	public final Boolean isFound() { return found; }
-	/** get cache type */
+	/** get cache type. */
 	public final Integer getType() { return type; }
-	/** get terrain rating */
+	/** get terrain rating. */
 	public final Integer getTerrain() { return terrain; }
-	/** get difficulty rating */
+	/** get difficulty rating. */
 	public final Integer getDifficulty() { return difficulty; }
-	/** get cache size */
+	/** get cache size. */
 	public final Integer getSize() { return size; }
-	/** get cache archived state */
+	/** get cache archived state. */
 	public final Boolean isArchived() { return archived; }
-	/** "cache" is additional waypoint */
+	/** "cache" is additional waypoint. */
 	public final Boolean isAdditional() { return isadditional; }
-	/** is cache information complete */
+	/** is cache information complete. */
 	public final Boolean isIncomplete() { return incomplete; }
+
 	/** 
 	 * get cache details
 	 * @see CacheDetails

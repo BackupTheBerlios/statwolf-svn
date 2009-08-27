@@ -1,15 +1,21 @@
 package de.berlios.statwolf;
 
+/* TODO: move constants to the objects that need them.
+ * maybe a base object? */
+
+
 import java.util.HashMap;
+import java.util.Map;
 
 import de.cachewolf.CacheSize;
 import de.cachewolf.CacheType;
 
 public final class Constants {
 	
-	public static final String CHARTBASE="http://chart.apis.google.com/chart?";
+	public static final String CHARTBASE = "http://chart.apis.google.com/chart?";
 	
-	public static final Float MAXHORIZONTALBARLENGTH = 150.0F;
+	/** maximum length of a horizontal bar chart in pixel. */
+	public static final Float MAXHORBARLENGTH = 150.0F;
 	
 	public static final Integer[] CONTAINERS = {
 		(int) CacheSize.CW_SIZE_MICRO, 
@@ -20,12 +26,16 @@ public final class Constants {
 		(int) CacheSize.CW_SIZE_OTHER, 
 		(int) CacheSize.CW_SIZE_VIRTUAL};
 	
-	public static final Integer[] TERRDIFF = {10, 15, 20, 25, 30, 35, 40, 45, 50};
+	/** possible values for terrain or difficulty rating of a cache. */
+	public static final Integer[] TERRDIFF = 
+		{10, 15, 20, 25, 30, 35, 40, 45, 50};
 	
-	public static final Integer[] ZEROMONTHS = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	public static final Integer[] ZERODAYS = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	public static final Integer[] ZEROMONTHS = 
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	public static final Integer[] ZERODAYS = 
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
-	public static final HashMap<Integer,String> TYPEIMAGES = new  HashMap<Integer,String>();
+	public static final Map<Integer,String> TYPEIMAGES = new  HashMap<Integer,String>();
 	static {
 		TYPEIMAGES.put((int) CacheType.CW_TYPE_TRADITIONAL, "http://tinyurl.com/c5yxbx");
 		TYPEIMAGES.put((int) CacheType.CW_TYPE_MULTI, "http://tinyurl.com/cacawh");
@@ -43,7 +53,8 @@ public final class Constants {
 		TYPEIMAGES.put((int) CacheType.CW_TYPE_APE, "http://tinyurl.com/cwjpne");
 		TYPEIMAGES.put((int) CacheType.CW_TYPE_MAZE, "http://tinyurl.com/cqlobv");
 	}
-	public static final HashMap < Integer, String >SIZEIMAGES = new HashMap < Integer, String >();
+	
+	public static final Map < Integer, String >SIZEIMAGES = new HashMap < Integer, String >();
 	static {
 		SIZEIMAGES.put((int) CacheSize.CW_SIZE_VIRTUAL, "http://tinyurl.com/dyc87k");
 		SIZEIMAGES.put((int) CacheSize.CW_SIZE_MICRO, "http://tinyurl.com/c4roz8");
@@ -54,7 +65,7 @@ public final class Constants {
 		SIZEIMAGES.put((int) CacheSize.CW_SIZE_OTHER, "http://tinyurl.com/d2ocmk");
 	}
 	
-	public static final HashMap < String, String > GCCOUNTRY2ISO = new HashMap < String, String >();
+	public static final Map < String, String > GCCOUNTRY2ISO = new HashMap < String, String >();
 	static {
 		GCCOUNTRY2ISO.put("Afghanistan", "AF");                        
 		GCCOUNTRY2ISO.put("Aland Islands", "AX");                             
@@ -310,25 +321,63 @@ public final class Constants {
 		GCCOUNTRY2ISO.put("Zimbabwe", "ZW");
 	}
 
+	/**  */
 	public static final String[] DIRECTIONS = {"n", "ne", "e", "se", "s", "sw", "w", "nw"};
 
+	/**  */
 	public static final Long BITEMASK_FILTER = 0x1L << 0;
+	/**  */
 	public static final Long BITMASK_AVAILABLE = 0x1L << 1;
+	/**  */
 	public static final Long BITMASK_ARCHIVED = 0x1L << 2;
+	/**  */
 	public static final Long BITMASK_BUGS = 0x1L << 3;
+	/**  */
 	public static final Long BITMASK_BLACK = 0x1L << 4;
+	/**  */
 	public static final Long BITMASK_OWNED = 0x1L << 5;
+	/**  */
 	public static final Long BITMASK_FOUND = 0x1L << 6;
+	/**  */
 	public static final Long BITMASK_NEW = 0x1L << 7;
+	/**  */
 	public static final Long BITMASK_LOGUPDATE = 0x1L << 8;
+	/**  */
 	public static final Long BITMASK_UPDATE = 0x1L << 9;
+	/**  */
 	public static final Long BITMASK_HTML = 0x1L << 10;
+	/**  */
 	public static final Long BITMASK_INCOMPLETE = 0x1L << 11;
 
-	public static final Integer BYTEOFFSET_DIFF = 0;
-	public static final Integer BYTEOFFSET_TERR = 1;
-	public static final Integer BYTEOFFSET_TYPE = 2;
-	public static final Integer BYTEOFFSET_SIZE = 3;
-	public static final Integer BYTEOFFSET_DNFLOGS = 4;
-
+	/** byte offset for difficulty in cwbool field. LSB = 0 */
+	public static final Byte BYTEOFFSET_DIFF = 0;
+	/** byte offset for terrain in cwbool field. LSB = 0 */
+	public static final Byte BYTEOFFSET_TERR = 1;
+	/** byte offset for waypoint type in cwbool field. LSB = 0 */
+	public static final Byte BYTEOFFSET_TYPE = 2;
+	/** byte offset for container size in cwbool field. LSB = 0 */
+	public static final Byte BYTEOFFSET_SIZE = 3;
+	/** byte offset for number of DNF logs in cwbool field. LSB = 0 */
+	public static final Byte BYTEOFFSET_DNFLOGS = 4;
+	
+	/** reference to Constants object. */
+	private static Constants ref; 
+	
+	/** thou shallst not instantiate this object. */
+	private Constants() { }
+	
+	/** you must not clone this object. 
+	 * @throws CloneNotSupportedException if called
+	 * @return will never return but throw an exception */
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
+	/** get a refenrence for this object if needed. */
+	public static synchronized Constants getConstants() {
+		if (ref == null) {
+			ref = new Constants();
+		}
+		return ref;
+	}
 }

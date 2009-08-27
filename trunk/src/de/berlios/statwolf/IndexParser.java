@@ -18,10 +18,10 @@ import de.cachewolf.CacheType;
 
 public class IndexParser {
 
-	private final List<Cache> foundCaches;
+	private final transient List<Cache> foundCaches;
 	private static LatLonPoint homeCoordinates;
 	private static final Logger LOGGER = Logger.getLogger(IndexParser.class);
-	private Integer readCounter = 0;
+	private transient Integer readCounter = 0;
 
 	// jdom uses old syntax for compatibility
 	@SuppressWarnings("unchecked")
@@ -69,42 +69,68 @@ public class IndexParser {
 			System.exit(0);
 		}
 	}
-	
+
 	private void filterCaches(final List<Element> caches, final Byte version, final String indexdir) {
 		LOGGER.debug("filter caches for version " + version);
+
 		if (version != 0 && version != 3) {
-			throw new IllegalArgumentException("unsopported file format version " + version);			
+			throw new IllegalArgumentException(
+					"unsopported file format version " + version);			
 		}
+		
 		LOGGER.info("reading cache data");
+		
 		for (Element cacheElement : caches) {
 			readCounter++;
+			
 			if (readCounter % 50 == 0) {
 				System.out.print("."); // NOPMD by greis on 16.08.09 23:22
 			}
-			final Cache cache = new Cache(cacheElement, version, indexdir);
-			if (cache.isAdditional() || cache.getType() == CacheType.CW_TYPE_CUSTOM) {
-				LOGGER.debug(cache.getId() + " sorted out. Reason: is additional/custom waypoint");
-			} else if (cache.isIncomplete()) {
-				LOGGER.warn(cache.getId() + " sorted out. Reason: incomplete information");
+			
+			final Cache cache = new Cache(cacheElement, version, indexdir); // NOPMD by greis on 18.08.09 09:34
+			
+			if (cache.isIncomplete()) {
+				LOGGER.warn(cache.getId() 
+						+ " sorted out. Reason: incomplete information");
 			} else if (cache.isFound() && isGcCache(cache)) {
 				foundCaches.add(cache);
 			} else {
-				LOGGER.warn(cache.getId() + " sorted out for unknown reason");
+				LOGGER.warn(cache.getId() 
+						+ " sorted out for unknown reason (probably additional or custom waypoint)");
 			}
 		}
 		System.out.println(); // NOPMD by greis on 16.08.09 23:23
 	}
-	
+
+	/**
+	 * check if cache object really is a cache.
+	 * 
+	 * @param cache
+	 *            cache to be checked
+	 * @return true if cache is really a cache - not an additional or custom
+	 *         waypoint and its ID starts with GC
+	 */
 	private Boolean isGcCache(final Cache cache) {
-		return !CacheType.isAddiWpt(cache.getType().byteValue()) 
+		return !cache.isAdditional()
 			&& cache.getType() != CacheType.CW_TYPE_CUSTOM 
 			&& cache.getId().startsWith("GC");
 	}
 	
-	public final List<Cache> getFoundCaches () {
+	/** return the lit of found caches. */
+	public final List<Cache> getFoundCaches() {
 		return foundCaches;
 	}
 
+	/**
+	 * extract the home coordinates. coordinates are taken from the
+	 * <code>&lt;CENTER&gt;</code> tags of the CacheWolf profile. if there is
+	 * more than one center tag only use the first one. in case coordinates can
+	 * not be extracted fall back to N 0 E 0.
+	 * 
+	 * @param centers
+	 *            list of <code>&lt;CENTER&gt;</code> elements of CW profile as
+	 *            extracted by SAX
+	 */
 	public final void setHomeCoordinates(final List<Element> centers) {
 		homeCoordinates = new LatLonPoint();
 		try {
@@ -113,10 +139,12 @@ public class IndexParser {
 			String lon;
 			lat = center.getAttributeValue("lat").replace(',', '.');
 			lon = center.getAttributeValue("lon").replace(',', '.');
-			homeCoordinates.setLatLon(Double.parseDouble(lat), Double.parseDouble(lon));
+			homeCoordinates.setLatLon(Double.parseDouble(lat), 
+					Double.parseDouble(lon));
 			LOGGER.debug(homeCoordinates);
 		} catch (Exception ex) {
-			LOGGER.warn("unable to determine home coordinates. Using N 00 00.000 E 00 00.000");
+			LOGGER.warn("unable to determine home coordinates. "
+					+ "Using N 00 00.000 E 00 00.000");
 			LOGGER.debug(ex, ex);
 			homeCoordinates.setLatLon(0, 0);
 		}
