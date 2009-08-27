@@ -84,10 +84,10 @@ public class IndexParser {
 			readCounter++;
 			
 			if (readCounter % 50 == 0) {
-				System.out.print("."); // NOPMD by greis on 16.08.09 23:22
+				System.out.print(".");
 			}
 			
-			final Cache cache = new Cache(cacheElement, version, indexdir); // NOPMD by greis on 18.08.09 09:34
+			final Cache cache = new Cache(cacheElement, version, indexdir); // NOPMD
 			
 			if (cache.isIncomplete()) {
 				LOGGER.warn(cache.getId() 
@@ -95,11 +95,11 @@ public class IndexParser {
 			} else if (cache.isFound() && isGcCache(cache)) {
 				foundCaches.add(cache);
 			} else {
-				LOGGER.warn(cache.getId() 
-						+ " sorted out for unknown reason (probably additional or custom waypoint)");
+				LOGGER.debug(cache.getId() + " sorted out. " 
+						+ "probably additional or custom waypoint.");
 			}
 		}
-		System.out.println(); // NOPMD by greis on 16.08.09 23:23
+		System.out.println();
 	}
 
 	/**
