@@ -99,21 +99,26 @@ public final class StatWolf {
 	 */
 	public static void main(final String[] args) {
 		final String preffile = System.getProperty("preferences");
-		String indexdir = null;
+		StatWolf statwolf;
 		if (args.length > 0) {
-			indexdir = args[0];
+			statwolf = new StatWolf(preffile, args[0]);
+		} else {
+			statwolf = new StatWolf(preffile, null);
 		}
-		final StatWolf statwolf = new StatWolf(preffile, indexdir);
 		statwolf.generateStatistics();
 	}
 	
-	/** get preferences object. */
+	/** @return preferences object. */
 	public Properties getPrefs() { return prefs; };
 	
-	/** do not allow cloning of this object. 
-	 * @throws CloneNotSupportedException at every call
-	 * @return will not return anything, but throw a 
-	 * <code>CloneNotSupportedException</code> */
+	/**
+	 * do not allow cloning of this object.
+	 * 
+	 * @throws CloneNotSupportedException
+	 *             at every call
+	 * @return will not return anything, but throw a
+	 *         <code>CloneNotSupportedException</code>
+	 */
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}

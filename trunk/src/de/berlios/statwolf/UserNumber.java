@@ -39,10 +39,10 @@ public class UserNumber implements Comparable<UserNumber> {
 		return ret;
 	}
 	
-	/** return the user property of this object. */
+	/** @return user property of this object. */
 	public final String getUser() { return user; }
 	
-	/** return the number property of this object. */
+	/** @return number property of this object. */
 	public final Integer getNumber() { return number; }
 
 }

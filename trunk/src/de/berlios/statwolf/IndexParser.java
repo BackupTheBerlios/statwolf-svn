@@ -1,5 +1,7 @@
 package de.berlios.statwolf;
 
+// OK
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -16,12 +18,21 @@ import com.bbn.openmap.LatLonPoint;
 
 import de.cachewolf.CacheType;
 
+/**
+ * parse a CacheWolf index.xml file.<br>
+ * will read the file an use a sax parser to extract waypoint information.
+ * additional and custom waypoints will be sorted out, just as caches nut
+ * starting with "GC" will be.<br>
+ * center of profile will be used as home coordinates.
+ */
 public class IndexParser {
 
-	private final transient List<Cache> foundCaches;
+	/** list of found gc.com caches. */
+	private transient final List<Cache> foundCaches;
+	/** home coordinates. all distance related stats will be based on this */
 	private static LatLonPoint homeCoordinates;
+	/** reference to logger four output. */
 	private static final Logger LOGGER = Logger.getLogger(IndexParser.class);
-	private transient Integer readCounter = 0;
 
 	// jdom uses old syntax for compatibility
 	@SuppressWarnings("unchecked")
@@ -33,22 +44,33 @@ public class IndexParser {
 		foundCaches = new ArrayList<Cache>();
 
 		if (indexfile == null) {
-			LOGGER.fatal("index file not set. please check preferences.properties");
+			LOGGER.fatal("index file not set. check preferences.properties");
 			System.exit(1);
 		} else {
 			try {
 				final Document document = parser.build(indexfile);
 				if (document.getRootElement().getChildren("VERSION").size() > 0) {
 					idxVersion = 1;
-					final Element versionElement = (Element) document.getRootElement().getChildren("VERSION").iterator().next();
-					LOGGER.debug("version information is: " + versionElement.getAttributes().toString());
-					idxVersion = Byte.parseByte(versionElement.getAttributeValue("value"));
+					final Element versionElement = (Element) document
+						.getRootElement()
+						.getChildren("VERSION")
+						.iterator()
+						.next();
+					LOGGER.debug("version information is: " 
+							+ versionElement.getAttributes().toString());
+					idxVersion = Byte.parseByte(
+							versionElement.getAttributeValue("value")
+						);
 					LOGGER.debug("index version is: " + idxVersion);
 				} else {
 					idxVersion = 0;
 				}
-				filterCaches(document.getRootElement().getChildren("CACHE"), idxVersion, indexdir);
-				setHomeCoordinates(document.getRootElement().getChildren("CENTRE"));
+				filterCaches(
+						document.getRootElement().getChildren("CACHE"),
+						idxVersion, indexdir);
+				setHomeCoordinates(
+						document.getRootElement().getChildren("CENTRE")
+					);
 			} catch (FileNotFoundException ex) {
 				LOGGER.fatal("index file not found: ".concat(indexfile));
 				System.exit(1);
@@ -71,6 +93,7 @@ public class IndexParser {
 	}
 
 	private void filterCaches(final List<Element> caches, final Byte version, final String indexdir) {
+		Integer readCounter = 0;
 		LOGGER.debug("filter caches for version " + version);
 
 		if (version != 0 && version != 3) {
@@ -87,7 +110,8 @@ public class IndexParser {
 				System.out.print(".");
 			}
 			
-			final Cache cache = new Cache(cacheElement, version, indexdir); // NOPMD
+			final Cache cache = 
+				new Cache(cacheElement, version, indexdir); // NOPMD
 			
 			if (cache.isIncomplete()) {
 				LOGGER.warn(cache.getId() 
@@ -116,7 +140,7 @@ public class IndexParser {
 			&& cache.getId().startsWith("GC");
 	}
 	
-	/** return the lit of found caches. */
+	/** @return the list of found caches. */
 	public final List<Cache> getFoundCaches() {
 		return foundCaches;
 	}
@@ -150,6 +174,7 @@ public class IndexParser {
 		}
 	}
 
+	/** @return home coordinate for distance calculations */
 	public final LatLonPoint getHomeCoordinates() {
 		return homeCoordinates;
 	}

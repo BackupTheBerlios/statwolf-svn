@@ -35,13 +35,13 @@ public final class StatisticsData {
 	private transient Integer findsLast365Days = 0;
 	private transient Integer daysLastYear;
 	private transient Integer daysSinceFirstFind;
-	private transient String distUnit;
+	private final transient String distUnit;
 	private transient Calendar firstCachingDay;
 	private transient TreeMap<Integer, Integer> distanceFromHome;
 	private transient TreeMap<Integer, Cache> milestones = new TreeMap<Integer, Cache>();
 	private transient TreeMap <Calendar, ArrayList<Cache>> cachesByDateFound;
 	private transient LatLonPoint homeCoordinates;
-	private transient LatLonPoint cacheMedian = new LatLonPoint();
+	private final LatLonPoint cacheMedian = new LatLonPoint();
 	private transient Boolean excludeLocless;
 	private transient Boolean excludeVirtual;
 	private transient Double cacheToCacheDistance;
@@ -60,8 +60,12 @@ public final class StatisticsData {
 
 	public StatisticsData(final List<Cache> pFoundCaches, final LatLonPoint homeCoordinates, final Properties prefs) {
 		distUnit = prefs.getProperty("distunit", "km");
-		excludeLocless = Boolean.parseBoolean(prefs.getProperty("excludelocless", "false"));
-		excludeVirtual = Boolean.parseBoolean(prefs.getProperty("excludevirtual", "false"));
+		excludeLocless = Boolean.parseBoolean(
+				prefs.getProperty("excludelocless", "false")
+			);
+		excludeVirtual = Boolean.parseBoolean(
+				prefs.getProperty("excludevirtual", "false")
+			);
 
 		updateStatistics(pFoundCaches, homeCoordinates);
 	}
@@ -95,13 +99,12 @@ public final class StatisticsData {
 
 	public HashMap<Integer, Integer> getCachesByDifficulty() {
 		final HashMap<Integer, Integer> cbd = new HashMap<Integer, Integer>();
-		Integer counter;
 		Integer temp;
 		for (Integer diff : Constants.TERRDIFF) {
-			counter = 0;
+			Integer counter = 0;
 			for (Integer terr : Constants.TERRDIFF) {
 				temp = matrixTerrDiff.get(terr).get(diff);
-				counter = counter + temp;
+				counter += temp;
 			}
 			cbd.put(diff, counter);
 		}
@@ -187,7 +190,7 @@ public final class StatisticsData {
 	public TreeSet<UserNumber> getCachesByOwnerSorted() {
 		final TreeSet<UserNumber> cachesByOwnerSorted = new TreeSet<UserNumber>();
 		for (String key: cachesByOwner.keySet()) {
-			cachesByOwnerSorted.add(new UserNumber(key,cachesByOwner.get(key)));
+			cachesByOwnerSorted.add(new UserNumber(key, cachesByOwner.get(key)));
 		}
 		return cachesByOwnerSorted;
 	}
@@ -210,7 +213,7 @@ public final class StatisticsData {
 		final Calendar today = getCleanDate(Calendar.getInstance());
 		final Calendar lastYear = (Calendar) today.clone();
 		lastYear.add(Calendar.DAY_OF_MONTH, -daysLastYear);
-		for (Calendar cacheDay: cachesByDateFound.keySet()) {
+		for (Calendar cacheDay : cachesByDateFound.keySet()) {
 			if (cacheDay.after(lastYear)) {
 				cachingDays++;
 			}
@@ -229,7 +232,7 @@ public final class StatisticsData {
 	public Integer[] getFindsByMonthFound() {
 		Integer[] fpmf = Constants.ZEROMONTHS;
 		for (Integer year: matrixYearMonthFound.keySet()) {
-			for (Integer month = 0 ; month < 12 ; month ++) {
+			for (Integer month = 0; month < 12; month++) {
 				fpmf[month] = fpmf[month] +  matrixYearMonthFound.get(year)[month];
 			}
 		}
@@ -237,7 +240,7 @@ public final class StatisticsData {
 	}
 	
 	public Integer getDaysLastYear() {
-		return (daysLastYear<daysSinceFirstFind)?daysLastYear:daysSinceFirstFind;
+		return (daysLastYear<daysSinceFirstFind) ? daysLastYear : daysSinceFirstFind;
 	}
 
 	public Double getCacheToCacheDistance() {
@@ -247,18 +250,18 @@ public final class StatisticsData {
 	public Integer[] getFindsByMonthPlaced(){
 		Integer[] fpmp = Constants.ZEROMONTHS;
 		for (Integer year: matrixYearMonthPlaced.keySet()) {
-			for (Integer month = 0 ; month < 12 ; month ++) {
+			for (Integer month = 0; month < 12; month++) {
 				fpmp[month] = fpmp[month] +  matrixYearMonthPlaced.get(year)[month];
 			}
 		}
 		return fpmp;
 	}
 	
-	public HashMap<Integer, Integer> getFindsByYearPlaced(){
+	public HashMap<Integer, Integer> getFindsByYearPlaced() {
 		final HashMap<Integer, Integer> findsByYearPlaced = new HashMap<Integer, Integer>();
 		for (Integer year: matrixYearMonthPlaced.keySet()) {
 			Integer cpy = 0;
-			for (Integer month = 0 ; month < 12 ; month ++) {
+			for (Integer month = 0; month < 12; month++) {
 				cpy = cpy +  matrixYearMonthPlaced.get(year)[month];
 			}
 			findsByYearPlaced.put(year, cpy);
@@ -266,11 +269,11 @@ public final class StatisticsData {
 		return findsByYearPlaced;
 	}
 	
-	public HashMap<Integer, Integer> getFindsByYearFound(){
-		HashMap<Integer, Integer> findsByYearFound = new HashMap<Integer, Integer>();
+	public HashMap<Integer, Integer> getFindsByYearFound() {
+		final HashMap<Integer, Integer> findsByYearFound = new HashMap<Integer, Integer>();
 		for (Integer year: matrixYearMonthFound.keySet()) {
 			Integer cpy = 0;
-			for (Integer month = 0 ; month < 12 ; month ++) {
+			for (Integer month = 0; month < 12; month++) {
 				cpy = cpy +  matrixYearMonthFound.get(year)[month];
 			}
 			findsByYearFound.put(year, cpy);
@@ -320,8 +323,8 @@ public final class StatisticsData {
 		cachesArchived = new HashMap<Boolean, Integer>();
 		cachesByDateFound = new TreeMap<Calendar, ArrayList<Cache>>(); 
 		cachesByOwner = new HashMap<String,Integer>();
-		Calendar today = getCleanDate(Calendar.getInstance());
-		Calendar lastYear = (Calendar) today.clone();
+		final Calendar today = getCleanDate(Calendar.getInstance());
+		final Calendar lastYear = (Calendar) today.clone();
 		lastYear.add(Calendar.DAY_OF_MONTH, -daysLastYear);
 		Cache lastCacheFound = null;
 		cacheToCacheDistance = 0D;
@@ -331,7 +334,7 @@ public final class StatisticsData {
 		LOGGER.info("counting");
 
 		// TODO: put most of this into separate sub routines
-		for (Cache cache: foundCaches ) {
+		for (Cache cache : foundCaches ) {
 			counter++;
 			if (counter % 50 == 0) { System.out.print("."); } // NOPMD by greis on 16.08.09 23:32
 
@@ -342,7 +345,7 @@ public final class StatisticsData {
 				doublefc.put(cache.getId(), 1);
 			}
 
-			Integer foundDOW = cache.getFoundDate().get(Calendar.DAY_OF_WEEK);
+			final Integer foundDOW = cache.getFoundDate().get(Calendar.DAY_OF_WEEK);
 
 			// matrix year month found
 			if (!matrixYearMonthFound.containsKey(cache.getFoundDate().get(Calendar.YEAR))) {
@@ -393,7 +396,7 @@ public final class StatisticsData {
 			
 			// matrixTerrDiff
 			{
-				HashMap<Integer, Integer> temp = matrixTerrDiff.get(cache.getTerrain());
+				final HashMap<Integer, Integer> temp = matrixTerrDiff.get(cache.getTerrain());
 				temp.put(cache.getDifficulty(), temp.get(cache.getDifficulty()) + 1);
 				matrixTerrDiff.put(cache.getTerrain(), temp);
 			}
@@ -401,10 +404,10 @@ public final class StatisticsData {
 			// distance from home
 			if (includeCache(cache)) {
 				Float dist;
-				if (distUnit.equals("mi")) {
-					dist = Length.MILE.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon()))));
+				if ("mi".equals(distUnit)) {
+					dist = Length.MILE.fromRadians(homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon())));
 				} else { 
-					dist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon()))));
+					dist = Length.KM.fromRadians(homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon())));
 				}
 				if (dist <= 10) {
 					distanceFromHome.put(10, distanceFromHome.get(10) + 1);
@@ -436,26 +439,26 @@ public final class StatisticsData {
 			// direction
 			if (includeCache(cache)) {
 				String dir;
-				Float az = homeCoordinates.azimuth(new LatLonPoint(cache.getLat(), cache.getLon()));
+				final Float azimuth = homeCoordinates.azimuth(new LatLonPoint(cache.getLat(), cache.getLon()));
 				
-				if (az >= -7.0/8.0*Math.PI && az < -5.0/8.0*Math.PI) {
+				if (azimuth >= -7.0 / 8.0 * Math.PI && azimuth < -5.0 / 8.0 * Math.PI) {
 					dir = "sw";
-				} else if (az >= -5.0/8.0*Math.PI && az < -3.0/8.0*Math.PI) {
-					dir="w";
-				} else if (az >= -3.0/8.0*Math.PI && az < -1.0/8.0*Math.PI) {
-					dir="nw";
-				} else if (az >= -1.0/8.0*Math.PI && az < 1.0/8.0*Math.PI) {
-					dir="n";
-				} else if (az >= 1.0/8.0*Math.PI && az < 3.0/8.0*Math.PI) {
-					dir="ne";
-				} else if (az >= 3.0/8.0*Math.PI && az < 5.0/8.0*Math.PI) {
-					dir="e";
-				} else if (az >= 5.0/8.0*Math.PI && az < 7.0/8.0*Math.PI) {
-					dir="se";
+				} else if (azimuth >= -5.0 / 8.0 * Math.PI && azimuth < -3.0 / 8.0 * Math.PI) {
+					dir = "w";
+				} else if (azimuth >= -3.0 / 8.0 * Math.PI && azimuth < -1.0 / 8.0 * Math.PI) {
+					dir = "nw";
+				} else if (azimuth >= -1.0 / 8.0 * Math.PI && azimuth < 1.0 / 8.0 * Math.PI) {
+					dir = "n";
+				} else if (azimuth >= 1.0 / 8.0 * Math.PI && azimuth < 3.0 / 8.0 * Math.PI) {
+					dir = "ne";
+				} else if (azimuth >= 3.0 / 8.0 * Math.PI && azimuth < 5.0 / 8.0 * Math.PI) {
+					dir = "e";
+				} else if (azimuth >= 5.0 / 8.0 * Math.PI && azimuth < 7.0 / 8.0 * Math.PI) {
+					dir = "se";
 				} else {
-					dir="s";
+					dir = "s";
 				}
-				cachesByDirection.put(dir, cachesByDirection.get(dir)+1);
+				cachesByDirection.put(dir, cachesByDirection.get(dir) + 1);
 			}
 			
 			// cache to cache distance
@@ -463,10 +466,10 @@ public final class StatisticsData {
 				if (lastCacheFound == null) {
 					lastCacheFound = cache;
 				} else {
-					LatLonPoint thisCache = new LatLonPoint(cache.getLat(),cache.getLon());
-					LatLonPoint lastCache = new LatLonPoint(lastCacheFound.getLat(), lastCacheFound.getLon());
+					final LatLonPoint thisCache = new LatLonPoint(cache.getLat(),cache.getLon());
+					final LatLonPoint lastCache = new LatLonPoint(lastCacheFound.getLat(), lastCacheFound.getLon());
 					cacheToCacheDistance = cacheToCacheDistance 
-						+ (distUnit.equals("mi")
+						+ ("mi".equals(distUnit)
 							? Length.MILE.fromRadians(lastCache.distance(thisCache))
 							: Length.KM.fromRadians(lastCache.distance(thisCache))
 						);
@@ -476,12 +479,12 @@ public final class StatisticsData {
 
 			// cache by date found
 			{
-				Calendar tempdate = getCleanDate((Calendar) cache.getFoundDate().clone());
+				final Calendar tempdate = getCleanDate((Calendar) cache.getFoundDate().clone());
 				ArrayList<Cache> tempclist;
-				if (!cachesByDateFound.containsKey(tempdate)) {
-					tempclist = new ArrayList<Cache>();
-				} else {
+				if (cachesByDateFound.containsKey(tempdate)) {
 					tempclist = cachesByDateFound.get(tempdate);
+				} else {
+					tempclist = new ArrayList<Cache>();	
 				}
 				tempclist.add(cache);
 				cachesByDateFound.put(tempdate, tempclist);
@@ -492,15 +495,15 @@ public final class StatisticsData {
 			cacheingDays = cachesByDateFound.size();
 			
 			// cache by owner
-			if (! cachesByOwner.containsKey(cache.getOwner())) {
-				cachesByOwner.put(cache.getOwner(), 1);
-			} else {
+			if (cachesByOwner.containsKey(cache.getOwner())) {
 				cachesByOwner.put(cache.getOwner(), cachesByOwner.get(cache.getOwner()) + 1);
+			} else {
+				cachesByOwner.put(cache.getOwner(), 1);
 			}
 			
 			// cache by country
 			if (includeCache(cache)) {
-				if (cache.getDetails().isValid() && cache.getDetails().getCountry() != "") {
+				if (cache.getDetails().isValid() && !"".equals(cache.getDetails().getCountry())) {
 					if (cache.getDetails().getCountry() == null) {
 						LOGGER.debug("NULL country in "+cache.getId());
 						noCountryCounter++;
@@ -545,8 +548,8 @@ public final class StatisticsData {
 					closestCache = cache;
 				} else {
 					float oldDist, newDist;
-					oldDist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(closestCache.getLat(), closestCache.getLon()))));
-					newDist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon()))));
+					oldDist = Length.KM.fromRadians(homeCoordinates.distance(new LatLonPoint(closestCache.getLat(), closestCache.getLon())));
+					newDist = Length.KM.fromRadians(homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon())));
 					if (newDist < oldDist) {
 						closestCache = cache;
 					}
@@ -559,8 +562,8 @@ public final class StatisticsData {
 					outmostCache = cache;
 				} else {
 					float oldDist, newDist;
-					oldDist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(outmostCache.getLat(), outmostCache.getLon()))));
-					newDist = Length.KM.fromRadians((homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon()))));
+					oldDist = Length.KM.fromRadians(homeCoordinates.distance(new LatLonPoint(outmostCache.getLat(), outmostCache.getLon())));
+					newDist = Length.KM.fromRadians(homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon())));
 					if (newDist > oldDist) {
 						outmostCache = cache;
 					}

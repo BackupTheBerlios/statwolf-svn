@@ -1,8 +1,6 @@
 package de.berlios.statwolf;
 
-/* TODO: move constants to the objects that need them.
- * maybe a base object? */
-
+// OK
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,13 +8,16 @@ import java.util.Map;
 import de.cachewolf.CacheSize;
 import de.cachewolf.CacheType;
 
+/** predefined constants for use with statistics generation and HTML output. */
 public final class Constants {
-	
+
+	/** base URL of google chart API. */
 	public static final String CHARTBASE = "http://chart.apis.google.com/chart?";
-	
+
 	/** maximum length of a horizontal bar chart in pixel. */
 	public static final Float MAXHORBARLENGTH = 150.0F;
-	
+
+	/** cast back the byte values from the imported CacheSize to integers. */
 	public static final Integer[] CONTAINERS = {
 		(int) CacheSize.CW_SIZE_MICRO, 
 		(int) CacheSize.CW_SIZE_SMALL, 
@@ -25,16 +26,21 @@ public final class Constants {
 		(int) CacheSize.CW_SIZE_NOTCHOSEN, 
 		(int) CacheSize.CW_SIZE_OTHER, 
 		(int) CacheSize.CW_SIZE_VIRTUAL};
-	
+
 	/** possible values for terrain or difficulty rating of a cache. */
 	public static final Integer[] TERRDIFF = 
 		{10, 15, 20, 25, 30, 35, 40, 45, 50};
-	
+
+	/** 12 zeros to initialize the months of a year. */
 	public static final Integer[] ZEROMONTHS = 
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	/** 31 zeros to initialize days of a month. */
 	public static final Integer[] ZERODAYS = 
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	
+
+	/** short URLs for cache type images at gc.com site. image for locless is 
+	 * loaded from an external site, since the image at gc.com is wrong. */
 	public static final Map<Integer,String> TYPEIMAGES = new  HashMap<Integer,String>();
 	static {
 		TYPEIMAGES.put((int) CacheType.CW_TYPE_TRADITIONAL, 
@@ -67,7 +73,8 @@ public final class Constants {
 		TYPEIMAGES.put((int) CacheType.CW_TYPE_MAZE, 
 				"http://tinyurl.com/cqlobv");
 	}
-	
+
+	/** short URLs for cache size icons at gc.com site. */
 	public static final Map < Integer, String >SIZEIMAGES = new HashMap <Integer, String>();
 	static {
 		SIZEIMAGES.put((int) CacheSize.CW_SIZE_VIRTUAL, 
@@ -85,7 +92,8 @@ public final class Constants {
 		SIZEIMAGES.put((int) CacheSize.CW_SIZE_OTHER, 
 				"http://tinyurl.com/d2ocmk");
 	}
-	
+
+	/** mapping of country names as used by gc.com to ISO abbreviations. */
 	public static final Map < String, String > GCCOUNTRY2ISO = new HashMap <String, String>();
 	static {
 		GCCOUNTRY2ISO.put("Afghanistan", "AF");                        
@@ -342,12 +350,13 @@ public final class Constants {
 		GCCOUNTRY2ISO.put("Zimbabwe", "ZW");
 	}
 
-	/**  */
-	public static final String[] DIRECTIONS = {"n", "ne", "e", "se", "s", "sw", "w", "nw"};
-	
+	/** cardinal points. */
+	public static final String[] DIRECTIONS = 
+		{"n", "ne", "e", "se", "s", "sw", "w", "nw"};
+
 	/** thou shallst not instantiate this object. */
 	private Constants() { }
-	
+
 	/** you must not clone this object. 
 	 * @throws CloneNotSupportedException if called
 	 * @return will never return but throw an exception */
