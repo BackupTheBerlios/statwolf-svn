@@ -40,6 +40,8 @@ public class HTMLOutput {
 	private transient Boolean excludeLocless;
 	/** exclude virtual or locationless caches (calculated). */ 
 	private transient Boolean excludeSomething;
+	/** structuring div of width 100% */
+	private static final String DIVDELIM = "<div style=\"float:left;width:100%;\"/>\n";
 	/** declaration for DIV of width 100%. */
 	private static final String DIV100 = "<div style=\"float:left;width:100%;\">\n";
 	/** declaration for DIV of width 50%. */
@@ -735,7 +737,7 @@ public class HTMLOutput {
 				)
 			);
 		
-		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"> %s %s</td></tr>\n",
+		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"/> %s %s</td></tr>\n",
 				messages.getString("msg.oldestcache"),
 				excludeSomething ? "*" : "",
 				Constants.TYPEIMAGES.get(stats.getOldestCache().getType()),
@@ -744,7 +746,7 @@ public class HTMLOutput {
 				);
 		ret.append(strTemp);
 		
-		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"> %s %s</td></tr>\n",
+		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"/> %s %s</td></tr>\n",
 				messages.getString("msg.newestcache"),
 				excludeSomething ? "*" : "",
 				Constants.TYPEIMAGES.get(stats.getNewestCache().getType()),
@@ -753,7 +755,7 @@ public class HTMLOutput {
 				);
 		ret.append(strTemp);		
 
-		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"> %s %s</td></tr>\n",
+		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"/> %s %s</td></tr>\n",
 				messages.getString("msg.closestcache"),
 				excludeSomething ? "*" : "",
 				Constants.TYPEIMAGES.get(stats.getClosestCache().getType()),
@@ -762,7 +764,7 @@ public class HTMLOutput {
 				);
 		ret.append(strTemp);
 		
-		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"> %s %s</td></tr>\n",
+		strTemp = String.format("<tr><td>%s%s</td><td><img src=\"%s\"/> %s %s</td></tr>\n",
 				messages.getString("msg.outmostcache"),
 				excludeSomething ? "*" : "",
 				Constants.TYPEIMAGES.get(stats.getOutmostCache().getType()),
@@ -855,7 +857,7 @@ public class HTMLOutput {
 		final StringBuffer chartData = new StringBuffer("&amp;chd=t:");
 		final StringBuffer chartHead = new StringBuffer("&amp;chxl=0:");
 
-		for (String dir : Constants.DIRECTIONS) {
+		for (String dir : Constants.CARDINALS) {
 			if (cbd.get(dir) > maxCount) {
 				maxCount = cbd.get(dir);
 			}
@@ -1199,7 +1201,7 @@ public class HTMLOutput {
 					LOGGER.warn("unknown output directive " + outtype + ". check preferences.properties");
 				}
 			}
-			ret.append(DIV100);
+			ret.append(DIVDELIM);
 			outlineCounter++;
 		}
 		

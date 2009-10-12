@@ -12,6 +12,8 @@ import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+//import de.berlios.statwolf.gui.MainForm;
+
 /** main class for StatWolf. Configuration files will be read and */
 public final class StatWolf {
 	
@@ -98,14 +100,27 @@ public final class StatWolf {
 	 *            command line arguments
 	 */
 	public static void main(final String[] args) {
-		final String preffile = System.getProperty("preferences");
-		StatWolf statwolf;
-		if (args.length > 0) {
-			statwolf = new StatWolf(preffile, args[0]);
+		if ("true".equals(System.getProperty("gui", "false"))) {
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					createAndShowGUI();
+				}
+			});			
 		} else {
-			statwolf = new StatWolf(preffile, null);
+			final String preffile = System.getProperty("preferences");
+			StatWolf statwolf;
+			if (args.length > 0) {
+				statwolf = new StatWolf(preffile, args[0]);
+			} else {
+				statwolf = new StatWolf(preffile, null);
+			}
+			statwolf.generateStatistics();
 		}
-		statwolf.generateStatistics();
+	}
+	
+	private static void createAndShowGUI() {
+//		final MainForm frame = new MainForm();
+//		frame.setVisible(true);
 	}
 	
 	/** @return preferences object. */

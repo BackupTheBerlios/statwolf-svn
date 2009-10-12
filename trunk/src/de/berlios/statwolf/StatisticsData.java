@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -19,19 +20,17 @@ import de.cachewolf.CacheType;
 public final class StatisticsData {
 
 	private transient List<Cache> foundCaches;
-	private transient HashMap<Integer, Integer> cachesByType;
-	private transient HashMap<Integer, Integer> cachesByContainer;
-	private transient HashMap<Boolean, Integer> cachesArchived;
-	private transient HashMap<Integer, Integer> cachesByDayOfWeek;
+	private transient Map<Integer, Integer> cachesByType;
+	private transient Map<Integer, Integer> cachesByContainer;
+	private transient Map<Integer, Integer> cachesByDayOfWeek;
 	private transient Integer[][] matrixMonthDay;
-	private transient HashMap<Integer, Integer[]> matrixYearMonthFound;
-	private transient HashMap<Integer, Integer[]> matrixYearMonthPlaced;
-	private transient HashMap<Integer, HashMap<Integer, Integer>> matrixTerrDiff;
-	private transient HashMap<String,Integer> cachesByOwner;
-	private transient HashMap<String, Cache> mostXxxCache = new HashMap<String, Cache>();
-	private transient HashMap<String,Integer> cachesByDirection;
+	private transient Map<Integer, Integer[]> matrixYearMonthFound;
+	private transient Map<Integer, Integer[]> matrixYearMonthPlaced;
+	private transient Map<Integer, HashMap<Integer, Integer>> matrixTerrDiff;
+	private transient Map<String,Integer> cachesByOwner;
+	private transient Map<String, Cache> mostXxxCache = new HashMap<String, Cache>();
+	private transient Map<String,Integer> cachesByDirection;
 	private transient Integer totalCaches;
-	private transient Integer cacheingDays;
 	private transient Integer findsLast365Days = 0;
 	private transient Integer daysLastYear;
 	private transient Integer daysSinceFirstFind;
@@ -45,16 +44,17 @@ public final class StatisticsData {
 	private transient Boolean excludeLocless;
 	private transient Boolean excludeVirtual;
 	private transient Double cacheToCacheDistance;
-	private transient HashMap<String, Integer> findsByCountry = new HashMap<String, Integer>();
-	private transient HashMap<String, Integer> findsByState = new HashMap<String, Integer>();
+	private transient Map<String, Integer> findsByCountry = new HashMap<String, Integer>();
+	private transient Map<String, Integer> findsByState = new HashMap<String, Integer>();
 	private transient Integer noStateCounter = 0;
 	private transient Integer noCountryCounter = 0;
-	private transient HashMap<String, Integer> doublefc = new HashMap<String, Integer>();
+	private transient Map<String, Integer> doublefc = new HashMap<String, Integer>();
 	private transient Integer correctedCacheCount;
 	private transient Cache oldestCache;
 	private transient Cache newestCache;
 	private transient Cache closestCache;
 	private transient Cache outmostCache;
+	private transient Integer archivedCaches;
 	
 	private static final Logger LOGGER = Logger.getLogger(StatisticsData.class);
 
@@ -70,9 +70,10 @@ public final class StatisticsData {
 		updateStatistics(pFoundCaches, homeCoordinates);
 	}
 
-	public void updateStatistics(final List<Cache> foundCaches, final LatLonPoint homeCoordinates) {
-		this.foundCaches = foundCaches;
-		this.homeCoordinates = homeCoordinates;
+	public void updateStatistics(final List<Cache> aFoundCaches, 
+			final LatLonPoint aHomeCoordinate) {
+		foundCaches = aFoundCaches;
+		homeCoordinates = aHomeCoordinate;
 
 		initVars();
 		setDataMatrix();
@@ -82,7 +83,7 @@ public final class StatisticsData {
 	 * GET methods
 	 */
 
-	public HashMap<Integer, Integer> getCachesByTerrain() {
+	public Map<Integer, Integer> getCachesByTerrain() {
 		final HashMap<Integer, Integer> cbd = new HashMap<Integer, Integer>();
 		Integer counter;
 		Integer temp;
@@ -112,15 +113,11 @@ public final class StatisticsData {
 	}
 
 	public HashMap<Integer, Integer> getCachesByType() {
-		return cachesByType;
+		return (HashMap<Integer, Integer>) cachesByType;
 	}
 
 	public HashMap<Integer, Integer> getCachesByContainer() {
-		return cachesByContainer;
-	}
-
-	public HashMap<Boolean, Integer> getCachesArchived() {
-		return cachesArchived;
+		return (HashMap<Integer, Integer>) cachesByContainer;
 	}
 
 	public TreeMap<Integer, Cache> getMilestones() {
@@ -135,8 +132,9 @@ public final class StatisticsData {
 		return correctedCacheCount;
 	}
 
+	/** @return caches by day of week found */
 	public HashMap<Integer, Integer> getCachesByDayOfWeek() {
-		return cachesByDayOfWeek;
+		return (HashMap<Integer, Integer>) cachesByDayOfWeek;
 	}
 
 	public Integer[][] getMatrixMonthDay() {
@@ -144,15 +142,15 @@ public final class StatisticsData {
 	}
 
 	public HashMap<Integer, Integer[]> getMatrixYearMonthFound() {
-		return matrixYearMonthFound;
+		return (HashMap<Integer, Integer[]>)matrixYearMonthFound;
 	}
 
 	public HashMap<Integer, Integer[]> getMatrixYearMonthPlaced() {
-		return matrixYearMonthPlaced;
+		return (HashMap<Integer, Integer[]>) matrixYearMonthPlaced;
 	}
 
 	public HashMap<Integer, HashMap<Integer, Integer>> getMatrixTerrDiff() {
-		return matrixTerrDiff;
+		return (HashMap) matrixTerrDiff;
 	}
 
 	public Integer getTotalCaches() {
@@ -160,7 +158,7 @@ public final class StatisticsData {
 	}
 
 	public HashMap<String, Cache> getMostXxxCache() {
-		return mostXxxCache;
+		return (HashMap) mostXxxCache;
 	}
 
 	public Calendar getFirstCachingDay() {
@@ -180,7 +178,7 @@ public final class StatisticsData {
 	}
 	
 	public HashMap<String,Integer> getCachesByOwner() {
-		return cachesByOwner;
+		return (HashMap) cachesByOwner;
 	}
 	
 	public LatLonPoint getCacheMedian() {
@@ -222,11 +220,11 @@ public final class StatisticsData {
 	}
 	
 	public Integer getCachingDays() {
-		return cacheingDays;
+		return cachesByDateFound.size();
 	}
 	
 	public HashMap<String,Integer> getCachesByDirection() {
-		return cachesByDirection;
+		return (HashMap) cachesByDirection;
 	}
 	
 	public Integer[] getFindsByMonthFound() {
@@ -291,36 +289,30 @@ public final class StatisticsData {
 		return new TreeMap<String,Integer>(findsByCountry);
 	}
 
-	public Cache getOldestCache() {
-		return oldestCache;
-	}
+	public Cache getOldestCache() { return oldestCache; }
 	
-	public Cache getNewestCache() {
-		return newestCache;
-	}
+	public Cache getNewestCache() { return newestCache; }
 	
-	public Cache getClosestCache() {
-		return closestCache;
-	}
+	public Cache getClosestCache() { return closestCache; }
 	
-	public Cache getOutmostCache() {
-		return outmostCache;
-	}
-	/**
-	 * if someone finds what it does, let me know ;)
-	 */
+	public Cache getOutmostCache() { return outmostCache; }
+
+	/** @return number of currently archived caches */
+	public Integer getArchivedCaches() { return archivedCaches; }
+
+	/** if someone finds what it does, let me know ;) */
 	private void setDataMatrix() {
 		
 		matrixYearMonthFound = new HashMap<Integer, Integer[]>();
 		matrixYearMonthPlaced = new HashMap<Integer, Integer[]>();
 		Integer[] tempMonths;
 		Integer counter = 0;
+		archivedCaches = 0;
 
 		totalCaches = foundCaches.size();
 		cachesByType = new HashMap<Integer, Integer>();
 		cachesByType = new HashMap<Integer, Integer>();
 //		cachesOnline = new HashMap<Boolean, Integer>();
-		cachesArchived = new HashMap<Boolean, Integer>();
 		cachesByDateFound = new TreeMap<Calendar, ArrayList<Cache>>(); 
 		cachesByOwner = new HashMap<String,Integer>();
 		final Calendar today = getCleanDate(Calendar.getInstance());
@@ -334,9 +326,9 @@ public final class StatisticsData {
 		LOGGER.info("counting");
 
 		// TODO: put most of this into separate sub routines
-		for (Cache cache : foundCaches ) {
+		for (Cache cache : foundCaches) {
 			counter++;
-			if (counter % 50 == 0) { System.out.print("."); } // NOPMD by greis on 16.08.09 23:32
+			if (counter % 50 == 0) { System.out.print("."); }
 
 			if (doublefc.containsKey(cache.getId())) {
 				LOGGER.warn("duplicate entry for " + cache.getId());
@@ -345,29 +337,15 @@ public final class StatisticsData {
 				doublefc.put(cache.getId(), 1);
 			}
 
-			final Integer foundDOW = cache.getFoundDate().get(Calendar.DAY_OF_WEEK);
+
 
 			// matrix year month found
-			if (!matrixYearMonthFound.containsKey(cache.getFoundDate().get(Calendar.YEAR))) {
-				matrixYearMonthFound.put(cache.getFoundDate().get(Calendar.YEAR), Constants.ZEROMONTHS.clone());
-			}
-
-			tempMonths = matrixYearMonthFound.get(cache.getFoundDate().get(Calendar.YEAR));
-			tempMonths[cache.getFoundDate().get(Calendar.MONTH)]++;
-			matrixYearMonthFound.put(cache.getFoundDate().get(Calendar.YEAR), tempMonths);
-			tempMonths = null;
-			
+			updYearMonthFound(cache);
 			// matrix year month placed
-			if (!matrixYearMonthPlaced.containsKey(cache.getHidden().get(Calendar.YEAR))) {
-				matrixYearMonthPlaced.put(cache.getHidden().get(Calendar.YEAR), Constants.ZEROMONTHS.clone());
-			}
-
-			tempMonths = matrixYearMonthPlaced.get(cache.getHidden().get(Calendar.YEAR));
-			tempMonths[cache.getHidden().get(Calendar.MONTH)]++;
-			matrixYearMonthPlaced.put(cache.getHidden().get(Calendar.YEAR), tempMonths);
-			tempMonths = null;
+			updYearMonthPlaced(cache);
 
 			// day of week
+			final Integer foundDOW = cache.getFoundDate().get(Calendar.DAY_OF_WEEK);
 			cachesByDayOfWeek.put(foundDOW, cachesByDayOfWeek.get(foundDOW) + 1);
 
 			// size
@@ -385,11 +363,7 @@ public final class StatisticsData {
 			}
 
 			// archived
-			if (cachesArchived.containsKey(cache.isArchived())) {
-				cachesArchived.put(cache.isArchived(), cachesArchived.get(cache.isArchived()) + 1);
-			} else {
-				cachesArchived.put(cache.isArchived(), 1);
-			}
+			if (cache.isArchived()) { archivedCaches++; }
 
 			// matrixMonthDay
 			matrixMonthDay[cache.getFoundDate().get(Calendar.MONTH)][cache.getFoundDate().get(Calendar.DAY_OF_MONTH)]++;
@@ -402,80 +376,13 @@ public final class StatisticsData {
 			}
 			
 			// distance from home
-			if (includeCache(cache)) {
-				Float dist;
-				if ("mi".equals(distUnit)) {
-					dist = Length.MILE.fromRadians(homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon())));
-				} else { 
-					dist = Length.KM.fromRadians(homeCoordinates.distance(new LatLonPoint(cache.getLat(), cache.getLon())));
-				}
-				if (dist <= 10) {
-					distanceFromHome.put(10, distanceFromHome.get(10) + 1);
-				} else if (dist <= 20) {
-					distanceFromHome.put(20, distanceFromHome.get(20) + 1);
-				} else if (dist <= 30) {
-					distanceFromHome.put(30, distanceFromHome.get(30) + 1);
-				} else if (dist <= 40) {
-					distanceFromHome.put(40, distanceFromHome.get(40) + 1);
-				} else if (dist <= 50) {
-					distanceFromHome.put(50, distanceFromHome.get(50) + 1);
-				} else if (dist <= 100) {
-					distanceFromHome.put(100, distanceFromHome.get(100) + 1);
-				} else if (dist <= 200) {
-					distanceFromHome.put(200, distanceFromHome.get(200) + 1);
-				} else if (dist <= 300) {
-					distanceFromHome.put(300, distanceFromHome.get(300) + 1);
-				} else if (dist <= 400) {
-					distanceFromHome.put(400, distanceFromHome.get(400) + 1);
-				} else if (dist <= 500) {
-					distanceFromHome.put(500, distanceFromHome.get(500) + 1);
-				} else if (dist <= 1000) {
-					distanceFromHome.put(1000, distanceFromHome.get(1000) + 1);
-				} else {
-					distanceFromHome.put(9999, distanceFromHome.get(9999) + 1);
-				}
-			}
+			updDistanceHome(cache);
 			
 			// direction
-			if (includeCache(cache)) {
-				String dir;
-				final Float azimuth = homeCoordinates.azimuth(new LatLonPoint(cache.getLat(), cache.getLon()));
-				
-				if (azimuth >= -7.0 / 8.0 * Math.PI && azimuth < -5.0 / 8.0 * Math.PI) {
-					dir = "sw";
-				} else if (azimuth >= -5.0 / 8.0 * Math.PI && azimuth < -3.0 / 8.0 * Math.PI) {
-					dir = "w";
-				} else if (azimuth >= -3.0 / 8.0 * Math.PI && azimuth < -1.0 / 8.0 * Math.PI) {
-					dir = "nw";
-				} else if (azimuth >= -1.0 / 8.0 * Math.PI && azimuth < 1.0 / 8.0 * Math.PI) {
-					dir = "n";
-				} else if (azimuth >= 1.0 / 8.0 * Math.PI && azimuth < 3.0 / 8.0 * Math.PI) {
-					dir = "ne";
-				} else if (azimuth >= 3.0 / 8.0 * Math.PI && azimuth < 5.0 / 8.0 * Math.PI) {
-					dir = "e";
-				} else if (azimuth >= 5.0 / 8.0 * Math.PI && azimuth < 7.0 / 8.0 * Math.PI) {
-					dir = "se";
-				} else {
-					dir = "s";
-				}
-				cachesByDirection.put(dir, cachesByDirection.get(dir) + 1);
-			}
+			updCardinalPoints(cache);
 			
 			// cache to cache distance
-			if (includeCache(cache)) {
-				if (lastCacheFound == null) {
-					lastCacheFound = cache;
-				} else {
-					final LatLonPoint thisCache = new LatLonPoint(cache.getLat(),cache.getLon());
-					final LatLonPoint lastCache = new LatLonPoint(lastCacheFound.getLat(), lastCacheFound.getLon());
-					cacheToCacheDistance = cacheToCacheDistance 
-						+ ("mi".equals(distUnit)
-							? Length.MILE.fromRadians(lastCache.distance(thisCache))
-							: Length.KM.fromRadians(lastCache.distance(thisCache))
-						);
-					lastCacheFound = cache;
-				}
-			}
+			lastCacheFound = updCacheToCacheDist(lastCacheFound, cache);
 
 			// cache by date found
 			{
@@ -492,7 +399,6 @@ public final class StatisticsData {
 					findsLast365Days++;
 				}
 			}
-			cacheingDays = cachesByDateFound.size();
 			
 			// cache by owner
 			if (cachesByOwner.containsKey(cache.getOwner())) {
@@ -727,7 +633,7 @@ public final class StatisticsData {
 	 *         <code>cal2</code>
 	 */
 	public Integer daysBetween(final Calendar cal1, final Calendar cal2) {
-		Integer delta = 0;
+		//Integer delta;
 
 		if (cal1 == null || cal2 == null) {
 			return null;
@@ -745,7 +651,8 @@ public final class StatisticsData {
 			cal1clone = cal2clone;
 			cal2clone = temp;
 		}
-
+		
+		Integer delta = 0;
 		while (cal1clone.compareTo(cal2clone) < 0) {
 			delta++;
 			cal1clone.add(Calendar.DAY_OF_MONTH, 1);
@@ -753,4 +660,147 @@ public final class StatisticsData {
 
 		return delta;
 	}
+
+	/**
+	 * determine the cardinal direction of a given cache from the
+	 * <code>homeCoordinates</code>.
+	 * 
+	 * @param aCache
+	 *            cache to check
+	 */
+	private void updCardinalPoints(final Cache aCache) {
+		if (includeCache(aCache)) {
+			String dir;
+			final Float azimuth = homeCoordinates.azimuth(
+					new LatLonPoint(aCache.getLat(), aCache.getLon())
+				);
+			final Double piAchtel = Math.PI / 8.0;
+			
+			if (azimuth < -7.0 * piAchtel) {
+				dir = "s";
+			} else if (azimuth < -5.0 * piAchtel) {
+				dir = "sw";
+			} else if (azimuth < -3.0 * piAchtel) {
+				dir = "w";
+			} else if (azimuth < -1.0 * piAchtel) {
+				dir = "nw";
+			} else if (azimuth < 1.0 * piAchtel) {
+				dir = "n";
+			} else if (azimuth < 3.0 * piAchtel) {
+				dir = "ne";
+			} else if (azimuth < 5.0 * piAchtel) {
+				dir = "e";
+			} else if (azimuth < 7.0 * piAchtel) {
+				dir = "se";
+			} else {
+				dir = "s";
+			}
+
+			cachesByDirection.put(dir, cachesByDirection.get(dir) + 1);
+		}
+	}
+	
+	/**
+	 * update distance from home statistics.<br>
+	 * distance will be calculated as miles or km.
+	 * 
+	 * @param aCache
+	 *            cache to check against home coordinates
+	 */
+	private void updDistanceHome(final Cache aCache) {
+		if (includeCache(aCache)) {
+			Float dist;
+			if ("mi".equals(distUnit)) {
+				dist = Length.MILE.fromRadians(homeCoordinates.distance(
+						new LatLonPoint(aCache.getLat(), aCache.getLon()))
+					);
+			} else { 
+				dist = Length.KM.fromRadians(homeCoordinates.distance(
+						new LatLonPoint(aCache.getLat(), aCache.getLon()))
+					);
+			}
+			if (dist <= 10) {
+				distanceFromHome.put(10, distanceFromHome.get(10) + 1);
+			} else if (dist <= 20) {
+				distanceFromHome.put(20, distanceFromHome.get(20) + 1);
+			} else if (dist <= 30) {
+				distanceFromHome.put(30, distanceFromHome.get(30) + 1);
+			} else if (dist <= 40) {
+				distanceFromHome.put(40, distanceFromHome.get(40) + 1);
+			} else if (dist <= 50) {
+				distanceFromHome.put(50, distanceFromHome.get(50) + 1);
+			} else if (dist <= 100) {
+				distanceFromHome.put(100, distanceFromHome.get(100) + 1);
+			} else if (dist <= 200) {
+				distanceFromHome.put(200, distanceFromHome.get(200) + 1);
+			} else if (dist <= 300) {
+				distanceFromHome.put(300, distanceFromHome.get(300) + 1);
+			} else if (dist <= 400) {
+				distanceFromHome.put(400, distanceFromHome.get(400) + 1);
+			} else if (dist <= 500) {
+				distanceFromHome.put(500, distanceFromHome.get(500) + 1);
+			} else if (dist <= 1000) {
+				distanceFromHome.put(1000, distanceFromHome.get(1000) + 1);
+			} else {
+				distanceFromHome.put(9999, distanceFromHome.get(9999) + 1);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param lastCache
+	 * @param thisCache
+	 * @return
+	 */
+	private Cache updCacheToCacheDist(final Cache lastCache, final Cache thisCache) {
+		Cache ret;
+		if (includeCache(thisCache)) {
+			if (lastCache != null) {
+				final LatLonPoint thisPos = new LatLonPoint(
+						thisCache.getLat(), thisCache.getLon()
+					);
+				final LatLonPoint lastPos = new LatLonPoint(
+						lastCache.getLat(), lastCache.getLon()
+					);
+				cacheToCacheDistance = cacheToCacheDistance 
+					+ ("mi".equals(distUnit)
+						? Length.MILE.fromRadians(lastPos.distance(thisPos))
+						: Length.KM.fromRadians(lastPos.distance(thisPos))
+					);
+			}
+			ret = thisCache;
+		} else {
+			ret = lastCache;
+		}
+		return ret;
+	}
+	
+	private void updYearMonthFound(final Cache aCache) {
+		Integer[] tempMonths;
+		final Integer year = aCache.getFoundDate().get(Calendar.YEAR);
+		final Integer month = aCache.getFoundDate().get(Calendar.MONTH);
+		if (!matrixYearMonthFound.containsKey(year)) {
+			matrixYearMonthFound.put(year, Constants.ZEROMONTHS.clone());
+		}
+
+		tempMonths = matrixYearMonthFound.get(year);
+		tempMonths[month]++;
+		matrixYearMonthFound.put(year, tempMonths);
+	}
+
+	private void updYearMonthPlaced(final Cache aCache) {
+		Integer[] tempMonths;
+		final Integer year = aCache.getHidden().get(Calendar.YEAR);
+		final Integer month = aCache.getHidden().get(Calendar.MONTH);
+		if (!matrixYearMonthPlaced.containsKey(year)) {
+			matrixYearMonthPlaced.put(year, Constants.ZEROMONTHS.clone());
+		}
+	
+		tempMonths = matrixYearMonthPlaced.get(year);
+		tempMonths[month]++;
+		matrixYearMonthPlaced.put(year, tempMonths);
+	}
+
+	
 }

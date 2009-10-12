@@ -351,7 +351,7 @@ public final class Constants {
 	}
 
 	/** cardinal points. */
-	public static final String[] DIRECTIONS = 
+	public static final String[] CARDINALS = 
 		{"n", "ne", "e", "se", "s", "sw", "w", "nw"};
 
 	/** thou shallst not instantiate this object. */
