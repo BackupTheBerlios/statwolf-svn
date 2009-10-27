@@ -15,7 +15,7 @@ import org.jdom.input.SAXBuilder;
 public class CacheDetails {
 	
 	/** state and country are not null. */
-	private transient Boolean valid;
+	private transient Boolean valid = false;
 	/** country waypoint is listed in. */
 	private transient String country;
 	/** state waypoint is listed in. */

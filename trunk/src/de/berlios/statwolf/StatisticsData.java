@@ -409,7 +409,9 @@ public final class StatisticsData {
 			
 			// cache by country
 			if (includeCache(cache)) {
-				if (cache.getDetails().isValid() && !"".equals(cache.getDetails().getCountry())) {
+				if (cache.getDetails() != null 
+						&& cache.getDetails().isValid() 
+						&& ! "".equals(cache.getDetails().getCountry())) {
 					if (cache.getDetails().getCountry() == null) {
 						LOGGER.debug("NULL country in "+cache.getId());
 						noCountryCounter++;
